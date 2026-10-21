@@ -2,9 +2,10 @@
 
 (() => {
   const preferenceKey = 'tefinanza-ambient-audio-v1';
-  const migrationKey = `${preferenceKey}-v31`;
+  const migrationKey = `${preferenceKey}-v32`;
   const youtubePlaylist = 'PLf5748RjOaOikKzt-WOzSoMYIwf6HfcpJ';
-  const defaultPreferences = { enabled: true, volume: 0.10, track: 'youtube' };
+  const youtubeVideo = 'qbSGk7Pd9os';
+  const defaultPreferences = { enabled: true, volume: 0.10, track: 'youtube_video' };
   const tracks = {
     rain: {
       label: 'Pianoforte soffuso · sera', tempo: 12000,
@@ -21,7 +22,8 @@
       chords: [[116.54, 146.83, 174.61, 233.08], [130.81, 164.81, 196, 261.63], [98, 146.83, 174.61, 233.08], [116.54, 146.83, 174.61, 220]],
       notes: [233.08, 293.66, 349.23, 293.66, 261.63, 293.66, 349.23, 392, 349.23, 293.66, 261.63, 233.08]
     },
-    youtube: { label: 'Playlist YouTube · Relax soft' }
+    youtube: { label: 'Playlist YouTube · Relax soft' },
+    youtube_video: { label: 'Mental Overload Reset · Theta Focus', title: 'Mental Overload Reset | Calm Focus Music to Reduce Work Anxiety | Theta Monaural Beats' }
   };
 
   const control = document.getElementById('ambientPlayer');
@@ -53,6 +55,7 @@
   let audioContext = null, master = null, compressor = null, convolver = null, padFilter = null;
   let voices = [], chordTimer = 0, scoreTimer = 0, chordIndex = 0, scoreIndex = 0, playing = false;
   let playbackRequest = 0;
+  let youtubeApiPromise = null;
 
   function savePreferences() {
     try { localStorage.setItem(preferenceKey, JSON.stringify(preferences)); } catch {}
@@ -67,7 +70,9 @@
     selector.value = preferences.track;
     status.textContent = playing ? (preferences.track === 'youtube' ? 'Playlist YouTube in riproduzione' : preferences.volume === 0 ? 'Volume zero · audio attivo' : 'Riproduzione in corso') : 'In pausa';
     control.dataset.playing = String(playing);
-    youtubePanel.hidden = preferences.track !== 'youtube';
+    youtubePanel.hidden = !['youtube', 'youtube_video'].includes(preferences.track);
+    const youtubeTitle = document.getElementById('ambientYoutubeTitle');
+    if (youtubeTitle) youtubeTitle.textContent = tracks[preferences.track]?.title || tracks[preferences.track]?.label || 'Playlist audio';
   }
 
   function makeImpulse(ctx) {
@@ -188,12 +193,16 @@
 
   function loadYouTubeApi() {
     if (window.YT?.Player) return Promise.resolve(window.YT);
-    return new Promise((resolve, reject) => {
+    if (youtubeApiPromise) return youtubeApiPromise;
+    youtubeApiPromise = new Promise((resolve, reject) => {
       const previousReady = window.onYouTubeIframeAPIReady;
-      const timeout = setTimeout(() => reject(new Error('YouTube non disponibile. Riprova tra poco.')), 15000);
+      const timeout = setTimeout(() => {
+        youtubeApiPromise = null;
+        reject(new Error('YouTube non disponibile. Riprova tra poco.'));
+      }, 15000);
       window.onYouTubeIframeAPIReady = () => {
         clearTimeout(timeout);
-        if (typeof previousReady === 'function') previousReady();
+        if (typeof previousReady === 'function') { try { previousReady(); } catch {} }
         resolve(window.YT);
       };
       if (!document.querySelector('script[data-tefinanza-youtube-api]')) {
@@ -201,52 +210,72 @@
         script.src = 'https://www.youtube.com/iframe_api';
         script.async = true;
         script.dataset.tefinanzaYoutubeApi = 'true';
-        script.onerror = () => { clearTimeout(timeout); reject(new Error('Impossibile caricare YouTube.')); };
+        script.onerror = () => { clearTimeout(timeout); youtubeApiPromise = null; reject(new Error('Impossibile caricare YouTube.')); };
         document.head.appendChild(script);
       }
     });
+    return youtubeApiPromise;
   }
 
   function destroyYouTubePlayer() {
     if (youtubePlayer) {
       try { youtubePlayer.stopVideo(); youtubePlayer.destroy(); } catch {}
       youtubePlayer = null;
+      youtubePlayerTrack = null;
     }
     youtubeFrame.replaceChildren();
-    const placeholder = document.createElement('div');
-    placeholder.id = 'ambientYoutubePlayer';
-    youtubeFrame.appendChild(placeholder);
+    if (preferences.track === 'youtube_video') {
+      const poster = document.createElement('img');
+      poster.className = 'ambient-youtube-poster';
+      poster.src = `https://i.ytimg.com/vi/${youtubeVideo}/hqdefault.jpg`;
+      poster.alt = 'Anteprima del video Mental Overload Reset';
+      youtubeFrame.appendChild(poster);
+    } else {
+      const poster = document.createElement('div');
+      poster.className = 'ambient-youtube-playlist-poster';
+      poster.textContent = 'Playlist YouTube · Relax soft';
+      youtubeFrame.appendChild(poster);
+    }
   }
 
-  let youtubePlayer = null;
+  let youtubePlayer = null, youtubePlayerTrack = null;
   async function startYouTube(request) {
     const api = await loadYouTubeApi();
     if (request !== playbackRequest || !preferences.enabled) return;
     youtubePanel.hidden = false;
-    if (youtubePlayer) {
+    if (youtubePlayer && youtubePlayerTrack === preferences.track) {
       youtubePlayer.setVolume(Math.round(preferences.volume * 100));
       youtubePlayer.playVideo();
       return;
     }
+    if (youtubePlayer) destroyYouTubePlayer();
+    const selectedTrack = preferences.track;
+    const isPlaylist = selectedTrack === 'youtube';
+    const videoId = isPlaylist ? '' : youtubeVideo;
+    const playerVars = isPlaylist
+      ? { listType: 'playlist', list: youtubePlaylist, playlist: youtubePlaylist, loop: 1, autoplay: 1, controls: 1, playsinline: 1, origin: location.origin }
+      : { loop: 1, playlist: videoId, autoplay: 1, controls: 1, playsinline: 1, origin: location.origin };
     youtubeFrame.replaceChildren();
     const placeholder = document.createElement('div');
     placeholder.id = 'ambientYoutubePlayer';
     youtubeFrame.appendChild(placeholder);
+    youtubePlayerTrack = selectedTrack;
     youtubePlayer = new api.Player(placeholder, {
-      width: '220', height: '200',
-      playerVars: { listType: 'playlist', list: youtubePlaylist, playlist: youtubePlaylist, loop: 1, autoplay: 1, controls: 1, playsinline: 1, origin: location.origin },
+      width: '280', height: '200', ...(isPlaylist ? {} : { videoId }), playerVars,
       events: {
         onReady: (event) => {
-          if (request !== playbackRequest || !preferences.enabled) { event.target.pauseVideo(); return; }
+          if (youtubePlayer !== event.target || !preferences.enabled) { event.target.pauseVideo(); return; }
+          event.target.getIframe().title = isPlaylist ? tracks.youtube.label : tracks.youtube_video.title;
           event.target.setVolume(Math.round(preferences.volume * 100));
           event.target.playVideo();
         },
         onStateChange: (event) => {
-          if (request !== playbackRequest && event.data === api.PlayerState.PLAYING) { event.target.pauseVideo(); return; }
+          if (youtubePlayer !== event.target) { if (event.data === api.PlayerState.PLAYING) event.target.pauseVideo(); return; }
           playing = event.data === api.PlayerState.PLAYING;
           updateUI();
         },
-        onError: () => {
+        onError: (event) => {
+          if (youtubePlayer !== event.target) return;
           playing = false;
           status.textContent = 'Playlist YouTube non disponibile';
           updateUI();
@@ -258,7 +287,7 @@
   async function startAudio() {
     const request = ++playbackRequest;
     try {
-      if (preferences.track === 'youtube') {
+      if (preferences.track === 'youtube' || preferences.track === 'youtube_video') {
         if (audioContext?.state === 'running') {
           master.gain.cancelScheduledValues(audioContext.currentTime);
           master.gain.setValueAtTime(0, audioContext.currentTime);
@@ -314,7 +343,7 @@
   slider.addEventListener('input', () => {
     preferences.volume = Number(slider.value) / 100;
     savePreferences();
-    if (playing && preferences.track === 'youtube' && youtubePlayer) youtubePlayer.setVolume(Math.round(preferences.volume * 100));
+    if (playing && (preferences.track === 'youtube' || preferences.track === 'youtube_video') && youtubePlayer) youtubePlayer.setVolume(Math.round(preferences.volume * 100));
     else if (playing && master) {
       master.gain.cancelScheduledValues(audioContext.currentTime);
       master.gain.setTargetAtTime(preferences.volume * 0.38, audioContext.currentTime, 0.4);
@@ -327,7 +356,7 @@
     savePreferences();
     setChord(0);
     if (playing) startAudio();
-    else updateUI();
+    else { destroyYouTubePlayer(); updateUI(); }
   });
   youtubeClose?.addEventListener('click', pauseAudio);
 
