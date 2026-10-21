@@ -55,7 +55,7 @@ function relatedLinks(s){
     if(m.relatedAccountId&&m.relatedAccountId!=='auto'){
       target=accounts.find(a=>a.id===m.relatedAccountId&&a.name!==source.name);
       if(!target)continue;
-      if(target.paymentProvider)kind='service';
+      if(target.paymentProvider&&m.type!=='Giroconto')kind='service';
       if(['Titoli','Cripto'].includes(target.kind)&&m.type==='Investimento')kind='investment';
     }else if(source.kind==='Conto corrente'){
       if(m.type==='Investimento'||/compravendita titoli|cedol[ae]|dividend[oi]|commission[ei].*titoli|custodia titoli/.test(text)){
@@ -63,7 +63,7 @@ function relatedLinks(s){
         if(matches.length===1){target=matches[0];kind='investment'}
       }else if(m.type==='Giroconto'||/addebito|sdd|ricarica|regolamento|pagamento|rimborso|bonifico|accredito/.test(text)){
         const brand=brands.find(b=>b.re.test(text));
-        if(brand){let matches=accounts.filter(a=>a.name!==source.name&&(!a.paymentSourceId||a.paymentSourceId===source.id)&&brand.re.test(normalized(a.name+' '+a.bank)));if(matches.length===1){target=matches[0];kind=brand.kind}}
+        if(brand){let matches=accounts.filter(a=>a.name!==source.name&&(!a.paymentSourceId||a.paymentSourceId===source.id)&&brand.re.test(normalized(a.name+' '+a.bank)));if(matches.length===1){target=matches[0];kind=brand.kind==='service'&&m.type==='Giroconto'?'settlement':brand.kind}}
       }
     }
     if(!target||target.hiddenLinkIds?.includes(m.id))continue;
