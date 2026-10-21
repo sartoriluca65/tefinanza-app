@@ -1,7 +1,7 @@
 'use strict';
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],C=TF;
 const euro=n=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(n||0),num=n=>new Intl.NumberFormat('it-IT',{maximumFractionDigits:8}).format(n||0),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),today=()=>new Date().toLocaleDateString('sv-SE');
-let ready=false,homeSelection='auto';
+let ready=false,homeSelection='auto',dashboardCustom={};
 const monthLabel=value=>new Intl.DateTimeFormat('it-IT',{month:'long',year:'numeric'}).format(new Date(value+'-01T12:00:00'));
 let state,db,currentPage='home',previousPage='home',currentReport,docDraft=null,originalURL='',lastReportSource='home',worker=null;
 function toast(s){$('#toast').textContent=s;$('#toast').classList.remove('hidden');clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('#toast').classList.add('hidden'),6500)}

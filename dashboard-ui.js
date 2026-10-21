@@ -1,5 +1,5 @@
 'use strict';
-let dashboardCustom={},dashboardCurrent=null;
+let dashboardCurrent=null;
 const chartColors=['#1675d1','#f29d38','#7957c7','#26a69a','#e65867','#647d9c','#d5ac21','#56a3dd','#925d48'];
 function uiIcon(kind){const paths={bank:'m3 8 9-5 9 5M3 9h18M5 11v7M10 11v7M15 11v7M20 11v7M2 21h20',card:'M3 5h18v14H3zM3 9h18M6 15h4',cart:'M3 3h2l3 12h11l2-9H6M10 21h.01M18 21h.01',car:'m5 8 2-5h10l2 5M3 8h18v9H3zM6 17v4M18 17v4M6 12h2M16 12h2',home:'m3 11 9-8 9 8M5 9v12h14V9M9 21v-8h6v8',chart:'M4 3v18h17M8 16v-5M13 16V6M18 16v-8',wallet:'M3 5h17v15H3zM3 5V3h14M15 10h6v6h-6z',up:'M12 20V4m-6 6 6-6 6 6',down:'M12 4v16m-6-6 6 6 6-6',heart:'M12 21 3 12a5 5 0 0 1 9-6 5 5 0 0 1 9 6z',bill:'M5 2h14v20l-3-2-4 2-4-2-3 2zM8 7h8M8 11h8M8 15h5'};return `<svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="${paths[kind]||paths.cart}"/></svg>`}
 function categoryIcon(name){return /auto|trasport|carburante/i.test(name)?'car':/casa|utenze|bollette/i.test(name)?'home':/salute/i.test(name)?'heart':/tasse|imposte/i.test(name)?'bill':'cart'}

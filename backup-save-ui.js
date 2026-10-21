@@ -16,11 +16,12 @@ function chooseBackupDestination(preventive=false){
     let folder=null,folderPermissionConfirmed=false,prepared=null,preparedName='',objectURL='',finished=false,overwriteName='';
     const hasDir=typeof window.showDirectoryPicker==='function';
     const hasSave=typeof window.showSaveFilePicker==='function';
+    const useDirectory=hasDir&&!hasSave;
     const hasShare=typeof navigator.share==='function'&&typeof navigator.canShare==='function';
     const name='TeFinanza-'+(preventive?'sicurezza-':'backup-')+today().replaceAll('-','')+'-'+new Date().toLocaleTimeString('sv-SE').replaceAll(':','')+'.json';
     const finish=ok=>{if(finished)return;finished=true;dialog.close();if(objectURL)setTimeout(()=>URL.revokeObjectURL(objectURL),60000);resolve(ok)};
     const locationOptions='<option value="downloads">Download</option><option value="documents">Documenti</option><option value="desktop">Scrivania / Desktop</option><option value="external">Unità USB o esterna</option><option value="cloud">Cartella cloud sincronizzata</option><option value="other">Altra cartella</option>';
-    $('#backupSaveContent').innerHTML=`<h2>${preventive?'Salva una copia prima del ripristino':'Salva una copia completa'}</h2><p>La copia include conti, operazioni, bollette e documenti originali. Scegli dove conservarla prima di confermare.</p><label>Nome della copia<input id="backupOutputName" value="${esc(name)}" maxlength="180"></label><label>Posizione frequente<select id="backupLocation">${locationOptions}</select></label><p class="small">La posizione scelta è il punto di partenza. Per USB, unità esterne, NAS e cloud usa Sfoglia… e seleziona una cartella già disponibile sul dispositivo.</p><div class="toolbar"><button class="btn" id="browseBackup">Sfoglia…</button></div><p id="backupDestination" class="notice" role="status">${hasDir?'Scegli una posizione frequente e premi Sfoglia… per selezionare la cartella.':hasSave?'Scegli nome e cartella nella finestra Salva con nome.':'Questo browser non apre direttamente un selettore di cartelle. Premi Sfoglia… per preparare la copia, poi scegli la destinazione dal menu di sistema oppure usa File → Salva con nome dalla scheda della copia.'}</p>${hasDir?'<div class="toolbar"><button class="btn" id="confirmBackupFolder" disabled>Conferma percorso e permesso di scrittura</button></div>':''}<label class="check hidden" id="backupOverwriteLabel"><input type="checkbox" id="backupOverwrite"> Autorizzo la sostituzione del file esistente con lo stesso nome.</label><p id="backupSaveError" class="inline-error hidden" role="alert"></p><div id="backupSystemActions" class="hidden"><div class="toolbar">${hasShare?'<button class="btn primary" id="shareBackupFile">Apri menu Salva su File / condivisione</button>':''}<button class="btn" id="openBackupFile">Apri copia · File → Salva con nome</button></div><p class="small">Su iPhone scegli Salva su File e la cartella. Su Safari Mac puoi aprire la copia in una scheda e usare File → Salva con nome. Non vengono copiati testi negli appunti e non viene avviato un download automatico.</p><label class="check"><input type="checkbox" id="backupManualVerified"> Ho verificato che il file sia stato salvato nella cartella scelta.</label><button class="btn" id="confirmManualBackup" disabled>Conferma il salvataggio</button></div><div class="dialog-actions"><button class="btn" id="cancelBackupSave">Annulla</button>${hasDir?'<button class="btn primary" id="saveBackupToFolder" disabled>Crea copia nella cartella scelta</button>':''}</div><p class="small">Il percorso assoluto completo non è accessibile al sito per protezione del dispositivo. Verranno mostrati i nomi effettivi di cartella e file quando disponibili.</p>`;
+    $('#backupSaveContent').innerHTML=`<h2>${preventive?'Salva una copia prima del ripristino':'Salva una copia completa'}</h2><p>La copia include conti, operazioni, bollette e documenti originali. Scegli dove conservarla prima di confermare.</p><label>Nome della copia<input id="backupOutputName" value="${esc(name)}" maxlength="180"></label><label>Posizione frequente<select id="backupLocation">${locationOptions}</select></label><p class="small">${hasSave?'La posizione scelta è il punto di partenza. Sfoglia e salva il file nella cartella desiderata.':'La posizione scelta è il punto di partenza. Per USB, unità esterne, NAS e cloud usa Sfoglia… e seleziona una cartella già disponibile sul dispositivo.'}</p><div class="toolbar"><button class="btn" id="browseBackup">${hasSave?'Sfoglia e salva il file…':'Sfoglia…'}</button></div>${useDirectory?'<div class="toolbar"><button class="btn" id="prepareManualBackup">Metodo alternativo · prepara copia per Salva con nome</button></div>':''}<p id="backupDestination" class="notice" role="status">${useDirectory?'Scegli una posizione frequente e premi Sfoglia… per selezionare la cartella.':hasSave?'Scegli nome e cartella nella finestra Salva con nome.':'Questo browser non apre direttamente un selettore di cartelle. Premi Sfoglia… per preparare la copia, poi scegli la destinazione dal menu di sistema oppure usa File → Salva con nome dalla scheda della copia.'}</p>${useDirectory?'<div class="toolbar"><button class="btn" id="confirmBackupFolder" disabled>Conferma percorso e permesso di scrittura</button></div>':''}<label class="check hidden" id="backupOverwriteLabel"><input type="checkbox" id="backupOverwrite"> Autorizzo la sostituzione del file esistente con lo stesso nome.</label><p id="backupSaveError" class="inline-error hidden" role="alert"></p><div id="backupSystemActions" class="hidden"><div class="toolbar">${hasShare?'<button class="btn primary" id="shareBackupFile">Apri menu Salva su File / condivisione</button>':''}<button class="btn" id="openBackupFile">Apri copia · File → Salva con nome</button></div><p class="small">Su iPhone scegli Salva su File e la cartella. Su Safari Mac puoi aprire la copia in una scheda e usare File → Salva con nome. Non vengono copiati testi negli appunti e non viene avviato un download automatico.</p><label class="check"><input type="checkbox" id="backupManualVerified"> Ho verificato che il file sia stato salvato nella cartella scelta.</label><button class="btn" id="confirmManualBackup" disabled>Conferma il salvataggio</button></div><div class="dialog-actions"><button class="btn" id="cancelBackupSave">Annulla</button>${useDirectory?'<button class="btn primary" id="saveBackupToFolder" disabled>Crea copia nella cartella scelta</button>':''}</div><p class="small">Il percorso assoluto completo non è accessibile al sito per protezione del dispositivo. Verranno mostrati i nomi effettivi di cartella e file quando disponibili.</p>`;
 
     const error=e=>{let out=$('#backupSaveError');out.classList.remove('hidden');out.textContent=e.name==='AbortError'?'Scelta annullata. Nessun download avviato.':'Copia non completata: '+e.message};
     const startIn=()=>{let value=$('#backupLocation').value;return ['downloads','documents','desktop'].includes(value)?{startIn:value}:{}};
@@ -35,7 +36,7 @@ function chooseBackupDestination(preventive=false){
 
     $('#cancelBackupSave').onclick=()=>finish(false);
     dialog.oncancel=e=>{e.preventDefault();finish(false)};
-    if(hasDir){
+    if(useDirectory){
       $('#browseBackup').onclick=async()=>{
         try{
           folder=await window.showDirectoryPicker({id:'tefinanza-backup',mode:'readwrite',...startIn()});
@@ -76,7 +77,7 @@ function chooseBackupDestination(preventive=false){
         }catch(e){error(e);button.disabled=false}
       }
     }
-    if(!hasDir&&hasSave)$('#browseBackup').onclick=async()=>{
+    if(hasSave)$('#browseBackup').onclick=async()=>{
       let b=$('#browseBackup');
       try{
         let filename=C.backupFilename($('#backupOutputName').value);b.disabled=true;
@@ -85,9 +86,9 @@ function chooseBackupDestination(preventive=false){
         await receipt(handle.name,'',true)
       }catch(e){error(e);b.disabled=false}
     };
-    if(!hasDir&&!hasSave){
-      $('#browseBackup').onclick=async()=>{
-        let b=$('#browseBackup');b.disabled=true;
+    if(!hasSave){
+      const prepareManualBackup=async b=>{
+        b.disabled=true;
         try{
           preparedName=C.backupFilename($('#backupOutputName').value);prepared=new File([await blob()],preparedName,{type:'application/json'});
           $('#backupSystemActions').classList.remove('hidden');
@@ -96,6 +97,8 @@ function chooseBackupDestination(preventive=false){
           $('#backupOutputName').disabled=true;b.textContent='Copia preparata'
         }catch(e){error(e);b.disabled=false}
       };
+      if(useDirectory)$('#prepareManualBackup').onclick=e=>prepareManualBackup(e.currentTarget);
+      else $('#browseBackup').onclick=()=>prepareManualBackup($('#browseBackup'));
       if(hasShare)$('#shareBackupFile').onclick=async()=>{
         try{await navigator.share({files:[prepared],title:preparedName});$('#backupDestination').textContent='Copia passata al menu di sistema. Salva il file nella cartella scelta, poi torna qui e conferma il salvataggio.'}
         catch(e){error(e)}
