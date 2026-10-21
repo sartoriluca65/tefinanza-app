@@ -54,7 +54,7 @@
   let preferences = readPreferences();
   let audioContext = null, master = null, compressor = null, convolver = null, padFilter = null;
   let voices = [], chordTimer = 0, scoreTimer = 0, chordIndex = 0, scoreIndex = 0, playing = false;
-  let playbackRequest = 0;
+  let playbackRequest = 0, playbackPending = false;
   let youtubeApiPromise = null;
 
   function savePreferences() {
@@ -62,14 +62,15 @@
   }
 
   function updateUI() {
-    toggle.setAttribute('aria-pressed', String(playing));
-    toggle.setAttribute('aria-label', playing ? 'Metti in pausa la musica di sottofondo' : 'Riprendi la musica di sottofondo');
-    toggle.title = playing ? 'Pausa' : 'Riproduci';
-    if (toggleIcon) toggleIcon.textContent = playing ? 'Ⅱ' : '▶';
+    const active = playing || playbackPending;
+    toggle.setAttribute('aria-pressed', String(active));
+    toggle.setAttribute('aria-label', active ? 'Metti in pausa la musica di sottofondo' : 'Riprendi la musica di sottofondo');
+    toggle.title = active ? 'Pausa' : 'Riproduci';
+    if (toggleIcon) toggleIcon.textContent = active ? 'Ⅱ' : '▶';
     slider.value = String(Math.round(preferences.volume * 100));
     selector.value = preferences.track;
-    status.textContent = playing ? (preferences.track === 'youtube' ? 'Playlist YouTube in riproduzione' : preferences.volume === 0 ? 'Volume zero · audio attivo' : 'Riproduzione in corso') : 'In pausa';
-    control.dataset.playing = String(playing);
+    status.textContent = playbackPending ? 'Avvio in corso · premi per fermare' : playing ? (preferences.track === 'youtube' ? 'Playlist YouTube in riproduzione' : preferences.track === 'youtube_video' ? 'Video e musica in riproduzione' : preferences.volume === 0 ? 'Volume zero · audio attivo' : 'Riproduzione in corso') : 'In pausa';
+    control.dataset.playing = String(active);
     youtubePanel.hidden = !['youtube', 'youtube_video'].includes(preferences.track);
     const youtubeTitle = document.getElementById('ambientYoutubeTitle');
     if (youtubeTitle) youtubeTitle.textContent = tracks[preferences.track]?.title || tracks[preferences.track]?.label || 'Playlist audio';
@@ -272,11 +273,13 @@
         onStateChange: (event) => {
           if (youtubePlayer !== event.target) { if (event.data === api.PlayerState.PLAYING) event.target.pauseVideo(); return; }
           playing = event.data === api.PlayerState.PLAYING;
+          if (playing) playbackPending = false;
           updateUI();
         },
         onError: (event) => {
           if (youtubePlayer !== event.target) return;
           playing = false;
+          playbackPending = false;
           status.textContent = 'Playlist YouTube non disponibile';
           updateUI();
         }
@@ -286,6 +289,9 @@
 
   async function startAudio() {
     const request = ++playbackRequest;
+    playing = false;
+    playbackPending = true;
+    updateUI();
     try {
       if (preferences.track === 'youtube' || preferences.track === 'youtube_video') {
         if (audioContext?.state === 'running') {
@@ -297,7 +303,6 @@
         clearTimeout(scoreTimer);
         await startYouTube(request);
         if (request !== playbackRequest || !preferences.enabled) return;
-        playing = true;
       } else {
         destroyYouTubePlayer();
         youtubePanel.hidden = true;
@@ -305,6 +310,7 @@
         if (audioContext.state === 'suspended') await audioContext.resume();
         if (request !== playbackRequest || !preferences.enabled) return;
         playing = true;
+        playbackPending = false;
         master.gain.cancelScheduledValues(audioContext.currentTime);
         master.gain.setTargetAtTime(preferences.volume * 0.38, audioContext.currentTime, 2.2);
         scheduleBed();
@@ -313,6 +319,7 @@
     } catch (error) {
       if (request !== playbackRequest) return;
       playing = false;
+      playbackPending = false;
       preferences.enabled = false;
       savePreferences();
       status.textContent = error.message || 'Audio non disponibile';
@@ -323,6 +330,7 @@
   function pauseAudio() {
     ++playbackRequest;
     preferences.enabled = false;
+    playbackPending = false;
     savePreferences();
     if (youtubePlayer) { try { youtubePlayer.pauseVideo(); } catch {} }
     clearInterval(chordTimer);
@@ -337,7 +345,7 @@
   }
 
   toggle.addEventListener('click', () => {
-    if (playing) pauseAudio();
+    if (playing || playbackPending) pauseAudio();
     else { preferences.enabled = true; savePreferences(); startAudio(); }
   });
   slider.addEventListener('input', () => {
@@ -355,7 +363,7 @@
     scoreIndex = 0;
     savePreferences();
     setChord(0);
-    if (playing) startAudio();
+    if (playing || playbackPending) startAudio();
     else { destroyYouTubePlayer(); updateUI(); }
   });
   youtubeClose?.addEventListener('click', pauseAudio);
