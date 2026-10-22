@@ -10,11 +10,12 @@ function providerInfo(text){const n=C.normalized(text),known=[['Octopus Energy',
 function upgradePayments(input){let s=structuredClone(input);if(s.utilities===undefined)s.utilities=[];if(s.bills===undefined)s.bills=[];
  if(!s.paymentsVersion){
   let fineco=s.accounts.find(a=>a.name==='Fineco CC')||s.accounts.find(a=>a.kind==='Conto corrente'&&C.normalized(a.bank)==='fineco');
-  if(fineco&&!s.accounts.some(a=>C.normalized(a.name)==='telepass'))s.accounts.push({id:C.uid(),name:'Telepass',bank:'Telepass',kind:'Altro',opening:0,paymentProvider:true,paymentSourceId:fineco.id});
-  if(fineco){let telepass=s.accounts.find(a=>C.normalized(a.name)==='telepass');if(telepass){telepass.paymentProvider=true;telepass.paymentSourceId=fineco.id}}
+  if(fineco&&!s.accounts.some(a=>C.normalized(a.name)==='telepass'))s.accounts.push({id:C.uid(),name:'Telepass',bank:'Telepass',kind:'Passività',opening:0,paymentProvider:true,paymentSourceId:fineco.id});
+  if(fineco){let telepass=s.accounts.find(a=>C.normalized(a.name)==='telepass');if(telepass){telepass.paymentProvider=true;telepass.paymentSourceId=fineco.id;telepass.kind='Passività'}}
   if(Array.isArray(s.utilities))for(const m of s.movements){if(m.type!=='Spesa')continue;let info=providerInfo(m.description);if(!info)continue;let account=s.accounts.find(a=>a.name===m.account);if(!account)continue;if(!s.utilities.some(u=>C.normalized(u.provider)===C.normalized(info.provider)&&u.accountId===account.id))s.utilities.push({id:C.uid(),name:info.provider+' · '+info.type,provider:info.provider,type:info.type,accountId:account.id,reference:'',autoDebit:/addebito sdd|addebito diretto|domicilia/i.test(m.description),managedExternally:false,active:true,inferred:true})}
   s.paymentsVersion=1;
  }
+ if((s.paymentsVersion||0)<2){let fineco=s.accounts.find(a=>a.name==='Fineco CC')||s.accounts.find(a=>a.kind==='Conto corrente'&&C.normalized(a.bank)==='fineco'),telepass=s.accounts.find(a=>C.normalized(a.name)==='telepass');if(fineco&&telepass){telepass.kind='Passività';telepass.paymentProvider=true;telepass.paymentSourceId=fineco.id} s.paymentsVersion=2}
  return s;
 }
 function migratePayments(old){return upgradePayments(base.migrate(old))}

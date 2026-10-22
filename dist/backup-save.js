@@ -1,0 +1,6 @@
+/* Scrittura della copia solo nella destinazione scelta; verifica dei byte salvati. */
+(function(root){'use strict';const C=root.TF||(typeof require==='function'?require('./dashboard.js'):null);
+function backupFilename(input){let name=String(input||'').trim();if(!name||/[\\/\x00-\x1f]/.test(name)||name==='.'||name==='..')throw Error('Inserisci un nome file valido, senza percorsi');if(!/\.json$/i.test(name))name+='.json';if(name.length>180)throw Error('Nome troppo lungo: massimo 180 caratteri');return name}
+async function writeVerifiedBackup(handle,blob){let writer;try{writer=await handle.createWritable();await writer.write(blob);await writer.close();writer=null;let file=await handle.getFile();if(file.size!==blob.size)throw Error('Dimensione della copia non coerente: verifica il file');let a=new Uint8Array(await file.arrayBuffer()),b=new Uint8Array(await blob.arrayBuffer());for(let i=0;i<a.length;i++)if(a[i]!==b[i])throw Error('Verifica del contenuto della copia non riuscita');return{filename:handle.name,size:file.size}}catch(error){if(writer)try{await writer.abort()}catch{}throw error}}
+Object.assign(C,{backupFilename,writeVerifiedBackup});if(typeof module!=='undefined')module.exports=C;
+})(globalThis);
