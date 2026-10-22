@@ -68,3 +68,4 @@ aside{background-color:rgba(255,255,255,.92);-webkit-backdrop-filter:blur(16px) 
 aside .brand img{width:52px;height:52px;border-radius:14px;flex-shrink:0;box-shadow:0 3px 9px #0d315026}
 .topbar-brand img{width:44px;height:44px;border-radius:12px;flex-shrink:0;box-shadow:0 2px 8px #00355b38}
 @media(max-width:780px){.topbar-brand img{width:44px;height:44px}}
+.report-graph{max-width:100%;overflow-x:auto;padding:12px 0}.report-graph svg{display:block;width:min(100%,680px);min-width:560px;height:auto}.report-graph text{font-size:11px;fill:#465d78}.report-graph p{margin:8px 0 0}
