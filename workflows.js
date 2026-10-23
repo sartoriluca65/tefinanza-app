@@ -1,5 +1,5 @@
 (function(root){'use strict';
-const key=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+const key=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim(),round=n=>Math.round((n+Number.EPSILON)*100)/100,quantityPrecision=n=>Number(n.toPrecision(12));
 const aliases=[[/\b(?:inter)?spar\b/i,'Interspar'],[/\bfamila\b/i,'Famila'],[/\btosano\b/i,'Tosano'],[/\brossetto\b/i,'Rossetto'],[/\bamazon\b|\bamzn\b/i,'Amazon'],[/\bseconda strada\b/i,'Seconda Strada'],[/\btigota\b/i,'Tigotà'],[/\btamoil\b/i,'Tamoil'],[/\bcostantin\b/i,'Costantin'],[/\baveva\b(?=.*contributi)/i,'AVEPA'],[/\bpaypal\b/i,'PayPal'],[/\bavepa\b/i,'AVEPA'],[/\bfuel\s*cell\b/i,'Fuelcell Energy'],[/\blidl\b/i,'Lidl'],[/\bipertosano?\b/i,'Ipertosano'],[/\bprix\b/i,'Prix'],[/\baldi\b/i,'Aldi'],[/\beurospin\b/i,'Eurospin'],[/\besselunga\b/i,'Esselunga'],[/\bconad\b/i,'Conad'],[/\bcarrefour\b/i,'Carrefour'],[/\bcoop\b/i,'Coop'],[/\btelepass\b/i,'Telepass'],[/\bamerican express\b|\bamex\b/i,'American Express'],[/\bacquevenete\b|acqueve\b/i,'Acquevenete'],[/\battiva\b/i,'Attiva'],[/\benel\b/i,'Enel'],[/\bplenitude\b/i,'Plenitude'],[/\bjysk\b/i,'Jysk'],[/\bleroy merlin\b/i,'Leroy Merlin'],[/\bpacklink\b|\bauctane\b/i,'Packlink'],[/\bscalapay\b/i,'Scalapay']];
 function clean(value,kind='description'){
  let s=String(value||'').replace(/null$/i,'').trim().replace(/\s+/g,' ');if(!s)return '';
@@ -41,6 +41,48 @@ function trade({qty,unitPrice,total,commission=0,side='buy',changed='total'}){
  else{if(!Number.isFinite(total))return null;total=Math.abs(total);unitPrice=total/qty}
  if(side==='sell'&&commission>total)return null;const amount=side==='sell'?total:-total;return {qty,unitPrice,total,commission,amount,netAmount:side==='sell'?total-commission:-(total+commission),effectiveUnitPrice:side==='sell'?(total-commission)/qty:(total+commission)/qty};
 }
+function tradePositionAccount(s,m){
+ const accounts=s.accounts||[],source=accounts.find(a=>a.name===m.account);if(!source)return null;
+ if(m.relatedAccountId==='none')return null;
+ if(m.relatedAccountId&&m.relatedAccountId!=='auto'){const selected=accounts.find(a=>a.id===m.relatedAccountId);return selected&&!selected.closed&&['Titoli','Cripto'].includes(selected.kind)?selected:null}
+ if(['Titoli','Cripto'].includes(source.kind))return source.closed?null:source;
+ const matches=accounts.filter(a=>!a.closed&&['Titoli','Cripto'].includes(a.kind)&&key(a.bank)===key(source.bank));return matches.length===1?matches[0]:null;
+}
+function tradePosition(s,m,previous=null){
+ if(m?.positionApplied&&!previous)return{ok:true,applied:false,account:m.positionAccount};
+ if((previous&&!previous.positionApplied)||!m.securityQty||!m.securityUnitPrice)return{ok:true,applied:false};
+ const account=tradePositionAccount(s,m);if(!account)return{ok:false,message:'Per aggiornare automaticamente il dossier, seleziona il conto titoli collegato oppure verifica che esista un solo dossier per questa banca.'};
+ const chronology=s.movements.filter(row=>row.id!==previous?.id&&row.positionApplied&&row.positionAccount===account.name&&key(row.positionSymbol)===key(m.security));if(chronology.some(row=>String(row.date||'')>String(m.date||'')))return{ok:false,message:'Questa operazione ha una data precedente a una compravendita già applicata sullo stesso titolo. Per non alterare la quantità, registra prima il movimento mancante oppure correggi la posizione manualmente.'};
+ if(previous?.positionApplied){const undo=undoTradePosition(s,previous);if(!undo.ok)return undo}
+ const qty=Number(m.securityQty),unit=Number(m.securityUnitPrice),fee=Number(m.tradeCommission||0),side=m.tradeSide|| (Number(m.amount)>0?'sell':'buy');
+ if(!m.security||!Number.isFinite(qty)||qty<=0||!Number.isFinite(unit)||unit<0||!Number.isFinite(fee)||fee<0)return{ok:false,message:'Completa titolo, quantità, prezzo e commissione prima di aggiornare la posizione.'};
+ const exact=s.positions.find(p=>p.account===account.name&&key(p.symbol)===key(m.security)),named=s.positions.filter(p=>p.account===account.name&&key(p.name)===key(m.security));
+ if(!exact&&named.length>1)return{ok:false,message:'Ci sono più posizioni con questo nome: scegli l’ISIN o il simbolo preciso.'};
+ let position=exact||named[0]||null;
+ const before=position?structuredClone(position):null;
+ delete m.realizedPnL;delete m.positionUnitCost;
+ if(side==='buy'){
+  const oldQty=Number(position?.qty)||0,oldCost=Number(position?.cost)||0,known=position?.costKnown!==false;
+  const tradeCost=unit*qty+fee,newQty=oldQty+qty;
+  if(!position){position={id:crypto.randomUUID(),account:account.name,symbol:m.security,name:m.security,qty:0,cost:0,price:unit,asOf:m.date,costKnown:true};s.positions.push(position)}
+  position.qty=quantityPrecision(newQty);if(known){position.cost=Number(((oldQty*oldCost+tradeCost)/newQty).toPrecision(10));position.costKnown=true}else position.costKnown=false;position.name=position.name||m.security;
+ }else if(side==='sell'){
+  if(!position||Number(position.qty)+1e-9<qty)return{ok:false,message:'Le quantità disponibili nel dossier non bastano per questa vendita. Verifica la posizione iniziale prima di salvare.'};
+  m.positionUnitCost=Number(position.cost);if(position.costKnown!==false)m.realizedPnL=round(unit*qty-fee-position.cost*qty);
+  position.qty=quantityPrecision(Math.max(0,Number(position.qty)-qty));
+ }else return{ok:false,message:'Seleziona Acquisto o Vendita per aggiornare la posizione.'};
+ const latest= Math.max(0,...s.movements.filter(row=>row.id!==m.id&&row.positionApplied&&row.positionAccount===account.name&&key(row.positionSymbol)===key(m.security)).map(row=>Date.parse(row.positionAppliedAt)||0));
+ m.positionApplied=true;m.positionAccount=account.name;m.positionSymbol=m.security;m.positionBefore=before;m.positionSide=side;m.positionAppliedAt=new Date(Math.max(Date.now(),latest+1)).toISOString();
+ return{ok:true,applied:true,account:account.name};
+}
+function undoTradePosition(s,m){
+ if(!m?.positionApplied)return{ok:true,applied:false};
+ const later=s.movements.some(row=>row.id!==m.id&&row.positionApplied&&row.positionAccount===m.positionAccount&&key(row.positionSymbol)===key(m.positionSymbol)&&String(row.positionAppliedAt||'')>String(m.positionAppliedAt||''));
+ if(later)return{ok:false,message:'Questa compravendita ha operazioni successive sullo stesso titolo. Per sicurezza non modifico la posizione: registra una compravendita correttiva oppure intervieni in ordine cronologico.'};
+ const index=s.positions.findIndex(p=>p.account===m.positionAccount&&key(p.symbol)===key(m.positionSymbol));
+ if(m.positionBefore){const current=index>=0?s.positions[index]:null,restore={...structuredClone(m.positionBefore)};if(current){for(const field of ['price','asOf','quoteSymbol','quoteCurrency','quoteUpdatedAt','lastQuoteError'])if(current[field]!==undefined)restore[field]=current[field]}if(index>=0)s.positions[index]=restore;else s.positions.push(restore)}else if(index>=0)s.positions.splice(index,1);
+ return{ok:true,applied:true};
+}
 function setClosed(s,id,closed,date){const a=s.accounts.find(a=>a.id===id);if(!a)throw Error('Conto non trovato');a.closed=!!closed;if(closed)a.closedAt=date;else delete a.closedAt;return s}
-const api={key,clean,unique,choices,securities,remember,trade,setClosed};root.TFWorkflow=api;if(typeof module!=='undefined')module.exports=api;
+const api={key,clean,unique,choices,securities,remember,trade,tradePosition,undoTradePosition,setClosed};root.TFWorkflow=api;if(typeof module!=='undefined')module.exports=api;
 })(globalThis);

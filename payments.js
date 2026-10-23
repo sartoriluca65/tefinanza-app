@@ -20,9 +20,9 @@ function upgradePayments(input){let s=structuredClone(input);if(s.utilities===un
 }
 function migratePayments(old){return upgradePayments(base.migrate(old))}
 function billAccount(s,b){return s.accounts.find(a=>a.id===b.accountId)}
-function validPayment(s,b){let m=s.movements.find(m=>m.id===b.paymentId),a=billAccount(s,b);return !!(m&&a&&m.account===a.name&&m.type==='Spesa'&&C.round(-m.amount)===C.round(b.amount))}
+function validPayment(s,b){let m=s.movements.find(m=>m.id===b.paymentId),a=billAccount(s,b);return !!(m&&a&&m.account===a.name&&C.movementType(m)==='Spesa'&&C.round(-m.amount)===C.round(b.amount))}
 function supplierMatches(s,b,m){let u=s.utilities.find(u=>u.id===b.utilityId),provider=b.provider||u?.provider||'',p=C.normalized(provider),text=C.normalized(m.description+' '+m.merchant);return p.length>=3&&(text.includes(p)||providerInfo(text)?.provider===providerInfo(p)?.provider&&!!providerInfo(p))}
-function billCandidates(s,b,asOf){let a=billAccount(s,b);if(!a)return[];return s.movements.filter(m=>m.type==='Spesa'&&m.account===a.name&&C.round(-m.amount)===C.round(b.amount)&&(!asOf||m.date<=asOf)&&day(m.date)>=day(b.issued)-7&&day(m.date)<=day(b.due)+45&&supplierMatches(s,b,m))}
+function billCandidates(s,b,asOf){let a=billAccount(s,b);if(!a)return[];return s.movements.filter(m=>C.movementType(m)==='Spesa'&&m.account===a.name&&C.round(-m.amount)===C.round(b.amount)&&(!asOf||m.date<=asOf)&&day(m.date)>=day(b.issued)-7&&day(m.date)<=day(b.due)+45&&supplierMatches(s,b,m))}
 function reconcileBills(input,asOf){let s=structuredClone(input);if(!Array.isArray(s.bills)||!Array.isArray(s.utilities))return s;let used=new Set();
  for(const b of s.bills){if(b.paymentId&&validPayment(s,b)&&!used.has(b.paymentId)){used.add(b.paymentId);continue}delete b.paymentId;delete b.paymentMode}
  let pending=s.bills.filter(b=>!b.paymentId&&!b.archived),lists=new Map();
