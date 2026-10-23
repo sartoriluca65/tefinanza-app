@@ -46,3 +46,6 @@ nav button{display:flex;align-items:center;text-align:left;border:1px solid tran
 .movement-upload-button{min-height:46px;padding:11px 16px}
 .movement-upload-button .action-icon{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 @media(max-width:700px){.actions .new-transaction-button{flex:1;min-height:50px}}
+
+/* Closed accounts retain history and can be reopened. */
+.account-card.account-closed,.compact-account.account-closed{background:#fff1f2!important;border:2px solid #be123c!important;color:#881337}.account-closed h2,.account-closed .compact-account-name{color:#9f1239}.closed-badge{display:inline-block;background:#be123c;color:#fff!important;font-weight:800;font-size:.75rem;border-radius:6px;padding:4px 9px;margin:4px;letter-spacing:.05em}.close-account{color:#9f1239;border-color:#be123c}#tradeCalculation[hidden]{display:none}#tradeCalculation legend{font-weight:700}#tradeCalculationResult{font-variant-numeric:tabular-nums}
