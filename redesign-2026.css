@@ -120,3 +120,60 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* iPhone: evita sovrapposizioni tra riepilogo, musica e comandi. */
+@media screen and (max-width: 780px) {
+  .app-topbar {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    grid-template-rows: auto auto auto auto !important;
+    align-items: center;
+    gap: 10px 8px !important;
+    padding: 12px !important;
+  }
+  .app-topbar > .topbar-brand { grid-column: 1; grid-row: 1; min-width: 0; }
+  .app-topbar > .topbar-actions { grid-column: 2; grid-row: 1; justify-self: end; min-width: 0; }
+  .app-topbar > .top-financial { grid-column: 1 / -1; grid-row: 2; width: 100%; min-width: 0; }
+  .app-topbar > .quick-period { grid-column: 1 / -1; grid-row: 3; width: 100%; }
+  .app-topbar > .ambient-player {
+    position: relative !important; inset: auto !important; grid-column: 1; grid-row: 4;
+    justify-self: start; align-self: center; margin: 0; z-index: 5;
+  }
+  .app-topbar > .ambient-player:hover,
+  .app-topbar > .ambient-player:focus-within {
+    position: relative !important; inset: auto !important; grid-column: 1 / -1; grid-row: 4;
+    width: min(330px, calc(100vw - 32px)); flex-basis: min(330px, calc(100vw - 32px)); height: 86px;
+  }
+  .app-topbar > .night-theme-toggle { grid-column: 2; grid-row: 4; justify-self: end; }
+  .app-topbar .topbar-actions { display: flex; flex-wrap: nowrap; gap: 5px; }
+  .cash-summary {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-areas: "balance" "pills" "note" !important;
+    align-items: start !important; justify-content: initial !important;
+    gap: 13px !important; padding: 18px !important; min-width: 0;
+  }
+  .cash-summary > .quiet-balance { grid-area: balance; min-width: 0; }
+  .cash-summary > .quiet-pills {
+    grid-area: pills; display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 7px; width: 100%; min-width: 0;
+  }
+  .cash-summary > .quiet-pills > * {
+    display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+    gap: 4px; min-width: 0; padding: 9px 8px; white-space: normal; overflow-wrap: anywhere;
+  }
+  .cash-summary > .quiet-pills small { font-size: 10px; line-height: 1.2; }
+  .cash-summary > .quiet-pills b { font-size: 12px; line-height: 1.25; overflow-wrap: anywhere; }
+  .cash-summary > p {
+    grid-area: note; display: block !important; width: 100%; max-width: none !important;
+    margin: 0; font-size: 12px; line-height: 1.45; overflow-wrap: anywhere;
+  }
+}
+@media screen and (max-width: 430px) {
+  .cash-summary { padding: 16px !important; gap: 11px !important; }
+  .cash-summary strong { font-size: clamp(30px, 8.3vw, 38px) !important; }
+  .cash-summary > .quiet-pills { gap: 5px; }
+  .cash-summary > .quiet-pills > * { padding: 8px 6px; }
+  .cash-summary > .quiet-pills b { font-size: 11px; }
+}
