@@ -1,0 +1,12 @@
+'use strict';
+(function(){
+ const KEY='tefinanza-theme';
+ const valid=new Set(['studio','casa','notte']);
+ function applyTheme(name){const theme=valid.has(name)?name:'studio';document.body.classList.remove('theme-studio','theme-casa','theme-notte');document.body.classList.add('theme-'+theme);try{localStorage.setItem(KEY,theme)}catch(_){}document.querySelectorAll('[data-theme-choice]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.themeChoice===theme)));const status=document.querySelector('#themeChoiceStatus');if(status)status.textContent='Tema '+({studio:'Studio',casa:'Casa',notte:'Notte'}[theme])+' attivo. La scelta cambia solo l’aspetto e resta salvata in questo browser.';return theme}
+ let initial='studio';try{initial=localStorage.getItem(KEY)||'studio'}catch(_){}applyTheme(initial);
+ document.addEventListener('click',event=>{const button=event.target.closest('[data-theme-choice]');if(button)applyTheme(button.dataset.themeChoice)});
+ function parseEuro(text){const value=Number(String(text||'').replace(/[^\d,.-]/g,'').replace(/\./g,'').replace(',','.'));return Number.isFinite(value)?value:0}
+ function formatEuro(value){return new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(value)}
+ function animateBalance(oldText){const node=document.querySelector('#homeBalance');if(!node)return;const start=parseEuro(oldText),end=parseEuro(node.textContent);if(start===end)return;const began=performance.now(),duration=620;node.classList.add('balance-counting');function frame(now){const p=Math.min(1,(now-began)/duration),ease=1-Math.pow(1-p,3);node.textContent=formatEuro(start+(end-start)*ease);if(p<1)requestAnimationFrame(frame);else{node.textContent=formatEuro(end);setTimeout(()=>node.classList.remove('balance-counting'),350)}}requestAnimationFrame(frame)}
+ window.TefinanzaVisuals={afterCommit(previous,next,oldBalance){if(!previous||!next)return;const oldDocs=new Set((previous.documents||[]).map(doc=>doc.id)),newReceipt=(next.documents||[]).find(doc=>!oldDocs.has(doc.id)&&/scontr|ricev|receipt/i.test(`${doc.kind||''} ${doc.name||''}`));if(!newReceipt)return;const card=document.querySelector('#documentList .row');if(card){card.classList.remove('receipt-pop');void card.offsetWidth;card.classList.add('receipt-pop')}animateBalance(oldBalance||'')}};
+})();
