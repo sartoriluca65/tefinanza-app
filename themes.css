@@ -27,3 +27,21 @@ body.theme-notte .quiet-pills b{color:#fff!important;font-size:14px;font-weight:
 body.theme-studio .quick-period,body.theme-casa .quick-period{color:#31465c!important}
 body.theme-studio .quick-period select,body.theme-casa .quick-period select{background:#fff!important;color:#24394f!important;border-color:#cbd6e1!important}
 @media(max-width:780px){body.theme-studio .quiet-pills,body.theme-casa .quiet-pills,body.theme-notte .quiet-pills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}body.theme-studio .quiet-pills>span,body.theme-casa .quiet-pills>span,body.theme-notte .quiet-pills>span{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;min-width:0;white-space:normal;padding:9px 8px}body.theme-studio .quiet-pills b,body.theme-casa .quiet-pills b,body.theme-notte .quiet-pills b{font-size:clamp(11px,3.2vw,14px);white-space:normal;overflow-wrap:anywhere}}
+
+/* V110: selettore tema rapido e comandi sempre leggibili. */
+main>header{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.theme-inline{margin-left:auto;display:flex;align-items:center;gap:5px;padding:3px 6px;border:1px solid #d6e0eb;border-radius:999px;background:#fff;color:#52677d;font-size:10px;white-space:nowrap}
+.theme-inline>span{padding:0 4px;font-weight:650}
+.theme-inline button{min-height:25px;padding:3px 8px;border:1px solid transparent;border-radius:999px;background:transparent;color:#304a65;font:inherit;font-weight:650;box-shadow:none}
+.theme-inline button[aria-pressed=true]{background:#1a2e4a;color:#fff}
+.sync-status-shortcut{min-height:25px!important;padding:4px 9px!important;border:1px solid #d6e0eb!important;border-radius:999px!important;background:#edf3f9!important;color:#435b73!important;font-size:10px!important;font-weight:600!important;line-height:1.2}
+body.theme-studio .ambient-player,body.theme-casa .ambient-player{border-color:#bfcede;background:#fff;color:#1a2e4a;box-shadow:0 1px 3px #1a2e4a12}
+body.theme-studio .ambient-toggle,body.theme-casa .ambient-toggle{border-color:#b8cadc;background:#f4f8fc;color:#1a2e4a}
+body.theme-studio .ambient-toggle[aria-pressed=true],body.theme-casa .ambient-toggle[aria-pressed=true]{background:#e5eff9;color:#1a2e4a}
+body.theme-studio .ambient-player:hover,body.theme-studio .ambient-player:focus-within,body.theme-casa .ambient-player:hover,body.theme-casa .ambient-player:focus-within{background:#164e91ed;color:#fff}
+body.theme-studio .ambient-player:hover .ambient-toggle,body.theme-studio .ambient-player:focus-within .ambient-toggle,body.theme-casa .ambient-player:hover .ambient-toggle,body.theme-casa .ambient-player:focus-within .ambient-toggle{background:#fff;color:#1a2e4a;border-color:#fff}
+body.theme-notte .theme-inline{background:#192633;border-color:#435564;color:#e5eef7}
+body.theme-notte .theme-inline button{color:#e5eef7}
+body.theme-notte .theme-inline button[aria-pressed=true]{background:#d8e9fa;color:#112133}
+body.theme-notte .sync-status-shortcut{background:#233546!important;border-color:#435564!important;color:#e5eef7!important}
+@media(max-width:780px){main>header{gap:6px}.theme-inline{margin-left:0}.theme-inline button{padding:3px 6px}}
