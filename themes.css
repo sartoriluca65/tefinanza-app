@@ -12,3 +12,18 @@ body.theme-notte #appBackdrop{opacity:.08!important;filter:brightness(.35)}body.
 .theme-picker{margin:18px 0;padding:14px;border:1px solid var(--line);border-radius:14px}.theme-picker legend{font-weight:750;padding:0 7px}.theme-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.theme-options .btn{min-height:53px;display:grid;align-content:center;gap:2px;text-align:left}.theme-options .btn[aria-pressed=true]{outline:2px solid #2576bf;border-color:#2576bf;background:#edf5ff}.theme-options small{font-size:10px}.theme-picker>p{margin:9px 0 0}
 /* Riscontro leggero su una ricevuta appena importata e animazione del saldo netto. */
 @keyframes tfReceiptPop{0%{transform:scale(.975);opacity:.5}65%{transform:scale(1.012)}100%{transform:scale(1);opacity:1}}.receipt-pop{animation:tfReceiptPop .38s cubic-bezier(.2,.8,.2,1)}.balance-counting{color:#168958!important;text-shadow:0 0 16px #16895835}@media(prefers-reduced-motion:reduce){.receipt-pop{animation:none!important}.balance-counting{transition:none!important}}
+
+/* V109: pillole patrimonio distanziate e leggibili nei temi. */
+body.theme-studio .quiet-pills,body.theme-casa .quiet-pills,body.theme-notte .quiet-pills{display:flex;align-items:stretch;justify-content:flex-start;flex-wrap:wrap;gap:9px;min-width:0}
+body.theme-studio .quiet-pills>span,body.theme-casa .quiet-pills>span,body.theme-notte .quiet-pills>span{display:flex;align-items:baseline;justify-content:space-between;gap:10px;min-width:158px;white-space:nowrap}
+body.theme-studio .quiet-pills small,body.theme-casa .quiet-pills small{color:#42586f!important;font-size:12px!important}
+body.theme-studio .quiet-pills b,body.theme-casa .quiet-pills b{color:#17283a!important;font-size:14px;font-weight:750;white-space:nowrap}
+body.theme-casa .quiet-pills>span{background:#fffefb!important;border-color:#e8ddc8!important}
+body.theme-notte .quiet-pills>span{background:#293a49!important;border-color:#506272!important}
+body.theme-notte .quiet-pills>span:nth-child(2){background:#263f38!important;border-color:#4d6c5c!important}
+body.theme-notte .quiet-pills>span:nth-child(3){background:#493936!important;border-color:#755a54!important}
+body.theme-notte .quiet-pills small{color:#d5e0ea!important;font-size:12px!important}
+body.theme-notte .quiet-pills b{color:#fff!important;font-size:14px;font-weight:750;white-space:nowrap}
+body.theme-studio .quick-period,body.theme-casa .quick-period{color:#31465c!important}
+body.theme-studio .quick-period select,body.theme-casa .quick-period select{background:#fff!important;color:#24394f!important;border-color:#cbd6e1!important}
+@media(max-width:780px){body.theme-studio .quiet-pills,body.theme-casa .quiet-pills,body.theme-notte .quiet-pills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}body.theme-studio .quiet-pills>span,body.theme-casa .quiet-pills>span,body.theme-notte .quiet-pills>span{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;min-width:0;white-space:normal;padding:9px 8px}body.theme-studio .quiet-pills b,body.theme-casa .quiet-pills b,body.theme-notte .quiet-pills b{font-size:clamp(11px,3.2vw,14px);white-space:normal;overflow-wrap:anywhere}}
