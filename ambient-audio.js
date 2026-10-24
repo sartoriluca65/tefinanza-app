@@ -3,7 +3,7 @@
 (() => {
   const preferenceKey = 'tefinanza-ambient-audio-v1';
   const playlistUrl = 'https://www.youtube.com/playlist?list=PLf5748RjOaOikKzt-WOzSoMYIwf6HfcpJ';
-  const preferences = { enabled: true, volume: 0.10, source: playlistUrl };
+  const preferences = { enabled: false, volume: 0.10, source: playlistUrl };
   const control = document.getElementById('ambientPlayer');
   const toggle = document.getElementById('ambientToggle');
   const toggleIcon = toggle?.querySelector('[aria-hidden="true"]');
@@ -59,7 +59,7 @@
     if (playbackPending) status.textContent = 'Avvio YouTube… · premi per fermare';
     else if (playing) status.textContent = 'Riproduzione YouTube in corso · ripetizione attiva';
     else if (status.dataset.error) status.textContent = status.dataset.error;
-    else status.textContent = 'In pausa';
+    else status.textContent = 'Pronto · premi musica per avviare';
   }
 
   function loadYouTubeApi() {
@@ -94,6 +94,7 @@
   async function startYouTube(request) {
     const source = parseYouTubeSource(preferences.source);
     youtubePanel.hidden = false;
+    youtubePanel.dataset.userOpened = 'true';
     const api = await loadYouTubeApi();
     if (request !== playbackRequest || !preferences.enabled) return;
     stopPlayer();
@@ -155,6 +156,7 @@
     playing = false;
     savePreferences();
     if (player) { try { player.pauseVideo(); } catch {} }
+    youtubePanel.hidden = true;
     updateUI();
   }
 
@@ -182,13 +184,5 @@
   sourceInput.addEventListener('keydown', (event) => { if (event.key === 'Enter') { event.preventDefault(); sourceApply.click(); } });
   youtubeClose?.addEventListener('click', pause);
 
-  function startAfterGesture(event) {
-    if (event.target.closest?.('#ambientPlayer, #ambientYoutubePanel')) return;
-    document.removeEventListener('pointerdown', startAfterGesture);
-    document.removeEventListener('keydown', startAfterGesture);
-    if (preferences.enabled) play();
-  }
-  document.addEventListener('pointerdown', startAfterGesture, { passive: true });
-  document.addEventListener('keydown', startAfterGesture);
-  updateUI();
+    updateUI();
 })();
