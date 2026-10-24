@@ -96,12 +96,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .account-accent-blue { --account-accent: #3478a8; --account-wash: #edf4f9; }
 .account-accent-coral { --account-accent: #b9554c; --account-wash: #fbf0ee; }
 .account-accent-navy { --account-accent: #344d70; --account-wash: #eef2f7; }
+.account-accent-internal { --account-accent: #1a2e4a; --account-wash: #eaf0f6; }
 .account-accent-cyan { --account-accent: #39809a; --account-wash: #edf5f7; }
 .account-accent-sage { --account-accent: #62856a; --account-wash: #f0f5f0; }
 .account-accent-violet { --account-accent: #786895; --account-wash: #f4f1f7; }
 .account-accent-slate { --account-accent: #718094; --account-wash: #f1f4f6; }
 .compact-account[class*="account-accent-"], .account-card[class*="account-accent-"] {
-  border-top: 6px solid var(--account-accent, #718094) !important;
+  border-top: 7px solid var(--account-accent, #718094) !important;
   background: linear-gradient(180deg, var(--account-wash, #f1f4f6) 0%, #fff 58%);
   border-radius: 15px;
 }
