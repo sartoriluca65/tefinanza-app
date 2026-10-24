@@ -82,3 +82,54 @@ body.theme-notte .compact-account[class*="account-accent-"]{background:#192633}
 .transaction-icon .action-icon{width:19px;height:19px}
 @media(max-width:850px){.overview-metrics{grid-template-columns:1fr 1fr}.overview-metrics .cash-summary{grid-column:1/-1}.overview-metric{padding:16px}.overview-metric>strong{font-size:23px}}
 @media(max-width:480px){.overview-metrics{gap:9px}.overview-metric{padding:13px;border-radius:15px}.overview-metric>small{font-size:10px}.overview-metric>strong{font-size:clamp(17px,5vw,22px);margin-top:11px;overflow-wrap:anywhere}.overview-metric>p{font-size:10px}.overview-metrics .cash-summary{padding:17px;border-radius:16px}}
+
+/* V112: integrazione più fedele alla dashboard della preview, senza sostituire dati o moduli. */
+#ambientBrandHero{display:none!important}
+.app-topbar{background:#fff!important;color:#193451!important;border-bottom:1px solid #e1e8ef!important;box-shadow:0 2px 12px rgba(20,45,75,.06)!important}
+.topbar-brand>b{font-family:Georgia,'Times New Roman',serif!important;font-size:25px!important;font-weight:700!important;letter-spacing:-.6px!important;color:#17385f!important}
+.topbar-brand img{width:36px!important;height:36px!important}
+.top-financial{display:none!important}
+.quick-period{color:#405a74!important}
+.quick-period select{background:#fff!important;color:#203b57!important;border-color:#cbd8e5!important}
+.topbar-actions .top-icon,.topbar-actions .profile-button{background:#fff!important;color:#264764!important;border-color:#d6e1ec!important}
+.topbar-actions .ambient-toggle{background:#f4f8fc!important;color:#1a2e4a!important;border-color:#b8cadc!important}
+main{max-width:1560px;padding-top:18px}
+main>header{min-height:26px;margin-bottom:12px}
+.theme-inline{margin-left:auto}
+.overview-metrics{grid-template-columns:minmax(0,1.6fr) repeat(2,minmax(0,1fr));gap:14px;margin-bottom:15px}
+.overview-metrics .cash-summary{min-height:164px;grid-template-columns:1fr;gap:10px;padding:21px 24px!important;background:linear-gradient(120deg,#18375d,#285d91)!important;color:#fff!important}
+.overview-metrics .quiet-balance strong{font-size:clamp(42px,4vw,50px)!important;color:#fff!important}
+.overview-metrics .quiet-pills{display:flex!important;flex-wrap:wrap;gap:8px!important}
+.overview-metrics .quiet-pills>span{display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;gap:7px!important;min-width:0!important;padding:7px 12px!important;border-radius:999px!important;background:#ffffff19!important;border:1px solid #ffffff22!important;white-space:nowrap!important}
+.overview-metrics .quiet-pills small,.overview-metrics .quiet-pills b{color:#fff!important;font-size:11px!important}
+.overview-metrics .quiet-pills b{font-size:12px!important}
+.overview-metrics #cashSummaryNote{font-size:10px!important;line-height:1.35!important}
+.overview-metric{min-height:164px;padding:22px!important;border-radius:20px!important}
+.overview-metric.income-metric{background:#f0f7f2!important;border-color:#d4e6d9!important}
+.overview-metric.income-metric>strong{color:#286b48!important}
+.overview-metric.expense-metric{background:#fcf2f0!important;border-color:#eed9d4!important}
+.overview-metric.expense-metric>strong{color:#9b4038!important}
+.account-section-head{margin:16px 0 12px!important}
+.compact-account[class*="account-accent-"]{border-top-width:5px!important;border-radius:18px!important;padding:18px!important;box-shadow:0 8px 26px rgba(25,48,78,.07)!important}
+.compact-account[class*="account-accent-"]:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(25,48,78,.12)!important}
+.wealth-breakdown,.settlement-summary{border-radius:18px!important;box-shadow:0 4px 16px rgba(25,48,78,.05)!important}
+body.theme-studio .overview-metrics .cash-summary{background:linear-gradient(120deg,#18375d,#285d91)!important}
+body.theme-casa .overview-metrics .cash-summary{background:linear-gradient(125deg,#4b3927,#806044)!important;color:#fff!important}
+body.theme-casa .overview-metrics .quiet-balance strong,body.theme-casa .overview-metrics .quiet-balance small,body.theme-casa .overview-metrics .quiet-pills small,body.theme-casa .overview-metrics .quiet-pills b{color:#fff!important}
+body.theme-casa .overview-metric.income-metric{background:#f1f5ed!important;border-color:#dce8d6!important}
+body.theme-casa .overview-metric.income-metric>strong{color:#4b6846!important}
+body.theme-casa .overview-metric.expense-metric{background:#f8e9df!important;border-color:#ecd4c6!important}
+body.theme-casa .overview-metric.expense-metric>strong{color:#9b5135!important}
+body.theme-notte .app-topbar{background:#15212c!important;color:#eff7ff!important;border-color:#344554!important}
+body.theme-notte .topbar-brand>b{color:#eff7ff!important}
+body.theme-notte .topbar-actions .top-icon,body.theme-notte .topbar-actions .profile-button{background:#1d2b38!important;color:#eff7ff!important;border-color:#435564!important}
+body.theme-notte .overview-metric{background:#192633!important;border-color:#344554!important}
+body.theme-notte .overview-metric>small,body.theme-notte .overview-metric>p{color:#b3c0ce!important}
+body.theme-notte .overview-metric>strong{color:#f1f5f8!important}
+body.theme-notte .overview-metric.income-metric{background:#20372d!important;border-color:#3c5b49!important}
+body.theme-notte .overview-metric.income-metric>strong{color:#b9e1c8!important}
+body.theme-notte .overview-metric.expense-metric{background:#3a2b2b!important;border-color:#624342!important}
+body.theme-notte .overview-metric.expense-metric>strong{color:#ffc1b8!important}
+body.theme-notte .overview-metrics .cash-summary{background:linear-gradient(120deg,#17395b,#205a78)!important}
+@media(max-width:850px){.overview-metrics{grid-template-columns:1fr 1fr}.overview-metrics .cash-summary{grid-column:1/-1}}
+@media(max-width:600px){main{padding:14px 14px 0}.overview-metrics{gap:10px}.overview-metric{min-height:125px!important;padding:15px!important;border-radius:16px!important}.overview-metric>strong{font-size:clamp(18px,5vw,23px)!important}.overview-metrics .cash-summary{padding:17px!important}.overview-metrics .quiet-balance strong{font-size:38px!important}.compact-accounts{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.compact-account[class*="account-accent-"]{padding:14px!important}}
