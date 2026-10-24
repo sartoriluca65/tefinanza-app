@@ -91,6 +91,22 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 .account-card strong, .account-card .amount, .kpi strong, .stat strong { font-variant-numeric: tabular-nums; }
 
+/* Distinct account rails make wallets easier to scan without tinting the balance itself. */
+.account-accent-gold { --account-accent: #bb8a16; --account-wash: #fbf6e9; }
+.account-accent-blue { --account-accent: #3478a8; --account-wash: #edf4f9; }
+.account-accent-coral { --account-accent: #b9554c; --account-wash: #fbf0ee; }
+.account-accent-navy { --account-accent: #344d70; --account-wash: #eef2f7; }
+.account-accent-cyan { --account-accent: #39809a; --account-wash: #edf5f7; }
+.account-accent-sage { --account-accent: #62856a; --account-wash: #f0f5f0; }
+.account-accent-violet { --account-accent: #786895; --account-wash: #f4f1f7; }
+.account-accent-slate { --account-accent: #718094; --account-wash: #f1f4f6; }
+.compact-account[class*="account-accent-"], .account-card[class*="account-accent-"] {
+  border-top: 6px solid var(--account-accent, #718094) !important;
+  background: linear-gradient(180deg, var(--account-wash, #f1f4f6) 0%, #fff 58%);
+  border-radius: 15px;
+}
+.compact-account[class*="account-accent-"] { box-shadow: 0 2px 7px rgba(16,24,32,.07); }
+
 @media (max-width: 780px) {
   #appBackdrop .backdrop-layer.is-active { opacity: .075; }
   .cash-summary { padding: 17px; min-height: 96px; }
