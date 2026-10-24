@@ -110,3 +110,10 @@ aside .brand img{width:52px;height:52px;border-radius:14px;flex-shrink:0;box-sha
 .app-topbar .exit-top-button:not(:disabled):hover,.app-topbar .top-exit:not(:disabled):hover{background:#e7f1fb;color:#082d50;border-color:#fff}
 .app-topbar .exit-top-button:focus-visible,.app-topbar .top-exit:focus-visible{outline:3px solid #ffdf58;outline-offset:3px}
 @media(max-width:430px){.app-topbar .exit-top-button,.app-topbar .top-exit{min-width:44px;min-height:44px;padding:7px 9px;font-size:12px}}
+
+/* Nuova operazione allineata al titolo della pagina; sui telefoni resta compatta e a destra. */
+.intro{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"copy cta" "actions actions";align-items:center;row-gap:12px}
+.intro-copy{grid-area:copy;min-width:0}
+.intro .actions{grid-area:actions;justify-content:flex-end;align-self:center;margin:0}
+.new-transaction-zone{grid-area:cta;display:flex;justify-content:flex-end;justify-self:end;align-self:center;padding:0}
+@media(max-width:780px){.intro{display:flex;flex-direction:column;align-items:stretch;gap:12px}.intro-copy{order:0}.new-transaction-zone{order:1;align-self:stretch;justify-content:flex-end;padding:0}.new-transaction-zone .new-transaction-button{width:auto;max-width:100%;min-width:min(250px,100%);min-height:52px}.intro .actions{order:2;justify-content:flex-end;margin:0}.intro .actions .btn{flex:0 1 auto}}
