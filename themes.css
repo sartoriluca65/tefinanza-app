@@ -13,7 +13,7 @@ body.theme-notte #appBackdrop{opacity:.08!important;filter:brightness(.35)}body.
 /* Riscontro leggero su una ricevuta appena importata e animazione del saldo netto. */
 @keyframes tfReceiptPop{0%{transform:scale(.975);opacity:.5}65%{transform:scale(1.012)}100%{transform:scale(1);opacity:1}}.receipt-pop{animation:tfReceiptPop .38s cubic-bezier(.2,.8,.2,1)}.balance-counting{color:#168958!important;text-shadow:0 0 16px #16895835}@media(prefers-reduced-motion:reduce){.receipt-pop{animation:none!important}.balance-counting{transition:none!important}}
 
-/* V109: pillole patrimonio distanziate e leggibili nei temi. */
+/* Patrimonio: pillole leggibili e distanziate nel riepilogo reale. */
 body.theme-studio .quiet-pills,body.theme-casa .quiet-pills,body.theme-notte .quiet-pills{display:flex;align-items:stretch;justify-content:flex-start;flex-wrap:wrap;gap:9px;min-width:0}
 body.theme-studio .quiet-pills>span,body.theme-casa .quiet-pills>span,body.theme-notte .quiet-pills>span{display:flex;align-items:baseline;justify-content:space-between;gap:10px;min-width:158px;white-space:nowrap}
 body.theme-studio .quiet-pills small,body.theme-casa .quiet-pills small{color:#42586f!important;font-size:12px!important}
@@ -45,3 +45,40 @@ body.theme-notte .theme-inline button{color:#e5eef7}
 body.theme-notte .theme-inline button[aria-pressed=true]{background:#d8e9fa;color:#112133}
 body.theme-notte .sync-status-shortcut{background:#233546!important;border-color:#435564!important;color:#e5eef7!important}
 @media(max-width:780px){main>header{gap:6px}.theme-inline{margin-left:0}.theme-inline button{padding:3px 6px}}
+
+/* V111: dashboard gerarchica allineata alla preview approvata. */
+.overview-metrics{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(2,minmax(0,1fr));gap:14px;margin:0 0 19px;align-items:stretch}
+.overview-metric{display:flex;flex-direction:column;justify-content:center;min-width:0;padding:20px 22px;border:1px solid var(--theme-line,#e3e8ef);border-radius:20px;background:var(--theme-surface,#fff);box-shadow:0 8px 26px rgba(25,48,78,.07)}
+.overview-metric>small{font-size:12px;font-weight:650;color:var(--theme-muted,#6e7b8f)}
+.overview-metric>strong{margin-top:15px;font-size:clamp(22px,2vw,29px);font-weight:750;font-variant-numeric:tabular-nums;letter-spacing:-.5px;color:var(--theme-ink,#152238)}
+.overview-metric>p{margin:6px 0 0;font-size:12px;color:var(--theme-muted,#6e7b8f)}
+.overview-metric.income-metric{background:#f0f7f2;border-color:#d4e6d9}
+.overview-metric.income-metric>strong{color:#286b48}
+.overview-metric.expense-metric{background:#fcf2f0;border-color:#eed9d4}
+.overview-metric.expense-metric>strong{color:#9b4038}
+.overview-metrics .cash-summary{min-height:146px;margin:0;padding:20px 24px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-content:center;gap:12px 18px;border:0;border-radius:20px;background:linear-gradient(120deg,#18375d,#285d91)!important;color:#fff!important;box-shadow:0 8px 26px rgba(25,48,78,.12)}
+.overview-metrics .quiet-balance strong{font-size:clamp(38px,4vw,50px);font-weight:750;letter-spacing:-1.5px;font-variant-numeric:tabular-nums}
+.overview-metrics .quiet-pills{grid-column:1/-1;gap:7px}
+.overview-metrics .quiet-pills>span{background:#ffffff18!important;border-color:#ffffff24!important;color:#fff!important}
+.overview-metrics .quiet-pills small,.overview-metrics .quiet-pills b{color:#fff!important}
+.overview-metrics #cashSummaryNote{grid-column:1/-1;margin:0;max-width:none;font-size:10px;line-height:1.35;color:#dce9f7!important}
+body.theme-casa .overview-metric.income-metric{background:#f1f5ed;border-color:#dce8d6}
+body.theme-casa .overview-metric.income-metric>strong{color:#4b6846}
+body.theme-casa .overview-metric.expense-metric{background:#f8e9df;border-color:#ecd4c6}
+body.theme-casa .overview-metric.expense-metric>strong{color:#9b5135}
+body.theme-notte .overview-metric{background:#192633;border-color:#344554}
+body.theme-notte .overview-metric>strong{color:#f1f5f8}
+body.theme-notte .overview-metric.income-metric{background:#20372d;border-color:#3c5b49}
+body.theme-notte .overview-metric.income-metric>strong{color:#b9e1c8}
+body.theme-notte .overview-metric.expense-metric{background:#3a2b2b;border-color:#624342}
+body.theme-notte .overview-metric.expense-metric>strong{color:#ffc1b8}
+.account-section-head{margin-top:20px}
+.compact-accounts{gap:14px}
+.compact-account[class*="account-accent-"]{border-top-width:6px!important;border-radius:17px;padding:18px 18px 16px;transition:transform .18s ease,box-shadow .18s ease}
+.compact-account[class*="account-accent-"]:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(21,40,63,.1)}
+.compact-account-name{font-size:13px}.compact-account-name small{font-size:10px}.compact-account strong{font-size:23px}
+body.theme-casa .compact-account[class*="account-accent-"]{border-radius:14px}
+body.theme-notte .compact-account[class*="account-accent-"]{background:#192633}
+.transaction-icon .action-icon{width:19px;height:19px}
+@media(max-width:850px){.overview-metrics{grid-template-columns:1fr 1fr}.overview-metrics .cash-summary{grid-column:1/-1}.overview-metric{padding:16px}.overview-metric>strong{font-size:23px}}
+@media(max-width:480px){.overview-metrics{gap:9px}.overview-metric{padding:13px;border-radius:15px}.overview-metric>small{font-size:10px}.overview-metric>strong{font-size:clamp(17px,5vw,22px);margin-top:11px;overflow-wrap:anywhere}.overview-metric>p{font-size:10px}.overview-metrics .cash-summary{padding:17px;border-radius:16px}}
