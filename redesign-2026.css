@@ -1,0 +1,105 @@
+/* TeFinanza 2026 visual refresh: clearer hierarchy, restrained finance graphics, accessible contrast. */
+:root {
+  --ink: #101820;
+  --muted: #4d5f70;
+  --navy: #1a2e4a;
+  --blue: #1e5b8f;
+  --paper: #f5f7f8;
+  --line: #dce3e8;
+  --success: #285f3a;
+  --danger: #8d3c32;
+  --warning: #80520e;
+}
+
+html { background: var(--paper); }
+body { background: #f5f7f8; color: var(--ink); }
+
+/* Keep the existing page-specific finance artwork, but let it sit quietly behind content. */
+#appBackdrop.app-backdrop {
+  display: block !important;
+  background: linear-gradient(135deg, rgba(245,247,248,.88), rgba(236,242,246,.82));
+}
+#appBackdrop .backdrop-layer { opacity: 0; }
+#appBackdrop .backdrop-layer.is-active { opacity: .105; }
+
+.card, .hero, .table-wrap, .guide-grid article, .side-note,
+.cash-summary, .modal, .dialog, .panel {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(16,24,32,.055);
+}
+.card, .hero, .table-wrap, .guide-grid article, .side-note,
+.modal, .dialog, .panel {
+  background-color: rgba(255,255,255,.96);
+}
+
+.cash-summary {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: rgba(255,255,255,.96);
+  border-color: #d6e0e9;
+  padding: clamp(18px, 2.5vw, 28px);
+  min-height: 112px;
+}
+.cash-summary::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 0 auto;
+  width: min(46%, 430px);
+  opacity: .13;
+  pointer-events: none;
+  background: center / cover no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 180'%3E%3Cpath d='M0 146 62 127 111 139 164 95 214 111 269 70 319 91 373 38 430 54 480 14' fill='none' stroke='%231a5b8e' stroke-width='4'/%3E%3Cpath d='M0 160 62 141 111 153 164 109 214 125 269 84 319 105 373 52 430 68 480 28' fill='none' stroke='%237eabc7' stroke-width='1'/%3E%3C/svg%3E");
+}
+.cash-summary > * { position: relative; z-index: 1; }
+.cash-summary strong { color: var(--navy); font-size: clamp(32px, 4.2vw, 48px); line-height: 1.08; letter-spacing: -.035em; font-variant-numeric: tabular-nums; }
+.cash-summary small, .cash-summary p { color: #3e5368; font-size: 13px; }
+
+.app-topbar { background: linear-gradient(105deg, #174d79, #1a5b8e 58%, #204d72); }
+.app-topbar, .app-topbar button, .app-topbar a { color: #fff; }
+button, input, select, textarea { font: inherit; }
+button, select, input, textarea { min-height: 42px; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid #e1a83b;
+  outline-offset: 2px;
+}
+
+.success, .positive, [class*="income"], [data-kind="income"] { color: var(--success); }
+.danger, .negative, [class*="expense"], [data-kind="expense"] { color: var(--danger); }
+.notice { border-radius: 12px; }
+
+/* Semantic accents; text labels remain present so color is never the only cue. */
+.quiet-pills { gap: 10px; }
+.quiet-pills > *, .quiet-pill {
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: #fff;
+  padding: 11px 14px;
+  font-variant-numeric: tabular-nums;
+}
+.quiet-pills > :nth-child(1) { background: #edf4fa; border-color: #cfdeea; }
+.quiet-pills > :nth-child(2) { background: #eef4ef; border-color: #d2e1d5; }
+.quiet-pills > :nth-child(3) { background: #fbf0ed; border-color: #ecd5ce; }
+
+.account-card, .card.account-card {
+  border: 1px solid var(--line);
+  border-top: 3px solid #5c83a3;
+  border-radius: 16px;
+  background: rgba(255,255,255,.97);
+  box-shadow: 0 1px 3px rgba(16,24,32,.055);
+}
+.account-card strong, .account-card .amount, .kpi strong, .stat strong { font-variant-numeric: tabular-nums; }
+
+@media (max-width: 780px) {
+  #appBackdrop .backdrop-layer.is-active { opacity: .075; }
+  .cash-summary { padding: 17px; min-height: 96px; }
+  .cash-summary strong { font-size: clamp(30px, 9vw, 42px); }
+  .cash-summary::after { width: 42%; opacity: .09; }
+  .quiet-pills { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+  .quiet-pills > *, .quiet-pill { min-width: 0; padding: 9px 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
