@@ -1,0 +1,35 @@
+---
+description: Lavoro in italiano, rami separati e protezione dei dati
+alwaysApply: true
+---
+# Regole comuni Cursor — applicazioni di Luca
+
+## Lingua e collaborazione
+- Parla sempre in italiano. Scrivi in italiano anche messaggi di commit, titoli e descrizioni delle pull request.
+- Leggi AGENTS.md e le istruzioni specifiche del progetto prima di intervenire. Queste regole comuni non eliminano le istruzioni esistenti.
+- Controlla lo stato Git e conserva tutte le modifiche già presenti. Non leggere file personali estranei al progetto.
+
+## Rami, verifiche e pubblicazione
+- Non modificare mai main o master: crea prima un ramo feat/, fix/ o chore/ dal ramo principale aggiornato.
+- Prima del push esegui npm run build e npm run lint quando sono definiti nel package.json del progetto. Esegui anche i test pertinenti.
+- Se il progetto non usa npm, oppure build/lint non esistono, usa le verifiche previste dal suo stack e dichiara quali controlli non sono disponibili. Non inventare comandi, non installare dipendenze solo per fingere una verifica.
+- Se una verifica fallisce, fermati prima di pubblicare il codice e descrivi l'errore. Per modifiche soltanto alle regole verifica formato, diff e assenza di altri file nel commit.
+- Dopo il push apri automaticamente una pull request verso main (o verso il ramo principale effettivo, se diverso), con titolo e descrizione in italiano e le verifiche eseguite.
+- Non fare merge, push diretto sul ramo principale, force push o deploy di produzione senza richiesta esplicita. Non cambiare visibilità o protezioni dei repository.
+
+## Dati e segreti
+- Non leggere, modificare, copiare, allegare o committare .env, .env.*, chiavi API, token, password o archivi personali. Non mostrare credenziali nei log.
+- Non accedere a Legale-Privato sul NAS, né nel percorso /Volumes/DH3200/AI-Docs/Legale-Privato né in /Volumes/AI-Docs/Legale-Privato. Non inviare documenti riservati a servizi cloud.
+- Non eseguire git add .: aggiungi soltanto i file pertinenti già verificati.
+
+## Risorse grafiche e video
+- Per grafica o video prodotti per un'app salva una copia in Generico/nome-app sul NAS.
+- Percorso preferito: /Volumes/DH3200/AI-Docs/Generico/nome-app/. Se la condivisione è realmente montata in /Volumes/AI-Docs, usa /Volumes/AI-Docs/Generico/nome-app/.
+- Verifica il montaggio SMB prima di scrivere. Non creare falsi volumi sotto /Volumes e non usare Legale-Privato. Non sovrascrivere file esistenti.
+
+## Mac M3 con 8 GB
+- Esegui un solo progetto, build o modello pesante alla volta. Evita processi in background non necessari.
+- Evita nuove librerie con distribuzione superiore a 50 MB; cerca un'alternativa leggera e segnala le eccezioni prima di introdurle. Non eliminare dipendenze esistenti per rispettare il limite.
+- Non caricare automaticamente il modello 7B. Per test locali brevi preferisci il modello 2B e rilascia la memoria alla fine.
+- Gli script di gestione del sistema devono stare in ~/scripts/. Chiedi conferma prima di sudo, rm -rf o cancellazioni distruttive.
+- Una regola testuale non è un controllo tecnico: mantieni le approvazioni degli strumenti e non dichiarare verifiche o operazioni mai eseguite.
