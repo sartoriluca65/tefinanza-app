@@ -14,16 +14,52 @@ function simpleBackupDownload(preventive=false){
   const dialog=$('#backupSaveModal');
   if(dialog.open)return Promise.resolve(false);
   return new Promise(resolve=>{
-    let url='',file=null,closed=false,requested=false;
+    let url='',file=null,shareFile=null,closed=false,handedOff=false,viaShare=false;
     const filename=C.backupFilename('TeFinanza-'+(preventive?'sicurezza-':'backup-')+today().replaceAll('-','')+'-'+new Date().toLocaleTimeString('sv-SE').replaceAll(':','')+'.json');
     const finish=ok=>{if(closed)return;closed=true;dialog.close();if(url)setTimeout(()=>URL.revokeObjectURL(url),60000);resolve(ok)};
-    $('#backupSaveContent').innerHTML=`<h2>Salva una copia</h2><p id="simpleBackupStatus" role="status">Preparazione del file con tutti i dati e i documenti…</p><p><b>${esc(filename)}</b></p><div class="toolbar"><a id="simpleBackupDownload" class="btn primary hidden" download="${esc(filename)}">↓ Salva file JSON</a></div><p class="notice">Su Mac il file va nella cartella download scelta in Safari. Per scegliere la tua cartella ogni volta: <b>Safari → Impostazioni → Generali → Posizione del file scaricato → Chiedi per ogni download</b>. Puoi scegliere Documenti, una tua cartella o un NAS già disponibile nel Finder.</p><p class="small">Non serve usare Note. L’app non può impostare la cartella di Safari né verificare direttamente un download.</p><p id="simpleBackupError" class="inline-error" role="alert"></p><div class="toolbar"><button class="btn hidden" id="simpleBackupConfirm">Ho verificato il file salvato</button><button class="btn" id="simpleBackupClose">Chiudi</button></div>`;
+    $('#backupSaveContent').innerHTML=`<h2>${preventive?'Salva una copia prima del ripristino':'Salva una copia completa'}</h2><p id="simpleBackupStatus" role="status">Preparazione del file con tutti i dati e i documenti…</p><p><b>${esc(filename)}</b></p><div class="toolbar"><button class="btn primary hidden" id="simpleBackupShare" type="button">Salva su File / Condividi</button><a id="simpleBackupDownload" class="btn hidden" download="${esc(filename)}">↓ Scarica copia JSON</a></div><p id="simpleBackupHint" class="notice">La copia viene preparata senza modificare i dati. Scegli una destinazione quando il file è pronto.</p><label class="check"><input type="checkbox" id="simpleBackupVerified" disabled> Ho verificato che il file sia stato salvato nella cartella scelta.</label><p id="simpleBackupError" class="inline-error" role="alert"></p><div class="dialog-actions"><button class="btn" id="simpleBackupClose" type="button">Chiudi</button><button class="btn primary" id="simpleBackupConfirm" type="button" disabled>Conferma il salvataggio</button></div>`;
     $('#simpleBackupClose').onclick=()=>finish(false);
     dialog.oncancel=e=>{e.preventDefault();finish(false)};
-    $('#simpleBackupDownload').onclick=()=>{requested=true;$('#simpleBackupStatus').textContent='Download richiesto. Scegli la cartella se Safari lo chiede, poi controlla il file nei download.';$('#simpleBackupConfirm').classList.remove('hidden')};
-    $('#simpleBackupConfirm').onclick=async()=>{if(!requested)return;try{let r={filename,directory:'',verified:false,at:new Date().toISOString()};if(!await change(s=>{s.lastBackup=r.at;s.lastBackupReceipt=r}))throw Error('Stato locale non aggiornato');renderBackupReceipt();finish(true);toast('Salvataggio confermato da te: '+filename)}catch(e){$('#simpleBackupError').textContent=e.message}};
+    $('#simpleBackupVerified').onchange=e=>$('#simpleBackupConfirm').disabled=!e.target.checked||!handedOff;
+    $('#simpleBackupConfirm').onclick=async()=>{
+      if(!handedOff||!$('#simpleBackupVerified').checked)return;
+      try{
+        let r={filename,directory:viaShare?'File / destinazione scelta nel menu di sistema':'',verified:false,at:new Date().toISOString()};
+        if(!await change(s=>{s.lastBackup=r.at;s.lastBackupReceipt=r}))throw Error('Stato locale non aggiornato');
+        renderBackupReceipt();finish(true);toast('Salvataggio confermato da te: '+filename)
+      }catch(e){$('#simpleBackupError').textContent='Copia non registrata: '+e.message}
+    };
+    $('#simpleBackupDownload').onclick=()=>{
+      handedOff=true;viaShare=false;$('#simpleBackupVerified').disabled=false;$('#simpleBackupConfirm').disabled=!$('#simpleBackupVerified').checked;
+      $('#simpleBackupStatus').textContent='Download avviato. Controlla il file nella destinazione indicata dal browser, poi conferma.'
+    };
+    $('#simpleBackupShare').onclick=async()=>{
+      try{
+        // La chiamata resta direttamente nel gesto dell’utente, come richiesto daiOS.
+        await navigator.share({files:[shareFile],title:'Copia TeFinanza'});
+        handedOff=true;viaShare=true;$('#simpleBackupVerified').disabled=false;$('#simpleBackupConfirm').disabled=!$('#simpleBackupVerified').checked;
+        $('#simpleBackupStatus').textContent='File consegnato al menu di sistema. Verifica che sia stato salvato in File, poi conferma.'
+      }catch(e){
+        $('#simpleBackupStatus').textContent=e.name==='AbortError'?'Condivisione annullata. La copia è ancora pronta; puoi riprovare o scaricarla.':'Condivisione non riuscita. La copia è ancora pronta; puoi scaricarla.';
+        if(e.name!=='AbortError')$('#simpleBackupError').textContent='Salvataggio non completato: '+e.message
+      }
+    };
     dialog.showModal();
-    (async()=>{try{const copy=await fullBackup();if(closed)return;file=new Blob([JSON.stringify(copy)],{type:'application/octet-stream'});url=URL.createObjectURL(file);const link=$('#simpleBackupDownload');link.href=url;link.classList.remove('hidden');$('#simpleBackupStatus').textContent='File pronto · '+(file.size/1024/1024).toLocaleString('it-IT',{maximumFractionDigits:1})+' MB. Premi Salva file JSON.'}catch(e){if(!closed)$('#simpleBackupError').textContent='Copia non preparata: '+e.message}})();
+    (async()=>{
+      try{
+        const copy=await fullBackup();if(closed)return;
+        file=new Blob([JSON.stringify(copy)],{type:'application/json'});url=URL.createObjectURL(file);
+        const link=$('#simpleBackupDownload');link.href=url;link.classList.remove('hidden');
+        try{
+          shareFile=new File([file],filename,{type:'application/json'});
+          if(typeof navigator.share==='function'&&typeof navigator.canShare==='function'&&navigator.canShare({files:[shareFile]}))$('#simpleBackupShare').classList.remove('hidden');
+        }catch{}
+        $('#simpleBackupVerified').disabled=false;
+        $('#simpleBackupStatus').textContent='File pronto · '+(file.size/1024/1024).toLocaleString('it-IT',{maximumFractionDigits:1})+' MB.';
+        const hint=$('#simpleBackupHint');
+        hint.textContent=$('#simpleBackupShare').classList.contains('hidden')?'Scarica il JSON e controlla la cartella impostata nel browser. Su Safari Mac puoi scegliere la cartella da Safari → Impostazioni → Generali → Posizione download file → Chiedi per ogni download.':'Su iPhone premi “Salva su File”, scegli una cartella e poi verifica il file. Se preferisci, usa Scarica copia JSON.'
+      }catch(e){if(!closed)$('#simpleBackupError').textContent='Copia non preparata: '+e.message}
+    })();
   });
 }
 

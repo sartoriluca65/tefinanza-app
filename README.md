@@ -15,3 +15,11 @@ Applicazione web per registrare conti, movimenti, documenti e obiettivi familiar
 ## Codice e aggiornamenti
 
 GitHub Pages pubblica la versione contenuta nel ramo main. Ogni aggiornamento tecnico salvato su questo ramo viene pubblicato automaticamente.
+
+## Manutenzione e distribuzione
+
+La radice di questo repository è la sorgente della versione pubblica. Dopo una modifica eseguire `node scripts/sync-dist.mjs` per aggiornare `dist/`; `node scripts/sync-dist.mjs --check` impedisce di pubblicare copie diverse. Il workflow controlla entrambe le cartelle e tutti i test con `node --test tests/*.test.cjs`.
+
+La versione 110 allinea app, guida e riferimenti di cache, conserva i miglioramenti per categorie e iPhone e ripara la conferma degli scontrini. Non modifica i nomi dei database, i saldi o i documenti personali.
+
+Il repository privato tefinanza contiene una copia distinta per la pubblicazione personale; GitHub non la aggiorna automaticamente quando cambia questo repository. Le copie sono state allineate il 29 ottobre 2026 e vanno aggiornate insieme per evitare divergenze.
