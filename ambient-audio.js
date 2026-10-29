@@ -28,6 +28,11 @@
   let playing = false;
   let playbackPending = false;
   let playbackRequest = 0;
+  let autoplayTimer = 0;
+  const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const autoplayHint = isIOS
+    ? 'iPhone/iPad ha bloccato l’avvio automatico: tocca ▶ nel riquadro YouTube per far partire la musica.'
+    : 'Il browser ha bloccato l’avvio automatico: tocca ▶ nel riquadro YouTube per far partire la musica.';
 
   function savePreferences() {
     try { localStorage.setItem(preferenceKey, JSON.stringify(preferences)); } catch {}
@@ -50,8 +55,8 @@
   function updateUI() {
     const active = playing || playbackPending;
     toggle.setAttribute('aria-pressed', String(active));
-    toggle.setAttribute('aria-label', active ? 'Metti in pausa la musica di sottofondo' : 'Riprendi la musica di sottofondo');
-    toggle.title = active ? 'Pausa' : 'Riproduci';
+    toggle.setAttribute('aria-label', active ? 'Metti in pausa la musica di sottofondo (YouTube)' : 'Avvia la musica di sottofondo (YouTube)');
+    toggle.title = active ? 'Musica di sottofondo: pausa' : 'Musica di sottofondo: avvia (YouTube)';
     if (toggleIcon) toggleIcon.textContent = active ? 'Ⅱ' : '▶';
     slider.value = String(Math.round(preferences.volume * 100));
     if (document.activeElement !== sourceInput) sourceInput.value = preferences.source;
@@ -59,7 +64,7 @@
     if (playbackPending) status.textContent = 'Avvio YouTube… · premi per fermare';
     else if (playing) status.textContent = 'Riproduzione YouTube in corso · ripetizione attiva';
     else if (status.dataset.error) status.textContent = status.dataset.error;
-    else status.textContent = 'Pronto · premi musica per avviare';
+    else status.textContent = 'Musica di sottofondo spenta · premi ▶ per avviarla';
   }
 
   function loadYouTubeApi() {
@@ -113,6 +118,15 @@
           if (player !== event.target || request !== playbackRequest || !preferences.enabled) { event.target.pauseVideo(); return; }
           event.target.setVolume(Math.round(preferences.volume * 100));
           event.target.playVideo();
+          clearTimeout(autoplayTimer);
+          // iOS Safari (and some browsers) refuse autoplay with sound: explain how to start it manually.
+          autoplayTimer = setTimeout(() => {
+            if (player === event.target && request === playbackRequest && playbackPending && !playing) {
+              status.dataset.error = autoplayHint;
+              playbackPending = false;
+              updateUI();
+            }
+          }, isIOS ? 2500 : 5000);
         },
         onStateChange: (event) => {
           if (player !== event.target) return;
@@ -151,6 +165,8 @@
 
   function pause() {
     ++playbackRequest;
+    clearTimeout(autoplayTimer);
+    status.dataset.error = '';
     preferences.enabled = false;
     playbackPending = false;
     playing = false;
