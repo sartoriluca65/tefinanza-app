@@ -15,4 +15,3 @@ jobs:
           node-version: "22"
       - run: node scripts/check-structure.mjs
       - run: node --test tests/*.test.cjs
-      - run: node scripts/sync-dist.mjs --check

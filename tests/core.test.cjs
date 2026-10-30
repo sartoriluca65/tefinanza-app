@@ -1,4 +1,4 @@
-const {test}=require('node:test'),assert=require('node:assert/strict'),C=require('../dist/core.js');
+const {test}=require('node:test'),assert=require('node:assert/strict'),C=require('../core.js');
 const base=C.migrate({movements:[]}),m=(props={})=>({id:crypto.randomUUID(),date:'2026-10-01',description:'Acquisto',amount:-20,account:'Fineco CC',type:'Spesa',category:'Alimentari',items:[],merchant:'Coop',...props});
 test('Un archivio nuovo parte da saldi zero senza inventare patrimonio',()=>{const s=C.migrate({});assert.ok(s.accounts.length>0);assert.ok(s.accounts.every(a=>a.opening===0));assert.equal(s.accounts.reduce((total,a)=>total+a.opening,0),0);assert.equal(s.movements.length,0);assert.equal(s.positions.length,0)});
 test('Spese, trasferimenti e investimenti distinti',()=>{let t=C.sum([m(),m({amount:100,type:'Entrata'}),m({amount:-50,type:'Giroconto'}),m({amount:50,type:'Giroconto',account:'PayPal'}),m({amount:-10,type:'Investimento'})]);assert.deepEqual(t,{income:100,expense:20,saving:80,investment:10,transfer:0,cashflow:70})});

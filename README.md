@@ -18,7 +18,9 @@ GitHub Pages pubblica la versione contenuta nel ramo main. Ogni aggiornamento te
 
 ## Manutenzione e distribuzione
 
-La radice di questo repository è la sorgente della versione pubblica. Dopo una modifica eseguire `node scripts/sync-dist.mjs` per aggiornare `dist/`; `node scripts/sync-dist.mjs --check` impedisce di pubblicare copie diverse. Il workflow controlla entrambe le cartelle e tutti i test con `node --test tests/*.test.cjs`.
+La radice di questo repository contiene l’unica copia della versione pubblica. La cartella `dist/` conserva soltanto un rimando per i vecchi collegamenti: le copie identiche di codice, immagini e dipendenze sono state rimosse il 30 ottobre 2026. Il workflow verifica le risorse della radice e tutti i test con `node scripts/check-structure.mjs` e `node --test tests/*.test.cjs`.
+
+Il repository resta necessario per mantenere l’indirizzo GitHub Pages esistente. Il repository privato `tefinanza` conserva la propria configurazione di pubblicazione personale: eliminare questo repository pubblico richiede prima una migrazione dell’hosting che mantenga accesso e dati locali.
 
 La versione 110 allinea app, guida e riferimenti di cache, conserva i miglioramenti per categorie e iPhone e ripara la conferma degli scontrini. Non modifica i nomi dei database, i saldi o i documenti personali.
 
