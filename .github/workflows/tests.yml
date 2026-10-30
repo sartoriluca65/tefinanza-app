@@ -1,0 +1,33 @@
+name: Test automatici
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, ci/test-automatici-2026-10-29]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test Node 24
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Scarica il codice
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Prepara Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Verifica contabilità e saldi
+        run: node --test tests/core.test.cjs tests/dashboard.test.cjs
