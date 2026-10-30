@@ -1,5 +1,5 @@
 /* Casi dimostrativi inventati. Nessun dato, saldo o movimento di persone reali. */
-const {test}=require('node:test'),assert=require('node:assert/strict'),C=require('../dist/dashboard.js');
+const {test}=require('node:test'),assert=require('node:assert/strict'),C=require('../dashboard.js');
 function demo(){let s=C.migrate({movements:[]});s.accounts.forEach((a,i)=>{a.name='Conto dimostrativo '+i;a.bank='Istituto fittizio';a.opening=0;delete a.balanceConfirmation});return s}
 function row(id,a,date,amount,type){return{id,account:a.name,date,amount,type,category:'Altro',description:'Operazione inventata',merchant:'',security:'',items:[],relatedAccountId:'none'}}
 test('Una spesa su carta crea debito, il pagamento parziale conserva il residuo',()=>{let s=demo(),a=s.accounts.find(a=>a.kind==='Carta');s.movements=[row('example-a',a,'2001-01-02',-20,'Spesa'),row('example-b',a,'2001-01-03',5,'Giroconto')];assert.equal(C.accountLiabilityBalance(s,a,'2001-01-04'),-15)});
