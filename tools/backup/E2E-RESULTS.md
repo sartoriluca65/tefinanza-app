@@ -1,3 +1,13 @@
+# Aggiornamento: correzioni dei lettori nativi — 3 novembre 2026
+
+Le tre anomalie descritte nel rapporto storico qui sotto sono state corrette SOLO nei candidati del ramo `backup-preparation-2026` (TeFinanza e portale). Le copie pubblicate non sono aggiornate. Rifornio archiviato ha soltanto una proposta locale.
+
+Nuove prove sintetiche: quattro percorsi Chromium superati, inclusi errori di scrittura e riapertura; 14 test Node sui due repository. Rifornio locale: ulteriori 6 test dello stesso componente. Nessuna richiesta eseguita verso servizi applicativi di produzione. Dettagli, limiti e rollback: [NATIVE-RESTORE.md](NATIVE-RESTORE.md).
+
+---
+
+Rapporto storico precedente alle correzioni:
+
 # Risultati di integrazione su copie — 3 novembre 2026
 
 Dati esclusivamente sintetici, contesti Chromium nuovi e servizi esterni bloccati. Nessun archivio personale, browser esistente o database operativo utilizzato. Applicazioni originali non modificate.
@@ -25,3 +35,4 @@ Test del toolkit: 30 test JavaScript per copia (23 core, 4 compatibilità, 3 sta
 Nessuna garanzia su servizi remoti, account operativi, Safari, OCR, disponibilità delle email o ripristino di file oltre il limite prudenziale di 64 MiB. Le condizioni native pericolose sopra indicate sono blocchi all’uso operativo del relativo lettore: non interpretare PASS del toolkit come correzione dell’app.
 
 Rollback: lasciare il ramo non unito. Sono cambiati soltanto strumenti/test/documentazione sotto tools/backup; nessun avvio applicativo li importa. Per tornare alla prima preparazione, selezionare il commit precedente sul ramo dopo revisione; non ripristinare database, cancellare chiavi o migrare dati. Le copie valide sono conservate e le destinazioni esistenti vengono rifiutate.
+
