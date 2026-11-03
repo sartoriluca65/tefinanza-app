@@ -1,0 +1,7 @@
+__pycache__/
+*.json
+*.zip
+*.sqlite
+*.db
+*.tlbackup
+*.tlenc
