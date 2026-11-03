@@ -74,7 +74,10 @@ function unique(rows,field='id') {
 function walkRefs(value,refs=new Set(),depth=0) {
   if (depth>80) fail('TOO_DEEP');
   if (!value || typeof value !== 'object' || value instanceof Blob) return refs;
-  if (typeof value.fileKey === 'string') refs.add(value.fileKey);
+  if (typeof value.fileKey === 'string') {
+    if(!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(value.fileKey))fail('INVALID_ATTACHMENT_ID');
+    refs.add(value.fileKey);
+  }
   for (const item of Object.values(value)) walkRefs(item,refs,depth+1);
   return refs;
 }
@@ -115,13 +118,14 @@ export function validateSnapshot(spec,snapshot) {
     for (const g of s.groups||[]) if (!Array.isArray(g.people)||g.people.some(id=>!people.has(id))) fail('INVALID_GROUP');
   } else if (spec.kind==='rifornio') {
     const vehicles=readJSON(ls,'rifornioVehicles',true),ids=unique(vehicles),entries=readJSON(ls,'rifornioEntries',true);unique(entries);
+    for(const vehicle of vehicles)if(typeof vehicle.name!=='string'||!vehicle.name.trim()||vehicle.fuel!==undefined&&typeof vehicle.fuel!=='string'||vehicle.consumption!==undefined&&(!Number.isFinite(vehicle.consumption)||vehicle.consumption<=0))fail('INVALID_VEHICLE');
     // Removed vehicles are allowed: the original application retains their history.
     for(const row of entries)if(typeof row.vehicleId!=='string'||!Number.isFinite(row.quantity)||!Number.isFinite(row.price))fail('INVALID_ENTRY');
     for(const key of ['pienosmartTripDraftV1','pienosmartRecordedTrips'])if(key in ls)readJSON(ls,key,true);
   } else if (spec.kind==='cochi') {
     const s=readJSON(ls,spec.stateKey,true);unique(s.rows);
-    for(const row of s.rows)if(!Number.isSafeInteger(row.income)||!Number.isSafeInteger(row.expense)||row.income<0||row.expense<0)fail('INVALID_AMOUNT');
-    if(!Array.isArray(s.historic)||!Array.isArray(s.log))fail('INCOMPLETE_STATE');
+    for(const row of s.rows)if(!Number.isSafeInteger(row.id)||!Number.isSafeInteger(row.income)||!Number.isSafeInteger(row.expense)||row.income<0||row.expense<0||(row.income>0)===(row.expense>0)||typeof row.description!=='string'||typeof row.date!=='string')fail('INVALID_MOVEMENT');
+    if(!Array.isArray(s.historic)||!s.historic.length||s.historic.some(p=>!['Assunta','Luca','Rosanna','Giuliano'].includes(p))||new Set(s.historic).size!==s.historic.length||!Array.isArray(s.log)||s.log.some(x=>typeof x!=='string'))fail('INCOMPLETE_STATE');
   } else if (spec.kind==='stickers') {
     const packs=readJSON(ls,'ss-packs',true),meta=readJSON(ls,'ss-stickers',true);unique(packs);unique(meta);
     const images=records(snapshot,'luki-stickers','stickers');unique(images);
@@ -143,7 +147,10 @@ export function validateSnapshot(spec,snapshot) {
     const rows=stores(snapshot,spec.databases[0].name,'cache'),s=rows.find(x=>x.key==='state')?.value;
     const archive=s?.data || readJSON(ls,spec.fallbackKey)?.data;
     if(!object(archive))fail('MISSING_STATE');
-    for(const field of ['farmaci','assunzioni','eventi','documenti','controlli','esamiRoutine'])if(!Array.isArray(archive[field]))fail('INCOMPLETE_STATE');
+    if(!object(archive.paziente))fail('INCOMPLETE_PATIENT');
+    if(archive.paziente.gruppoSanguigno!==undefined&&!['','A+','A-','B+','B-','AB+','AB-','0+','0-'].includes(archive.paziente.gruppoSanguigno))fail('INVALID_PATIENT');
+    for(const field of ['farmaci','assunzioni','eventi','documenti','controlli','esamiRoutine']){if(!Array.isArray(archive[field]))fail('INCOMPLETE_STATE');unique(archive[field]);if(archive[field].some(row=>typeof row.id!=='string'||!/^[a-zA-Z0-9_-]{1,160}$/.test(row.id)))fail('INVALID_CLINICAL_RECORD');}
+    if(archive.eventi.some(row=>typeof row.data!=='string'))fail('INVALID_CLINICAL_RECORD');
     const files=records(snapshot,spec.databases[1].name,'files'),byKey=new Map(files.map(f=>[f.key,f]));
     for(const file of files)if(!(file.blob instanceof Blob)||!file.blob.size)fail('INVALID_ATTACHMENT');
     // Include safety state references too: restoration must not strand undo data.

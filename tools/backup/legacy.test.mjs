@@ -11,7 +11,7 @@ test('old Rifornio JSON is accepted with an explicit partial historical scope',a
  assert.equal(scope,'LEGACY_VEHICLES_AND_REFUELS_ONLY');await verifyBackup(rifornio,backup);
 });
 test('old Cochi JSON accepted; protected copies are never decrypted implicitly',async()=>{
- const text=JSON.stringify({rows:[],historic:[],log:[]});await importLegacyJSON(cochiPrivate,text);
+ const text=JSON.stringify({rows:[],historic:['Luca'],log:[]});await importLegacyJSON(cochiPrivate,text);
  await assert.rejects(importLegacyJSON(cochiPrivate,'{"format":"cochi-backup-encrypted"}'),/USE_EXISTING_LOCAL_DECRYPTION_TOOL/);
 });
 test('TeFinanza v3 originals survive native JSON conversion',async()=>{

@@ -105,3 +105,7 @@ automaticamente. Non ripristinare il codice come sostituto del recupero dei dati
 ## Copertura di questo repository
 
 TeFinanza: include stato corrente, restoreSafety e tutti gli originali in files. Le informazioni di reset contenute nello stato sono preservate. Sono esclusi cloudSync, chiave quotazioni e handle della cartella automatica: le autorizzazioni devono essere concesse nuovamente. Il backend /api/sync non viene interrogato. La concorrenza delle schede dell’app rimane da correggere.
+
+## Prove sulle copie applicative
+
+Vedi [E2E-RESULTS.md](E2E-RESULTS.md) per i casi effettivamente provati, le incompatibilità native ancora aperte e i limiti del recupero operativo. Gli strumenti rimangono separati dall’app pubblicata.
