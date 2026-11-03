@@ -1,3 +1,11 @@
+# Aggiornamento dopo revisione — 3 novembre 2026
+
+Tre difetti residui corretti nei candidati: conflitti degli originali nell'importazione testo TeFinanza; registro Rifornio omesso dal toolkit dopo un'interruzione; documenti solo testo riconosciuti dal lettore ma non dal toolkit. Nuovo workflow separato di soli test sintetici, senza modifiche al workflow di produzione.
+
+Prove locali: 137 test TeFinanza (45 backup/lettori + 92 precedenti), 48 portale e quattro percorsi Chromium superati. Zero richieste esterne eseguite nei browser di prova. Comandi, limiti e rollback in [NATIVE-RESTORE.md](NATIVE-RESTORE.md). Le prove precedenti qui sotto rimangono storiche, con conteggi riferiti a quella fase. Nessun backup reale eseguito, nessun merge o deploy.
+
+---
+
 # Aggiornamento: correzioni dei lettori nativi — 3 novembre 2026
 
 Le tre anomalie descritte nel rapporto storico qui sotto sono state corrette SOLO nei candidati del ramo `backup-preparation-2026` (TeFinanza e portale). Le copie pubblicate non sono aggiornate. Rifornio archiviato ha soltanto una proposta locale.

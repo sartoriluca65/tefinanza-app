@@ -117,6 +117,12 @@ export function validateSnapshot(spec,snapshot) {
     for (const e of s.expenses) if (!Array.isArray(e.who)||e.who.some(id=>!people.has(id))||!Number.isFinite(Number(String(e.amount).replace(',','.')))) fail('INVALID_EXPENSE');
     for (const g of s.groups||[]) if (!Array.isArray(g.people)||g.people.some(id=>!people.has(id))) fail('INVALID_GROUP');
   } else if (spec.kind==='rifornio') {
+    const journal=readJSON(ls,'rifornio-before-import-v1');
+    if('rifornio-before-import-v1' in ls){
+      if(!object(journal)||journal.version!==1||!['pending','committed','rolled-back'].includes(journal.phase)||!object(journal.previous)||!['rifornioVehicles','rifornioEntries'].every(key=>journal.previous[key]===null||typeof journal.previous[key]==='string'))fail('INVALID_RECOVERY_JOURNAL');
+      if(journal.phase==='pending')fail('RECOVERY_PENDING');
+    }
+
     const vehicles=readJSON(ls,'rifornioVehicles',true),ids=unique(vehicles),entries=readJSON(ls,'rifornioEntries',true);unique(entries);
     for(const vehicle of vehicles)if(typeof vehicle.name!=='string'||!vehicle.name.trim()||vehicle.fuel!==undefined&&typeof vehicle.fuel!=='string'||vehicle.consumption!==undefined&&(!Number.isFinite(vehicle.consumption)||vehicle.consumption<=0))fail('INVALID_VEHICLE');
     // Removed vehicles are allowed: the original application retains their history.
@@ -137,11 +143,11 @@ export function validateSnapshot(spec,snapshot) {
     if(!current)fail('MISSING_STATE');
     for(const field of ['accounts','movements','documents','positions'])unique(current[field]);
     const files=records(snapshot,'TeFinanza-family','files');unique(files);const byId=new Map(files.map(f=>[f.id,f]));
-    const checkFiles=state=>{if(!object(state)||!Array.isArray(state.documents))fail('INCOMPLETE_STATE');for(const doc of state.documents)if(!byId.has(doc.id))fail('MISSING_ATTACHMENT');};
+    const checkFiles=state=>{if(!object(state)||!Array.isArray(state.documents))fail('INCOMPLETE_STATE');for(const doc of state.documents)if(!byId.has(doc.id)&&!(doc.originalMode==='text-only'&&typeof doc.text==='string'))fail('MISSING_ATTACHMENT');};
     checkFiles(current);
     if(current.resetBackup?.state)checkFiles(current.resetBackup.state);
     const safety=rows.find(x=>x.key==='restoreSafety')?.value;
-    if(safety){if(!object(safety.state)||!Array.isArray(safety.files))fail('INCOMPLETE_SAFETY_COPY');const safetyIds=unique(safety.files);for(const f of safety.files)if(!(f.blob instanceof Blob)||!f.blob.size)fail('INVALID_ATTACHMENT');for(const doc of safety.state.documents||[])if(!safetyIds.has(doc.id))fail('MISSING_ATTACHMENT');}
+    if(safety){if(!object(safety.state)||!Array.isArray(safety.files))fail('INCOMPLETE_SAFETY_COPY');const safetyIds=unique(safety.files);for(const f of safety.files)if(!(f.blob instanceof Blob)||!f.blob.size)fail('INVALID_ATTACHMENT');for(const doc of safety.state.documents||[])if(!safetyIds.has(doc.id)&&!(doc.originalMode==='text-only'&&typeof doc.text==='string'))fail('MISSING_ATTACHMENT');}
     for(const f of files)if(!(f.blob instanceof Blob)||!f.blob.size)fail('INVALID_ATTACHMENT');
   } else if (spec.kind==='clinical') {
     const rows=stores(snapshot,spec.databases[0].name,'cache'),s=rows.find(x=>x.key==='state')?.value;

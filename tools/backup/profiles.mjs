@@ -1,7 +1,7 @@
 // Explicit allowlists: no auth sessions, API keys, remembered access keys or directory handles.
 const make=(id,kind,localKeys,databases=[],extra={})=>({id,kind,localKeys,databases,...extra});
 export const diviso=make('diviso','diviso',['diviso-v2']);
-export const rifornio=make('rifornio','rifornio',['rifornioVehicles','rifornioEntries','pienosmartTripDraftV1','pienosmartRecordedTrips']);
+export const rifornio=make('rifornio','rifornio',['rifornioVehicles','rifornioEntries','pienosmartTripDraftV1','pienosmartRecordedTrips','rifornio-before-import-v1']);
 export const stickers=make('stickers','stickers',['ss-stickers','ss-packs'],[{name:'luki-stickers',stores:['stickers']}]);
 export const cochiPrivate=make('cochi-private','cochi',['cochi-desktop-v1','cochi-before-restore-v1'],[],{stateKey:'cochi-desktop-v1'});
 export const cochiPublic=make('cochi-public','cochi',['cochi-open-local-v1','cochi-before-restore-v1','cochi-full-private-v2','cochi-private-vault-v1'],[],{stateKey:'cochi-open-local-v1'});

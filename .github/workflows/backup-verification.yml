@@ -1,0 +1,21 @@
+name: Verifica strumenti di backup (dati sintetici)
+on:
+  push:
+    branches: [backup-preparation-2026]
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+permissions:
+  contents: read
+jobs:
+  backup-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Verifica copie e ripristino con fixture sintetiche
+        run: node --test tools/backup/*.test.mjs tools/backup/*.test.cjs

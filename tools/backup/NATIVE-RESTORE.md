@@ -1,6 +1,6 @@
 # TeFinanza: preparazione del lettore di ripristino
 
-Solo ramo backup-preparation-2026. Nessuna modifica a main, pubblicazione, workflow, impostazioni o servizi remoti. Nessun backup reale eseguito o dichiarato riuscito.
+Solo ramo backup-preparation-2026. Nessuna modifica a main, pubblicazione, workflow di produzione, impostazioni o servizi remoti. Nessun backup reale eseguito o dichiarato riuscito.
 
 ## Modifiche e utilizzo futuro
 
@@ -14,7 +14,7 @@ Prima di un futuro uso autorizzato: chiudere le altre schede, usare una copia is
 
 ## Prove eseguite
 
-`node --test tools/backup/native-restore.test.cjs`: 4 test superati. Formato precedente completo; originali mancanti/duplicati/scollegati; Base64 e versioni errati; checksum, indice incompleto; testo esplicito; nessuna mutazione della sorgente.
+`node --test tools/backup/native-restore.test.cjs`: 7 test superati. Formato precedente completo; originali mancanti/duplicati/scollegati; Base64 e versioni errati; checksum, indice incompleto; testo esplicito; nessuna mutazione della sorgente.
 
 Chromium isolato: JSON v3 completo con confronto dei byte, rifiuto allegato mancante anche nel percorso testo, interruzione della transazione che contiene cancellazione/scrittura degli allegati e verifica che stato persistito, memoria e originale precedenti restino uguali. Nessun servizio operativo contattato. Non provati Safari, file grandi, sincronizzazione cloud o dati reali.
 
@@ -23,3 +23,15 @@ Chromium isolato: JSON v3 completo con confronto dei byte, rifiuto allegato manc
 Per il codice: lasciare il ramo non unito. Baseline prima dell'intervento: `9e5c77ef309a308b0c9ccc59cba9489afa0ed268`. Per una futura revisione inversa usare quel commit come riferimento; nessun reset forzato, migrazione o ripristino di dati automatico è previsto. Il formato nativo rimane v3 con campi additivi; i vecchi lettori ignorano l'indice e non ne garantiscono i controlli.
 
 Il rollback del codice non equivale a ripristinare dati. Il recupero di un archivio reale o del punto di sicurezza richiede una distinta autorizzazione e verifica su copia. Chiavi, accessi cloud, Safari/dispositivi e pubblicazione restano attività manuali non eseguite. Prima di distribuire bisogna controllare cache/versioni e connessioni di sincronizzazione nel contesto autorizzato.
+
+## Correzioni successive alla revisione
+
+L'importazione come testo confronta ora gli originali con quelli già salvati. Un conflitto di byte blocca tutta l'operazione; un originale identico non è riscritto. I file mancanti sono aggiunti con `add` nella stessa transazione dei metadati: un ID occupato dopo il controllo annulla tutta l'importazione, mantenendo l'originale dell'altra operazione. Non è introdotta alcuna pulizia automatica.
+
+Il toolkit riconosce i documenti esplicitamente `text-only` con testo anche nelle copie di sicurezza/reset. La conversione dei JSON nativi richiede un indice coerente per le dichiarazioni solo testo e controlla dimensioni, tipi e SHA-256 dei file elencati. I vecchi JSON completi rimangono supportati; documenti ambigui senza originale rimangono rifiutati.
+
+Rifornio nel toolkit condiviso comprende ora il registro di recupero completato. Con registro `pending` l'esportazione fallisce con `RECOVERY_PENDING`, senza scrivere o ripristinare dati. Conservare i dati del sito e completare soltanto un recupero esplicitamente confermato prima di riprovare.
+
+Nuova verifica automatica separata: `.github/workflows/backup-verification.yml`, soli test sintetici con Node 22 e 24, permesso `contents: read`, nessun secret, ambiente di produzione o comando di deploy. Esegue 45 test per versione Node (30 toolkit precedenti, 7 del lettore e 8 regressioni d'integrazione). Il workflow esistente rimane invariato. In locale passano anche i 92 test preesistenti: totale 137. Chromium verifica conflitti, byte identici, collisione sopraggiunta e coerenza dei formati solo testo.
+
+Rollback di questo aggiornamento: riferimento `3e670634a558fd4197231de5112ae13cd9f2e6a3`; preferire lasciare la PR in bozza/non unita. Non tornare ai vecchi esportatori Rifornio durante un recupero pendente. Il merge su main può avviare Pages: richiede autorizzazione separata ed è escluso.

@@ -49,6 +49,16 @@
   const copy={...snapshot,backupVersion:3,exportedAt:new Date().toISOString(),originalFiles,originalFileIntegrity:{version:1,files:checks,textOnly}};
   await prepare(copy);return copy;
  }
- root.TFBackupIntegrity={prepare,create};
+ async function prepareMerge(raw,stored){
+  const incoming=await prepare(raw),existing=unique(stored),files=[],existingIds=[];
+  for(const file of incoming){
+   const old=existing.get(file.id);
+   if(!old){files.push(file);continue;}
+   if(!(old.blob instanceof Blob)||old.blob.size!==file.blob.size||await hash(old.blob)!==await hash(file.blob))error('Un originale con lo stesso identificativo ha un contenuto diverso. Nessun dato è stato sostituito.');
+   existingIds.push(file.id);
+  }
+  return {files,existingIds};
+ }
+ root.TFBackupIntegrity={prepare,create,prepareMerge};
  if(typeof module!=='undefined')module.exports=root.TFBackupIntegrity;
 })(globalThis);
