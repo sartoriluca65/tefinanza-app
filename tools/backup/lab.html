@@ -1,0 +1,9 @@
+<!doctype html><html lang="it"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; connect-src 'none'; img-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Laboratorio backup — fase 0B</title><style>body{font:16px/1.6 system-ui;max-width:760px;margin:3rem auto;padding:1rem}button,input,select{font:inherit;margin:.6rem}p{overflow-wrap:anywhere}</style>
+<h1>Laboratorio backup</h1><p>Solo copie sintetiche, su localhost. Nessun collegamento ai servizi di produzione. Questo strumento non importa dati nelle applicazioni: crea un nuovo database di laboratorio.</p>
+<label>Profilo <select id="profile"></select></label><button id="fixture">Scarica esempio sintetico</button>
+<p><label>Copia sintetica da controllare <input id="input" type="file" accept=".json"></label></p>
+<button id="verify">Verifica copia</button><button id="restore">Ripristina in nuovo spazio di laboratorio</button>
+<p id="status" role="status">Nessun file controllato.</p><p>Il download non viene dichiarato riuscito: il file conservato va selezionato e verificato. Una verifica del formato non certifica la riapertura nell’app originale.</p>
+<script type="module" src="./lab.mjs"></script></html>

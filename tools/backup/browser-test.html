@@ -1,0 +1,24 @@
+<!doctype html><meta charset="utf-8"><title>Synthetic isolated backup tests</title>
+<p id="status">SYNTHETIC_TEST_PENDING</p>
+<script type="module">
+import {capture,browserSource,verifyBackup,browserSandbox,restoreToNewSandbox,encode} from './backup.mjs';
+import {tefinanza,diviso} from './profiles.mjs';
+const assert=(condition,code)=>{if(!condition)throw Error(code);};
+try{
+  assert(['localhost','127.0.0.1','[::1]'].includes(location.hostname),'LOCAL_ONLY');
+  const seed=await new Promise((resolve,reject)=>{const r=indexedDB.open('TeFinanza-family',1);r.onupgradeneeded=()=>{r.result.createObjectStore('state');r.result.createObjectStore('files');};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(Error('SEED_FAILED'));});
+  await new Promise((resolve,reject)=>{const t=seed.transaction(['state','files'],'readwrite');t.objectStore('state').put({accounts:[],movements:[],positions:[],documents:[{id:'synthetic'}]},'current');t.objectStore('state').put('excluded synthetic handle','localArchiveFolder');t.objectStore('files').put({id:'synthetic',name:'synthetic.bin',blob:new Blob([new Uint8Array([0,1,255])])},'synthetic');t.oncomplete=resolve;t.onerror=()=>reject(Error('SEED_FAILED'));});seed.close();
+  localStorage.setItem('diviso-v2','{"people":[],"expenses":[],"groups":[]}');
+  const before=localStorage.getItem('diviso-v2'),source=browserSource(window),original=await source.readDatabase(tefinanza.databases[0]);
+  const backup=await capture(tefinanza,source);const checked=await verifyBackup(tefinanza,backup);
+  assert(checked.databases[0].stores[0].entries.length===1,'EXCLUDED_HANDLE');
+  const target=browserSandbox(window,'backup-preparation-browser');await restoreToNewSandbox(tefinanza,backup,target);
+  const result=await new Promise((resolve,reject)=>{const r=indexedDB.open(target.name);r.onsuccess=()=>{const d=r.result,t=d.transaction('restore-plan'),q=t.objectStore('restore-plan').get('verified');q.onsuccess=()=>resolve(q.result);t.oncomplete=()=>d.close();t.onerror=()=>reject(Error('READ_FAILED'));};});
+  assert(JSON.stringify(await encode(result.snapshot))===JSON.stringify(await encode(checked)),'RESTORE_BYTES');
+  const again=await source.readDatabase(tefinanza.databases[0]);assert(JSON.stringify(await encode(again))===JSON.stringify(await encode(original)),'ORIGINAL_CHANGED');
+  assert(localStorage.getItem('diviso-v2')===before,'LOCAL_STORAGE_CHANGED');
+  let rejected=false;try{await restoreToNewSandbox(tefinanza,backup,browserSandbox(window,target.name));}catch{rejected=true;}assert(rejected,'EXISTING_TARGET_ACCEPTED');
+  const c=new AbortController();c.abort();rejected=false;try{await capture(diviso,source,{signal:c.signal});}catch{rejected=true;}assert(rejected,'INTERRUPTION_ACCEPTED');
+  document.querySelector('#status').textContent='PASS: browser read-only capture; binary roundtrip; isolated restore; original unchanged; existing target refused; interruption refused';
+}catch{document.querySelector('#status').textContent='FAIL: synthetic browser test';}
+</script>
