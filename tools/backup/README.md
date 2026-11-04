@@ -75,7 +75,7 @@ La verifica indipendente avviene rileggendo il file realmente conservato.
 
 ## Formati precedenti
 
-Le app e i loro lettori precedenti restano invariati. `legacy.mjs` accetta COPIE
+Il toolkit non modifica gli archivi originali; le correzioni al lettore TeFinanza sono descritte in `NATIVE-RESTORE.md`. `legacy.mjs` accetta COPIE
 JSON native di Diviso, Cochi non cifrato, Rifornio schema 1 e TeFinanza v3. Non
 sovrascrive né migra alcun archivio. Un vecchio JSON Rifornio non può recuperare
 viaggi mai inclusi e viene marcato `LEGACY_VEHICLES_AND_REFUELS_ONLY`.
@@ -109,3 +109,8 @@ TeFinanza: include stato corrente, restoreSafety e tutti gli originali in files.
 ## Prove sulle copie applicative
 
 Vedi [E2E-RESULTS.md](E2E-RESULTS.md) per i casi effettivamente provati, le incompatibilità native ancora aperte e i limiti del recupero operativo. Gli strumenti rimangono separati dall’app pubblicata.
+
+
+### TeFinanza: copie successive a un azzeramento
+
+Il convertitore del toolbox TeFinanza controlla anche gli originali della copia precedente all'azzeramento e li conserva nel pacchetto. Non esegue l'annullamento o altre scritture nell'app. Usare il lettore TeFinanza aggiornato per i nuovi campi di recupero; un vecchio lettore può ignorarli. Le copie precedenti complete restano leggibili; i riferimenti senza byte vengono rifiutati. Il punto di sicurezza separato è coperto dal toolkit e non dal JSON nativo.

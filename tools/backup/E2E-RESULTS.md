@@ -1,3 +1,11 @@
+# Aggiornamento: allegati della copia di azzeramento — 4 novembre 2026
+
+Corretto il caso aggiuntivo: il JSON nativo include e verifica anche gli originali dei documenti conservati per annullare un azzeramento. Un recupero non riclassifica automaticamente documenti privi di originale come solo testo. Il punto di sicurezza viene salvato atomicamente con il ripristino.
+
+148 test locali passati (56 backup/lettore, 92 preesistenti) e 17 controlli nativi Chromium passati, oltre alla riapertura tramite toolkit. Zero richieste esterne eseguite. Nessun dato reale, merge o deploy. Dettagli e compatibilità in [NATIVE-RESTORE.md](NATIVE-RESTORE.md). I resoconti sottostanti sono storici e hanno conteggi riferiti alle fasi precedenti.
+
+---
+
 # Aggiornamento dopo revisione — 3 novembre 2026
 
 Tre difetti residui corretti nei candidati: conflitti degli originali nell'importazione testo TeFinanza; registro Rifornio omesso dal toolkit dopo un'interruzione; documenti solo testo riconosciuti dal lettore ma non dal toolkit. Nuovo workflow separato di soli test sintetici, senza modifiche al workflow di produzione.

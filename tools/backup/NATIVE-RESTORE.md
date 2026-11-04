@@ -35,3 +35,21 @@ Rifornio nel toolkit condiviso comprende ora il registro di recupero completato.
 Nuova verifica automatica separata: `.github/workflows/backup-verification.yml`, soli test sintetici con Node 22 e 24, permesso `contents: read`, nessun secret, ambiente di produzione o comando di deploy. Esegue 45 test per versione Node (30 toolkit precedenti, 7 del lettore e 8 regressioni d'integrazione). Il workflow esistente rimane invariato. In locale passano anche i 92 test preesistenti: totale 137. Chromium verifica conflitti, byte identici, collisione sopraggiunta e coerenza dei formati solo testo.
 
 Rollback di questo aggiornamento: riferimento `3e670634a558fd4197231de5112ae13cd9f2e6a3`; preferire lasciare la PR in bozza/non unita. Non tornare ai vecchi esportatori Rifornio durante un recupero pendente. Il merge su main può avviare Pages: richiede autorizzazione separata ed è escluso.
+
+## Recupero dopo azzeramento — 4 novembre 2026
+
+Il JSON nativo mantiene `backupVersion: 3` e aggiunge, quando necessari, `resetBackup.originalFiles` e `resetBackup.originalFileIntegrity`. L'indice della copia precedente copre tutti i suoi documenti; gli originali già inclusi nell'archivio corrente sono riutilizzati senza duplicarne i byte. Anche copie annidate sono controllate, fino a otto livelli: strutture più profonde vengono rifiutate prima di scrivere.
+
+La verifica comprende archivio corrente e copia precedente. Se manca un originale o l'indice non coincide, esportazione e ripristino si fermano. Gli originali di entrambi sono caricati nella stessa transazione IndexedDB. I payload Base64 non rimangono duplicati nello stato persistito: il lettore conserva gli originali nel database file e mantiene i riferimenti necessari all'annullamento.
+
+Il punto di sicurezza del ripristino viene scritto nella stessa transazione di stato e originali; se l'operazione si interrompe, rimangono anche il precedente punto di sicurezza e gli originali precedenti. Il punto di sicurezza separato non è aggiunto al JSON nativo: per copiarlo usare il toolkit, che lo include già.
+
+“Solo testo” viene assegnato nei due percorsi di creazione manuale senza file, non dal salvataggio generale. Prima di annullare un azzeramento o un ripristino, la presenza degli originali è verificata: un allegato mancante non viene trasformato automaticamente in un documento solo testo.
+
+Compatibilità: vecchi JSON completi senza i nuovi campi rimangono accettati, anche con una copia di azzeramento che riusa gli originali correnti. Vecchi JSON che contengono riferimenti senza i relativi byte sono incompleti e vengono rifiutati. Per recuperare gli allegati aggiuntivi della copia di azzeramento serve questo lettore aggiornato; i vecchi lettori non conoscono i nuovi campi e non garantiscono quell'annullamento. Nessuna migrazione o cancellazione automatica.
+
+La conversione del toolbox usa una copia esatta del validatore puro in `tools/backup/finance-originals.js`, necessaria per servire il toolbox senza esporre la radice dell'app. Un test CI controlla che corrisponda byte per byte a `backup-integrity.js`; non esistono due logiche di validazione indipendenti. Non legge storage né effettua richieste.
+
+Prove: 148 test locali passati (56 backup/lettore e 92 regressioni preesistenti), incluse 11 nuove prove su originali del reset, checksum, copie incomplete, originali condivisi, formato precedente, annidamento, conversione e corrispondenza dei validatori. Chromium: azzeramento tramite interfaccia reale, esportazione, ripristino in contesto nuovo, annullamento, byte originali e riapertura; rifiuto di copie incomplete; nessuna apertura del file di destinazione se la copia non è completa; annullamento della transazione con punto di sicurezza precedente invariato; creazione manuale solo testo ancora funzionante. Tutto con dati sintetici e rete esterna bloccata. I test sono inclusi nel workflow di sole verifiche già presente; nessun workflow viene modificato in questo aggiornamento.
+
+Rollback di questo intervento: lasciare la PR #5 in bozza/non unita. Riferimento precedente `11c1f4386efb7f276645ea4eb0f78319dcb1b256`. Dopo un eventuale uso futuro del formato esteso, non tornare a un lettore precedente per recuperarne gli allegati di azzeramento. Il rollback del codice non ripristina i dati. Pubblicazione e accesso a dati reali restano esclusi.
