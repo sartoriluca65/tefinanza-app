@@ -179,7 +179,9 @@ function editMovement(id){
   delete f.from;delete f.to;
   if(f.settlementDate&&(!C.validDate(f.settlementDate)||f.settlementDate<f.date))return invalid('', 'Inserisci una data di addebito valida in formato giorno/mese/anno, uguale o successiva all’acquisto.');
   if(f.settlementDate&&f.type!=='Spesa')return invalid('', 'La data di addebito prevista si applica alle spese su carta o passività.');
-  if(items.length&&(f.type!=='Spesa'||Math.abs(items.reduce((s,i)=>s+i.total,0)+amount)>.02))return invalid('', 'Il totale articoli deve coincidere con la spesa, al centesimo.');
+  const sameSavedItems=id&&items.length===(m.items||[]).length&&items.every((item,index)=>{const saved=m.items[index];return saved&&item.name===saved.name&&Number(item.qty)===Number(saved.qty)&&Number(item.total)===Number(saved.total)&&item.category===saved.category});
+  const unchangedReceiptDetail=Boolean(id&&sameSavedItems&&!receiptAttachment&&f.type===m.type&&Math.abs(amount-Number(m.amount))<=.001);
+  if(items.length&&(f.type!=='Spesa'||Math.abs(items.reduce((sum,item)=>sum+item.total,0)+amount)>.02)&&!unchangedReceiptDetail)return invalid('', 'Il totale articoli deve coincidere con la spesa, al centesimo. Per correggere le righe articolo, verifica il dettaglio acquisti.');
   if(items.some(i=>i.qty<=0))return invalid('', 'La quantità deve essere positiva.');
   const allocationActive=$('#splitEnabled')?.checked;
   if(allocationActive){
