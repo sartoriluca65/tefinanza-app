@@ -91,30 +91,34 @@ export async function api(request,env,user) {
  return json({error:'Operazione non disponibile'},404);
 }
 export async function handle(request,env,ctx) {
+ let phase='AUTH';
  try {
   const user=await verifyJWT(request.headers.get('Cf-Access-Jwt-Assertion'),env);
+  phase='ROUTE';
   const url=new URL(request.url);
   if(url.origin!==env.ORIGIN)denied(403,'Indirizzo di prova non autorizzato');
-  if(url.pathname.startsWith('/_sync/'))return protect(await api(request,env,user));
+  if(url.pathname.startsWith('/_sync/')){phase='SYNC';return protect(await api(request,env,user));}
   if(!['GET','HEAD'].includes(request.method))return protect(json({error:'Metodo non disponibile'},405));
   if(url.pathname==='/_luki/bootstrap.js')return protect(new Response(bootstrap,{headers:{'Content-Type':'text/javascript; charset=utf-8'}}));
   if(url.pathname==='/_luki/controller.js')return protect(new Response(controller,{headers:{'Content-Type':'text/javascript; charset=utf-8'}}));
   if(url.pathname==='/sync.js'&&env.APP==='tefinanza')return protect(new Response('/* Legacy transport replaced by isolated encrypted staging transport. */',{headers:{'Content-Type':'text/javascript'}}));
   let path=decodeURIComponent(url.pathname);if(path==='/'||path.endsWith('/'))path+='index.html';
   if(!/^\/[A-Za-z0-9_./@+ -]+$/.test(path)||path.includes('..')||path.includes('/.'))denied(404,'Risorsa non disponibile');
-  // Pinned public CODE only. No user payload or authorization is forwarded to GitHub.
-  const response=await fetch(`https://raw.githubusercontent.com/${env.REPO}/${env.SOURCE_SHA}/${env.SOURCE_BASE||''}${path.slice(1)}`,{redirect:'error'});
+  // Static assets are hosted on Cloudflare and always reached AFTER JWT validation.
+  if(!env.ASSETS)denied(503,'Pacchetto applicativo non disponibile');
+  const assetHeaders=new Headers();if(request.headers.has('range'))assetHeaders.set('range',request.headers.get('range'));
+  phase='ASSETS';const response=await env.ASSETS.fetch(new Request(url.origin+path,{headers:assetHeaders}));
   if(!response.ok)return protect(new Response('Risorsa non disponibile',{status:response.status===404?404:502}));
   const extension=path.split('.').pop();const mime={html:'text/html; charset=utf-8',js:'text/javascript; charset=utf-8',mjs:'text/javascript; charset=utf-8',css:'text/css; charset=utf-8',json:'application/json',webmanifest:'application/manifest+json',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',ico:'image/x-icon',svg:'image/svg+xml',pdf:'application/pdf',wasm:'application/wasm',ttf:'font/ttf',woff2:'font/woff2'}[extension]||'application/octet-stream';
-  const headers={'Content-Type':mime};let body=response.body;
+  const headers=new Headers(response.headers);headers.set('Content-Type',mime);let body=response.body;
   if(extension==='html'){
-   let html=await response.text();const config=JSON.stringify({user:user.id,app:env.APP,stage:true}).replace(/</g,'\\u003c');
+   phase='HTML';let html=await response.text();const config=JSON.stringify({user:user.id,app:env.APP,stage:true}).replace(/</g,'\\u003c');
    html=html.replace(/<head([^>]*)>/i,`<head$1><script>window.LUKI_CONFIG=${config};</script><script src="/_luki/bootstrap.js"></script>`);
    const end=html.toLowerCase().lastIndexOf('</body>');
    if(end<0)denied(502,'Documento applicativo non valido');
-   html=html.slice(0,end)+'<script src="/_luki/controller.js"></script>'+html.slice(end);body=html;
+   html=html.slice(0,end)+'<script src="/_luki/controller.js"></script>'+html.slice(end);body=html;headers.delete('Content-Length');headers.delete('ETag');
   }
-  return protect(new Response(request.method==='HEAD'?null:body,{headers}));
- }catch(error){const status=error.status||500;if(status===500)console.error(JSON.stringify({event:'request_failed',code:'INTERNAL_ERROR'}));return protect(json({error:status===500?'Operazione non completata. La copia locale resta disponibile.':error.message},status));}
+  return protect(new Response(request.method==='HEAD'?null:body,{headers,status:response.status}));
+ }catch(error){const status=error.status||500,reference='STAGING_'+phase+'_'+String(error.name||'Error').replace(/[^A-Za-z]/g,'');if(status===500)console.error(JSON.stringify({event:'request_failed',code:reference,frames:String(error.stack||'').split('\n').slice(1,4)}));return protect(json({error:status===500?'Operazione non completata. La copia locale resta disponibile.':error.message,...(status===500?{reference}:{})},status));}
 }
 export default {fetch:handle};

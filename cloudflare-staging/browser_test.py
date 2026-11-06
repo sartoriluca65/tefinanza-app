@@ -1,12 +1,15 @@
+import uuid
+USER_A=uuid.uuid4().hex*2
+USER_B=uuid.uuid4().hex*2
 import json
 from playwright.sync_api import sync_playwright
 
 BASE='http://127.0.0.1:8765'
 with sync_playwright() as p:
  browser=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
- a=browser.new_context(extra_http_headers={'x-test-user':'a'*64})
- b=browser.new_context(extra_http_headers={'x-test-user':'a'*64})
- other=browser.new_context(extra_http_headers={'x-test-user':'b'*64})
+ a=browser.new_context(extra_http_headers={'x-test-user':USER_A})
+ b=browser.new_context(extra_http_headers={'x-test-user':USER_A})
+ other=browser.new_context(extra_http_headers={'x-test-user':USER_B})
  page=a.new_page();page.goto(BASE);page.wait_for_function('window.LukiSyncTest && window.fixtureDB')
  code=page.evaluate('LukiSyncTest.createRecovery()')
  page.evaluate('(code)=>LukiSyncTest.unlock(code)',code)
@@ -17,7 +20,7 @@ with sync_playwright() as p:
  second=b.new_page();second.goto(BASE);second.wait_for_function('window.LukiSyncTest && window.fixtureDB')
  second.evaluate('(code)=>LukiSyncTest.unlock(code)',code)
  # Explicit initial-device choice. Preserve its initial local archive too.
- second.evaluate("async()=>{const box=await fetch('/_sync/snapshot?revision=1',{headers:{'X-Luki-User':LUKI_CONFIG.user}}).then(r=>r.json());const plain=await LukiSyncTest.open(await LukiSyncTest.importRecovery('"+code+"'),box,'luki-v1|tefinanza|'+ 'a'.repeat(64)+'|snapshot');window.copy=JSON.parse(new TextDecoder().decode(plain));window.copyHash=await LukiSyncTest.hash(plain);}")
+ second.evaluate("async()=>{const box=await fetch('/_sync/snapshot?revision=1',{headers:{'X-Luki-User':LUKI_CONFIG.user}}).then(r=>r.json());const plain=await LukiSyncTest.open(await LukiSyncTest.importRecovery('"+code+"'),box,'luki-v1|tefinanza|'+ LUKI_CONFIG.user+'|snapshot');window.copy=JSON.parse(new TextDecoder().decode(plain));window.copyHash=await LukiSyncTest.hash(plain);}")
  second.evaluate('LukiSyncTest.restore(copy,1,copyHash)');second.wait_for_load_state();second.wait_for_function('window.LukiSyncTest && window.fixtureDB')
  assert second.evaluate('fixtureRead()')['accounts'][0]['balance']==42
  assert second.evaluate("async()=>{const r=fixtureDB.transaction('files').objectStore('files').get('document');return new Promise(ok=>r.onsuccess=async()=>ok(await r.result.text()))}")=='%PDF-synthetic-original'
@@ -36,7 +39,7 @@ with sync_playwright() as p:
  assert outsider.evaluate("fetch('/_sync/head',{headers:{'X-Luki-User':LUKI_CONFIG.user}}).then(r=>r.json()).then(r=>r.revision)")==0
  print('PASS: another user sees neither local nor remote records')
  # Same browser profile switches verified identity, using the same physical origin.
- switched=a.new_page();switched.set_extra_http_headers({'x-test-user':'b'*64});switched.goto(BASE);switched.wait_for_function('window.LukiSyncTest && window.fixtureDB')
+ switched=a.new_page();switched.set_extra_http_headers({'x-test-user':USER_B});switched.goto(BASE);switched.wait_for_function('window.LukiSyncTest && window.fixtureDB')
  assert switched.evaluate('fixtureRead()') is None
  print('PASS: local user separation survives account switch on same browser')
  browser.close()

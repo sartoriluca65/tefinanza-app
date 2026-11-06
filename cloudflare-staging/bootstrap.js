@@ -32,7 +32,7 @@
  indexedDB.deleteDatabase=function(name){assertWritable();const r=native.del(prefix+name);r.addEventListener('success',()=>{update({databases:readControl().databases.filter(n=>n!==String(name))});changed();});return r;};
  IDBDatabase.prototype.transaction=function(stores,mode,...rest){if(this.name.startsWith(prefix)&&mode==='readwrite')assertWritable();const tx=native.transaction.call(this,stores,mode,...rest);if(this.name.startsWith(prefix)&&mode==='readwrite')tx.addEventListener('complete',changed);return tx;};
  // Internal transport uses the original APIs, outside the application namespace.
- Object.defineProperty(window,'LukiStorage',{value:{cfg,prefix,generation,controlKey,native,nativeLocal,readControl,update,keys:()=>keys(nativeLocal),changed},writable:false});
+ Object.defineProperty(window,'LukiStorage',{value:{cfg,prefix,generation,controlKey,native,nativeLocal,nativeSession,readControl,update,keys:()=>keys(nativeLocal),changed},writable:false});
  window.addEventListener('storage',event=>{if(event.key===controlKey){const c=readControl();if(c.generation!==generation){document.documentElement.inert=true;location.reload();}}});
  // Service-worker offline caches must never serve another authenticated user's copy.
  if(navigator.serviceWorker)navigator.serviceWorker.register=async()=>{throw Error('Cache offline della prova disattivata per isolamento account');};

@@ -1,3 +1,5 @@
+import uuid
+TEST_USER=uuid.uuid4().hex*2
 from playwright.sync_api import sync_playwright
 
 def ready(page,app):
@@ -10,7 +12,7 @@ def ready(page,app):
 with sync_playwright() as p:
  browser=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
  for app in ['tefinanza','cartella-clinica','registro-credenziali']:
-  contexts=[browser.new_context(extra_http_headers={'x-native':'1','x-test-app':app,'x-test-user':'d'*64}) for i in range(2)]
+  contexts=[browser.new_context(extra_http_headers={'x-native':'1','x-test-app':app,'x-test-user':TEST_USER}) for i in range(2)]
   pages=[]
   for context in contexts:
    page=context.new_page();page.route('https://**/*',lambda route:route.abort());page.goto('http://127.0.0.1:8765/');ready(page,app);pages.append(page)

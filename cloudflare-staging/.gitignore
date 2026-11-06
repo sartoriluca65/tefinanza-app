@@ -7,3 +7,7 @@ backups/
 .env
 .env.*
 .dev.vars*
+asset-build/
+.assets-*.json
+access-probe.*
+__pycache__/
