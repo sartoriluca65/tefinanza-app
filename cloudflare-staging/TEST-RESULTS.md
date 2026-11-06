@@ -45,3 +45,10 @@ GitHub Actions: fase di test del nuovo trasporto passata nei tre repository. Dep
 ## Prima di usare dati reali
 
 Verificare login, isolamento end-to-end, prestazioni e limiti con dimensioni rappresentative; revisione di sicurezza del nuovo trasporto; prove Safari/iPhone/iPad; confronto conteggi e hash dei backup sintetici; attivazione CI protetta. Gli asset sono ora ospitati interamente in Workers Static Assets e passano sempre dal Worker autenticato. Ottenere infine la conferma dell'utente prima di importare dati reali o attivare definitivamente le nuove versioni.
+
+
+## Correzione dialoghi di sincronizzazione
+
+I messaggi di errore erano visualizzati nella barra dietro al dialogo modale e potevano far sembrare inattivi i pulsanti. Ora gli esiti sono visibili anche dentro al dialogo; ogni pulsante mostra l’attesa e impedisce clic ripetuti. La scelta di una revisione a sincronizzazione bloccata indica come sbloccare e offre un accesso diretto alla finestra della chiave. Nessuna modifica a cifratura, dati, chiavi o revisioni.
+
+Verifica con pulsanti reali in Chromium: errore chiave visibile e pulsante riattivato; generazione chiave con indicazione visibile; sblocco valido; revisione bloccata con istruzioni; passaggio diretto allo sblocco e ripristino verificato a larghezza mobile. Tutto con identità e archivi sintetici. Il test non sostituisce la verifica su Safari reale.
