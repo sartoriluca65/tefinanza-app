@@ -1,0 +1,9 @@
+assets.mjs
+*.log
+test-results/
+playwright-report/
+backups/
+*.backup.json
+.env
+.env.*
+.dev.vars*
