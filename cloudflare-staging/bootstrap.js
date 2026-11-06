@@ -28,6 +28,7 @@
  function keys(storage){const out=[];for(let i=0;i<storage.length;i++){const k=native.key.call(storage,i);if(k?.startsWith(prefix))out.push(k.slice(prefix.length));}return out.sort();}
  Object.defineProperty(window,'localStorage',{value:scoped(nativeLocal),configurable:false});
  Object.defineProperty(window,'sessionStorage',{value:scoped(nativeSession),configurable:false});
+ if(navigator.locks){const requestLock=navigator.locks.request.bind(navigator.locks);navigator.locks.request=(name,...args)=>requestLock(prefix+String(name),...args);}
  indexedDB.open=function(name,version){const c=readControl();const names=new Set(c.databases);names.add(String(name));update({databases:[...names].sort()});const r=version===undefined?native.open(prefix+name):native.open(prefix+name,version);r.addEventListener('upgradeneeded',()=>{assertWritable();r.transaction.addEventListener('complete',changed);});return r;};
  indexedDB.deleteDatabase=function(name){assertWritable();const r=native.del(prefix+name);r.addEventListener('success',()=>{update({databases:readControl().databases.filter(n=>n!==String(name))});changed();});return r;};
  IDBDatabase.prototype.transaction=function(stores,mode,...rest){if(this.name.startsWith(prefix)&&mode==='readwrite')assertWritable();const tx=native.transaction.call(this,stores,mode,...rest);if(this.name.startsWith(prefix)&&mode==='readwrite')tx.addEventListener('complete',changed);return tx;};

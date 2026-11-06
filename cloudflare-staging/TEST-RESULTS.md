@@ -20,6 +20,12 @@ Chromium locale, Playwright e server vincolato a loopback: **6 scenari del trasp
 
 **3 prove di ricezione automatica native superate:** dopo l’abbinamento iniziale, gli aggiornamenti arrivano al secondo browser inattivo in tutte le tre app; il solo sblocco PIN non genera un falso conflitto.
 
+Una prova aggiuntiva con due utenti nella stessa origine e nello stesso browser verifica anche l’indipendenza dei blocchi di modifica clinici. La ricezione automatica ripetuta è verificata senza reinserire la chiave durante i 15 minuti di sblocco della scheda.
+
+## Runtime Cloudflare reale
+
+Un Worker diagnostico temporaneo, protetto da una chiave casuale e poi rimosso, ha verificato sul runtime Cloudflare: firma JWT sintetica valida, recupero delle chiavi pubbliche Access e importazione RSA, e per ciascuna app scrittura/lettura D1, upload/download R2 con hash identico, retry idempotente e conservazione di una copia concorrente. Tutte le verifiche sono passate. Le copie di prova sono in namespace sintetici distinti dal proprietario; non sono state usate credenziali o sessioni personali. I dati sintetici delle prove sono conservati nelle risorse staging.
+
 ## Codice preesistente
 
 TeFinanza: **146/148 test passati**; due fallimenti già presenti prima dell'intervento (riconoscimento prodotto nello scontrino e copia del validatore backup non identica). Non modificati per questa migrazione. La workflow preesistente di TeFinanza fallisce anche sul branch; il nuovo trasporto ha una workflow distinta.
