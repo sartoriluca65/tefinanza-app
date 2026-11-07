@@ -29,3 +29,7 @@ Per aggiornamenti futuri usare risorse di collaudo distinte, poi un rilascio ver
 WebKit Linux non equivale a Safari su macOS/iOS; non è stato eseguito un audit di sicurezza indipendente. Le verifiche sui dispositivi personali effettuate dall'utente restano parte del collaudo effettivo. OCR e ogni variante di stampa non sono stati collaudati integralmente.
 TeFinanza ha due test preesistenti falliti: riconoscimento della voce “Carta igienica” fra i prodotti dello scontrino, e confronto testuale di una copia del validatore backup negli strumenti di laboratorio. Il percorso nativo backup completo/ripristino è passato nei browser, e 7 test del ripristino nativo passano; i due difetti non vengono dichiarati risolti.
 Metadati dello snapshot massimo 8 MB; documenti in blocchi da 1 MB. Provare archivi grandi per gradi e controllare quota Cloudflare e spazio browser. Nessun dato reale è importato dall'assistente.
+
+
+## Aggiornamento OCR 2026-11-07.2
+La classificazione dei prodotti che iniziano con CARTA è corretta; la suite nativa standard ora passa integralmente. Vedere OCR-FIX.md. La nota sul difetto OCR nel collaudo iniziale è storica; resta la differenza fra copie del validatore negli strumenti di laboratorio.

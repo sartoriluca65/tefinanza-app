@@ -10,8 +10,8 @@
   "origin": "https://luki-tefinanza-staging.sartori-luca65.workers.dev",
   "issuer": "https://proud-rain-876d.cloudflareaccess.com",
   "repository": "sartoriluca65/tefinanza-app",
-  "sourceSha": "a6af501739d4ba2fc3cdd1db80e7c2ced16d1d7d",
+  "sourceSha": "bb9584d31bffae38eee65f0ce28b3cbc1f444edf",
   "sourceBase": "",
   "mode": "private-live",
-  "release": "2026-11-07.1"
+  "release": "2026-11-07.2"
 }
