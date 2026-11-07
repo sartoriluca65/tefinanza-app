@@ -1,0 +1,12 @@
+{
+  "name": "luki-cloudflare-sync-keyfix",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "lint": "node --check crypto.mjs && node --check controller.js && node --check bootstrap.js && node --check worker.mjs && node --check deploy-test.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "node tests/browser.cjs"
+  },
+  "devDependencies": {"playwright": "1.62.1"}
+}

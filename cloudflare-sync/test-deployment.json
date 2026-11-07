@@ -1,0 +1,15 @@
+{
+  "name": "luki-tefinanza-keyfix-test",
+  "db": "98e0a643-ee12-4c94-9516-7d61828fc13b",
+  "bucket": "luki-tefinanza-keyfix-test-files",
+  "accessId": "dc439945-fb92-4716-9000-e7aa83a67efa",
+  "aud": "4014c7f65fa2fa91de70acecf6e4d38ba23cdbc787b41bc3012ecceb8c49cd18",
+  "origin": "https://luki-tefinanza-keyfix-test.sartori-luca65.workers.dev",
+  "app": "tefinanza",
+  "repo": "sartoriluca65/tefinanza-app",
+  "source_base": "",
+  "source_sha": "a6af501739d4ba2fc3cdd1db80e7c2ced16d1d7d",
+  "release_mode": "staging",
+  "compatibility_date": "2026-11-07",
+  "source_directory": ".."
+}
