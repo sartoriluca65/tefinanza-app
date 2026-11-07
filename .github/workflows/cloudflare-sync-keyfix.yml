@@ -1,0 +1,21 @@
+name: Verifica chiavi Cloudflare
+on:
+  pull_request:
+    paths: ['cloudflare-sync/**', '.github/workflows/cloudflare-sync-keyfix.yml']
+  workflow_dispatch:
+jobs:
+  verifica:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm install
+        working-directory: cloudflare-sync
+      - run: npm run build && npm run lint && npm test
+        working-directory: cloudflare-sync
+      - run: npx playwright install --with-deps webkit
+        working-directory: cloudflare-sync
+      - run: npm run test:browser
+        working-directory: cloudflare-sync
