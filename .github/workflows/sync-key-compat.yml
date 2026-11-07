@@ -1,0 +1,20 @@
+name: Sync key compatibility
+on:
+  push:
+    branches: [fix/sync-prefix-verified-20261107]
+  pull_request:
+    paths: ['cloudflare-staging/**', '.github/workflows/sync-key-compat.yml']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node cloudflare-staging/build.mjs
+      - run: node cloudflare-staging/crypto.test.mjs
+      - run: node cloudflare-staging/crypto-prefix.test.mjs
+      - run: node cloudflare-staging/worker.test.mjs
