@@ -11,5 +11,7 @@
   "issuer": "https://proud-rain-876d.cloudflareaccess.com",
   "repository": "sartoriluca65/tefinanza-app",
   "sourceSha": "a6af501739d4ba2fc3cdd1db80e7c2ced16d1d7d",
-  "sourceBase": ""
+  "sourceBase": "",
+  "mode": "private-live",
+  "release": "2026-11-07.1"
 }

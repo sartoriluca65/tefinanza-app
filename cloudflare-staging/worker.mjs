@@ -14,6 +14,10 @@ export function from64(s) {
  if(typeof s!=='string'||!/^[A-Za-z0-9_-]+$/.test(s))throw Error('INVALID_ENCODING');
  return Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
 }
+export function deploymentState(env) {
+ if(env.RELEASE_MODE!==undefined&&!['staging','private-live'].includes(env.RELEASE_MODE))denied(503,'Modalità applicativa non valida');
+ return {stage:env.RELEASE_MODE!=='private-live',realDataAllowed:env.RELEASE_MODE==='private-live'};
+}
 function denied(code=401,message='Autenticazione richiesta') { throw Object.assign(Error(message),{status:code}); }
 export async function verifyJWT(token,env,fetcher=fetch,now=Math.floor(Date.now()/1000)) {
  if(typeof token!=='string'||token.length>16384)denied();
@@ -27,7 +31,10 @@ export async function verifyJWT(token,env,fetcher=fetch,now=Math.floor(Date.now(
  if(!jwk)denied();
  const key=await crypto.subtle.importKey('jwk',jwk,{name:'RSASSA-PKCS1-v1_5',hash:'SHA-256'},false,['verify']);
  if(!await crypto.subtle.verify('RSASSA-PKCS1-v1_5',key,from64(parts[2]),encoder.encode(parts[0]+'.'+parts[1])))denied();
- return {id:await sha256(encoder.encode(claim.iss+'|'+claim.sub)),email:claim.email};
+ if(env.SYNC_SPACE!==undefined&&(typeof env.SYNC_SPACE!=='string'||!/^[a-z0-9-]{1,64}$/.test(env.SYNC_SPACE)))denied(503,'Spazio di prova non valido');
+ // Server-controlled namespace: old archives remain untouched when starting a new trial.
+ const identity=claim.iss+'|'+claim.sub+(env.SYNC_SPACE?'|space:'+env.SYNC_SPACE:'');
+ return {id:await sha256(encoder.encode(identity)),email:claim.email};
 }
 export async function boundedBody(request,max=LIMIT) {
  const size=request.headers.get('content-length');if(size&&(!/^\d+$/.test(size)||Number(size)>max))denied(413,'Dimensione oltre il limite della prova');
@@ -52,7 +59,7 @@ export async function api(request,env,user) {
  if(!['GET','HEAD'].includes(request.method)) {
   if(request.headers.get('Origin')!==url.origin||request.headers.get('X-Luki-Request')!=='1')denied(403,'Origine della richiesta non valida');
  }
- if(path==='/_sync/session'&&request.method==='GET')return json({user:user.id,app:env.APP,stage:true,realDataAllowed:false});
+ if(path==='/_sync/session'&&request.method==='GET')return json({user:user.id,app:env.APP,...deploymentState(env)});
  if(path==='/_sync/head'&&request.method==='GET'){const row=await head(db,user.id);return json(row?{revision:row.revision,operationId:row.operation_id,createdAt:row.created_at}:{revision:0});}
  if(path==='/_sync/history'&&request.method==='GET'){
   const r=await db.prepare('SELECT revision,operation_id,created_at FROM revisions WHERE user_id=? ORDER BY revision DESC LIMIT 100').bind(user.id).all();
@@ -95,6 +102,7 @@ export async function handle(request,env,ctx) {
  try {
   const user=await verifyJWT(request.headers.get('Cf-Access-Jwt-Assertion'),env);
   phase='ROUTE';
+  const state=deploymentState(env);
   const url=new URL(request.url);
   if(url.origin!==env.ORIGIN)denied(403,'Indirizzo di prova non autorizzato');
   if(url.pathname.startsWith('/_sync/')){phase='SYNC';return protect(await api(request,env,user));}
@@ -112,7 +120,7 @@ export async function handle(request,env,ctx) {
   const extension=path.split('.').pop();const mime={html:'text/html; charset=utf-8',js:'text/javascript; charset=utf-8',mjs:'text/javascript; charset=utf-8',css:'text/css; charset=utf-8',json:'application/json',webmanifest:'application/manifest+json',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',ico:'image/x-icon',svg:'image/svg+xml',pdf:'application/pdf',wasm:'application/wasm',ttf:'font/ttf',woff2:'font/woff2'}[extension]||'application/octet-stream';
   const headers=new Headers(response.headers);headers.set('Content-Type',mime);let body=response.body;
   if(extension==='html'){
-   phase='HTML';let html=await response.text();const config=JSON.stringify({user:user.id,app:env.APP,stage:true}).replace(/</g,'\\u003c');
+   phase='HTML';let html=await response.text();const config=JSON.stringify({user:user.id,app:env.APP,...state}).replace(/</g,'\\u003c');
    html=html.replace(/<head([^>]*)>/i,`<head$1><script>window.LUKI_CONFIG=${config};</script><script src="/_luki/bootstrap.js"></script>`);
    const end=html.toLowerCase().lastIndexOf('</body>');
    if(end<0)denied(502,'Documento applicativo non valido');

@@ -1,3 +1,4 @@
+import os
 import uuid
 TEST_USER=uuid.uuid4().hex*2
 from playwright.sync_api import sync_playwright
@@ -9,13 +10,18 @@ def ready(page,app):
  if app=='registro-credenziali':page.wait_for_function("typeof window.RicordaPinTransport==='function'")
  page.wait_for_timeout(400)
 
+def test_context(browser,**kwargs):
+ if os.environ.get('TEST_ENGINE')=='webkit':
+  return p.webkit.launch_persistent_context(__import__('tempfile').mkdtemp(prefix='luki-webkit-'),headless=True,**kwargs)
+ return browser.new_context(**kwargs)
+
 with sync_playwright() as p:
- browser=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
+ browser=getattr(p,os.environ.get('TEST_ENGINE','chromium')).launch(headless=True,**({'executable_path':'/usr/bin/chromium','args':['--no-sandbox']} if os.environ.get('TEST_ENGINE','chromium')=='chromium' else {}))
  for app in ['tefinanza','cartella-clinica','registro-credenziali']:
-  contexts=[browser.new_context(extra_http_headers={'x-native':'1','x-test-app':app,'x-test-user':TEST_USER}) for i in range(2)]
+  contexts=[test_context(browser,extra_http_headers={'x-native':'1','x-test-stage':'live','x-test-app':app,'x-test-user':TEST_USER}) for i in range(2)]
   pages=[]
   for context in contexts:
-   page=context.new_page();page.route('https://**/*',lambda route:route.abort());page.goto('http://127.0.0.1:8765/');ready(page,app);pages.append(page)
+   page=context.new_page();page.route('https://**/*',lambda route:route.abort());page.goto('http://127.0.0.1:8766/');ready(page,app);pages.append(page)
   a,b=pages;code=a.evaluate('LukiSyncTest.createRecovery()')
   for page in pages:page.evaluate('(code)=>LukiSyncTest.unlock(code)',code)
   if app=='tefinanza':a.evaluate("async()=>{const next=structuredClone(state);next.accounts[0].opening=42;await commit(next,[],{skipLocalArchive:true,skipDuplicateReview:true});}")
@@ -27,7 +33,9 @@ with sync_playwright() as p:
   wire=a.evaluate("fetch('/_sync/snapshot',{headers:{'X-Luki-User':LUKI_CONFIG.user}}).then(r=>r.text())")
   for secret in ['SYNTHETIC-SECRET-987','Paziente sintetico','482951',code]:assert secret not in wire
   b.evaluate("async(code)=>{const box=await fetch('/_sync/snapshot?revision=1',{headers:{'X-Luki-User':LUKI_CONFIG.user}}).then(r=>r.json());const plain=await LukiSyncTest.open(await LukiSyncTest.importRecovery(code),box,'luki-v1|'+LUKI_CONFIG.app+'|'+LUKI_CONFIG.user+'|snapshot');window.copy=JSON.parse(new TextDecoder().decode(plain));window.copyHash=await LukiSyncTest.hash(plain);}",code)
-  b.evaluate('LukiSyncTest.restore(copy,1,copyHash)');b.wait_for_load_state();ready(b,app)
+  with b.expect_navigation(wait_until='load'):
+   b.evaluate('LukiSyncTest.restore(copy,1,copyHash)')
+  ready(b,app)
   if app=='tefinanza':assert b.evaluate('state.accounts[0].opening')==42
   if app=='cartella-clinica':
    assert b.evaluate('data.paziente.nome')=='Paziente sintetico'

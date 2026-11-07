@@ -1,48 +1,31 @@
-# Prova privata Cloudflare — non usare ancora dati personali
+# Applicazioni personali Cloudflare — rilascio 2026-11-07.1
 
-Questa directory aggiunge un ambiente separato; i sorgenti originali e `main` non sono modificati. Le tre applicazioni restano distinte. Configurazione effettiva in `deployment.json`.
+Attivazione privata autorizzata dal proprietario il 7 novembre 2026. Codice sul branch cloudflare-live-2026-11-07. I sorgenti originali GitHub e main restano conservati. Il nome storico “staging” negli URL e nelle risorse viene mantenuto per conservare origine del browser, chiavi e archivi. Questi endpoint sono ora operativi: non usarli per future prove distruttive.
 
-## Accesso e cifratura
+## Avvio e accesso
+Aprire l'URL in deployment.json e ricaricare una volta. La barra deve indicare ARCHIVIO PERSONALE. Accesso riservato al proprietario con email OTP o provider passkey configurati; email verificata dall'utente, registrazione passkey personale da verificare sul suo dispositivo. Il Worker controlla firma, issuer, audience, scadenza e identità; R2 non pubblico.
+Usare la chiave di sincronizzazione ESISTENTE dell'app. Le tre chiavi sono distinte. Non generarne una nuova per un archivio già cifrato. Email, PIN e passkey non ricostruiscono la chiave persa. Conservarla fuori dall'app in un gestore password o in una copia offline protetta.
 
-Cloudflare Access consente solo l'identità del proprietario attraverso passkey oppure codice email. Il Worker verifica nuovamente firma RS256, issuer, audience e scadenza del JWT; non si fida del solo header email. Un account diverso non condivide nemmeno lo storage locale. Una pagina rimasta aperta con il vecchio account non può caricare dati nel nuovo account.
+## Sincronizzazione e conflitti
+Controllo ogni 10 secondi, quando la pagina torna visibile e al ritorno della rete, finché la scheda è aperta e la sincronizzazione è sbloccata. Sblocco della scheda massimo 15 minuti; poi occorre reinserire la chiave. Sul secondo dispositivo inserire la stessa chiave; se il confronto segnala un conflitto aprire Copie e ripristino, verificare la revisione più recente e usarla sul dispositivo.
+Snapshot e documenti sono cifrati AES-GCM nel browser e separati per utente. Le revisioni sono immutabili. Un conflitto conserva entrambe le copie; non avviene una fusione automatica dei campi. Terminare una modifica e attendere “Sincronizzato” prima di modificare lo stesso dato sull'altro dispositivo.
+Senza rete la copia locale rimane disponibile e l'outbox cifrata ritenta. Non cancellare i dati del browser. Non c'è sincronizzazione a browser chiuso né avvio offline garantito: l'accesso iniziale richiede rete e Cloudflare Access.
 
-L'intero archivio sincronizzato è cifrato nel browser con AES-GCM e chiave casuale a 256 bit, inclusi documenti e metadati. La chiave non viene inviata al server né salvata in localStorage. Rimane temporaneamente nella sessionStorage della scheda, separata per account e app, per un massimo di 15 minuti: consente i ricaricamenti necessari agli aggiornamenti automatici. Blocca sincronizzazione ed Esci eliminano questa copia temporanea; dopo la scadenza o in una nuova sessione occorre sbloccare di nuovo. Conservare la chiave fuori dall'app: il codice email e la passkey autenticano, ma non decifrano la copia cloud. Per Registro Credenziali resta anche il PIN originale, con la cifratura locale già presente. La chiave cloud aggiuntiva protegge i wrapper locali anche contro tentativi offline sul PIN corto.
+## Importare backup esistenti
+Prima del trasferimento esportare e conservare il backup originale, senza cancellare dati dal vecchio dispositivo.
+1. TeFinanza: Copia e ripristino → esportare JSON completo con originali; nella nuova app scegliere ripristino, controllare conti/movimenti/documenti nell'anteprima e confermare. Confrontare conteggi, saldi e apertura documenti.
+2. Cartella Clinica: esportare backup completo JSON o tlbackup con PDF. Ripristina → selezionare il file → controllare riepilogo, profili e allegati → confermare. I vecchi JSON con soli riferimenti ai PDF non contengono i documenti: recuperarli dal dispositivo originale.
+3. Registro Credenziali: Backup → Carica backup JSON; verificare anteprima, conteggi e duplicati, quindi confermare. Il JSON nativo può contenere password in chiaro: conservarlo protetto, mai inviarlo in chat o GitHub. La copia cloud viene sempre cifrata nel browser.
+Importare inizialmente sul solo primo dispositivo, aspettare “Sincronizzato”, poi aprire il secondo e verificare i dati ricevuti. Non importare lo stesso file indipendentemente sui due dispositivi.
+Conservare backup periodici oltre alla copia sincronizzata. Verificare un ripristino con una copia protetta in un profilo browser separato, evitando di pubblicare involontariamente dati di prova nell'archivio operativo. Non archiviare backup nei repository.
 
-## Primo uso esclusivamente sintetico
+## Manutenzione e rollback
+Cloudflare Workers + D1 + R2 già configurati; database UE, posizione R2 Europa occidentale come hint (non vincolo di giurisdizione). Nessuna cancellazione o migrazione di dati è eseguita dalla promozione. Registro mantiene anche SYNC_SPACE=trial-2026-11-07, così la nuova chiave appena abbinata resta valida.
+La workflow cloudflare-live.yml esegue build e test automaticamente. Il deploy CI è predisposto, ma non attivato: richiede variabile CLOUDFLARE_LIVE_DEPLOY=true, secret CLOUDFLARE_API_TOKEN nell'ambiente protetto cloudflare-live e relativi permessi limitati. Il connettore non espone un token trasferibile ad Actions. Questa distribuzione è eseguita con il connettore già autorizzato. Non abilitare la vecchia workflow staging contro queste risorse operative.
+Per aggiornamenti futuri usare risorse di collaudo distinte, poi un rilascio verificato dal branch live. Per rollback ridistribuire codice e asset del commit precedente conservando identici APP, SYNC_SPACE, origine, D1, R2 e identità Access. Non cambiare chiavi e non ripristinare automaticamente revisioni dati.
 
-1. Aprire l'URL di prova e accedere con Access. Non importare backup reali.
-2. Nel primo dispositivo scegliere **Sblocca sincronizzazione → Crea chiave per il primo dispositivo**. Copiare e conservare la chiave, poi sbloccare.
-3. Nel secondo dispositivo inserire la medesima chiave. Se esistono due copie, usare **Copie e ripristino** per scegliere esplicitamente la revisione da verificare e ripristinare. Nessuna unione automatica di copie in conflitto.
-4. Dopo lo sblocco, controllo automatico ogni 10 secondi, al ritorno online e quando la pagina torna visibile. Funziona mentre la pagina è aperta: nessuna sincronizzazione in background a browser chiuso. Senza rete le modifiche rimangono nel browser; l'outbox cifrata consente il retry. Non cancellare i dati del browser.
-
-## Integrità e recupero
-
-Snapshot cifrati immutabili in R2; indice delle revisioni e confronto atomico della revisione base in D1. operation_id idempotente: ripetere una richiesta non crea doppioni. Allegati cifrati a blocchi da 1 MB, identificati dall'hash del ciphertext, caricati prima della pubblicazione dell'indice. Tutti i chunk devono esistere nello spazio dell'utente. Un conflitto conserva anche la copia perdente sul server e nel browser. Nessuna cancellazione o pulizia automatica.
-
-Il ripristino verifica gli hash e decifra tutti i documenti prima del cambio; costruisce nuovi database in una generazione separata, poi cambia un solo puntatore locale. La generazione precedente resta recuperabile. Le revisioni passate sono disponibili in **Copie e ripristino**. Recuperare una revisione storica richiede una scelta successiva esplicita prima di pubblicarla come nuova versione. Per precauzione chiudere le altre schede durante i ripristini.
-
-Gli handle delle cartelle locali sono autorizzazioni del dispositivo e non vengono sincronizzati: vanno ricollegati sul dispositivo nuovo. Non trasferire file temporanei di esportazioni in corso: attendere il termine delle operazioni. Nessuna cache Service Worker nella prova, per evitare copie servite dopo un cambio account.
-
-## Backup JSON nativi e migrazione futura
-
-Le funzioni originali rimangono disponibili. Il nuovo dominio non può leggere lo storage del vecchio dominio.
-
-- **TeFinanza:** nel dispositivo originale usare Copia e ripristino per salvare un JSON completo, includendo gli originali. Nel nuovo ambiente il ripristino nativo valida struttura e originali, mostra conteggi e chiede conferma, quindi conserva il punto di sicurezza nella transazione. I JSON incompleti non ricostruiscono i documenti mancanti.
-- **Cartella Clinica:** preferire JSON completo o `.tlbackup`. Ripristina mostra il riepilogo prima della conferma e verifica gli allegati. I vecchi JSON possono contenere soli riferimenti ai PDF: recuperarli dal dispositivo originale prima di dichiarare completa la migrazione. Conservare tutti i profili; la sincronizzazione include gli archivi persistenti aperti sul dispositivo, senza mescolarli con altri utenti.
-- **Registro Credenziali:** usare Salva copia JSON / Esporta copia e poi Carica backup JSON. Il file nativo contiene password in chiaro: conservarlo protetto e selezionarlo solo nell'app, mai caricarlo su GitHub. L'anteprima originale salta duplicati identici e mantiene voci diverse. Il trasporto cloud cifra l'intero archivio prima di qualsiasi richiesta.
-
-Prima di dati reali: completare test autenticazione su dispositivi effettivi, prove di importazione/esportazione/ripristino e ottenere conferma del proprietario. Conservare intatti browser e backup originali anche dopo il trasferimento. Non dichiarare completa una migrazione senza confronto di conteggi e hash e prova di ripristino in un browser vuoto.
-
-## Sorgenti e distribuzione
-
-Il codice e tutti gli asset originali sono caricati in Workers Static Assets: 52 file per TeFinanza, 80 per Cartella Clinica e 3 per Registro Credenziali. GitHub resta l'archivio del codice e non viene contattato durante l'uso per servire i file dell'app. L'asset binding è accessibile soltanto dopo la verifica JWT; `run_worker_first=true` impedisce di aggirare l'autenticazione chiedendo direttamente un asset. Il deploy controlla che i sorgenti nativi corrispondano al commit `sourceSha`, escludendo soltanto le aggiunte di staging.
-
-`node build.mjs` genera `assets.mjs`. `node worker.test.mjs` esegue i test con SQLite in memoria e fixture sintetiche. Le prove browser locali usano `browser-server.mjs`, vincolato a 127.0.0.1, e Playwright/Chromium. Il server di fixture non è distribuito nel Worker e non contiene credenziali.
-
-La workflow GitHub Actions verifica ogni push sul branch di prova. La fase deploy è predisposta ma richiede la variabile di repository `CLOUDFLARE_STAGING_DEPLOY=true` e il secret `CLOUDFLARE_API_TOKEN` nell'ambiente protetto `cloudflare-staging`. Il token deve limitarsi a Workers, alle tre risorse staging e lettura Access necessaria alla verifica. Il connettore non espone una credenziale trasferibile ad Actions: nessun token è stato copiato in GitHub. La workflow non modifica i servizi operativi e non crea database automaticamente.
-
-## Limiti da collaudare prima dell'attivazione
-
-Metadati cifrati e indici devono rientrare in 8 MB per snapshot. I file sono spezzati in chunk, ma archivi grandi possono incontrare limiti di CPU, subrequest, quota o memoria del browser; testare dimensioni rappresentative. Il ripristino conserva una seconda generazione e richiede spazio locale sufficiente. Il protocollo usa copie intere: i conflitti non vengono fusi campo per campo. I contatori transitori di sincronizzazione clinica e di tentativi PIN locali non sono dati clinici o credenziali: sono normalizzati nella copia trasferita per evitare conflitti al solo accesso. Payload e wrapper crittografici sono preservati. Il controllo frontend è una prova d'integrazione nuova e richiede ancora revisione di sicurezza e collaudo Safari/iPhone/iPad, oltre ai test automatizzati. Email e passkey reali richiedono un accesso interattivo del proprietario, non simulabile con la sua identità dal test.
-
-Rollback: lasciare il branch separato; disabilitare soltanto i nuovi Workers se necessario. Non eliminare D1, R2 o storage del browser. Il rollback del codice non ripristina i dati. Nessuna attivazione definitiva autorizzata in questa fase.
+## Verifiche e limiti dichiarati
+14 test backend e 9 crypto superati. Chromium e WebKit con profili persistenti: backup/import/export/ripristino delle tre app, PDF sintetici, trasferimento e riapertura fra due browser, ricezione automatica. WebKit, Firefox e Chromium: prima chiave, sblocco vecchia chiave, vecchio ciphertext, rifiuto chiave errata e cache non leggibile conservata. Interfaccia operativa verificata per tutte le app.
+WebKit Linux non equivale a Safari su macOS/iOS; non è stato eseguito un audit di sicurezza indipendente. Le verifiche sui dispositivi personali effettuate dall'utente restano parte del collaudo effettivo. OCR e ogni variante di stampa non sono stati collaudati integralmente.
+TeFinanza ha due test preesistenti falliti: riconoscimento della voce “Carta igienica” fra i prodotti dello scontrino, e confronto testuale di una copia del validatore backup negli strumenti di laboratorio. Il percorso nativo backup completo/ripristino è passato nei browser, e 7 test del ripristino nativo passano; i due difetti non vengono dichiarati risolti.
+Metadati dello snapshot massimo 8 MB; documenti in blocchi da 1 MB. Provare archivi grandi per gradi e controllare quota Cloudflare e spazio browser. Nessun dato reale è importato dall'assistente.

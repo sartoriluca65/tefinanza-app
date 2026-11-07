@@ -1,0 +1,39 @@
+name: Cloudflare private live
+on:
+  push:
+    branches: [cloudflare-live-2026-11-07]
+    paths: ['cloudflare-staging/**', '.github/workflows/cloudflare-live.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: cloudflare-private-live
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node cloudflare-staging/build.mjs
+      - run: node cloudflare-staging/worker.test.mjs
+      - run: node cloudflare-staging/crypto.test.mjs
+  deploy:
+    if: vars.CLOUDFLARE_LIVE_DEPLOY == 'true' && github.ref == 'refs/heads/cloudflare-live-2026-11-07'
+    needs: verify
+    runs-on: ubuntu-latest
+    environment: cloudflare-live
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node cloudflare-staging/deploy.mjs
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

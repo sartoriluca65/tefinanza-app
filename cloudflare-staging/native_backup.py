@@ -1,12 +1,13 @@
+import os
 import uuid
 TEST_USER=uuid.uuid4().hex*2
 from playwright.sync_api import sync_playwright
 import json
 with sync_playwright() as p:
- browser=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
+ browser=getattr(p,os.environ.get('TEST_ENGINE','chromium')).launch(headless=True,**({'executable_path':'/usr/bin/chromium','args':['--no-sandbox']} if os.environ.get('TEST_ENGINE','chromium')=='chromium' else {}))
  for app in ['tefinanza','cartella-clinica','registro-credenziali']:
-  context=browser.new_context(extra_http_headers={'x-native':'1','x-test-app':app,'x-test-user':TEST_USER})
-  page=context.new_page();page.route('https://**/*',lambda route:route.abort());page.on('dialog',lambda d:d.accept());page.goto('http://127.0.0.1:8765/');page.wait_for_function('window.LukiSyncTest')
+  context=(p.webkit.launch_persistent_context(__import__('tempfile').mkdtemp(prefix='webkit-backup-',dir='/workspace/work'),headless=True,extra_http_headers={'x-native':'1','x-test-stage':'live','x-test-app':app,'x-test-user':TEST_USER}) if os.environ.get('TEST_ENGINE')=='webkit' else browser.new_context(extra_http_headers={'x-native':'1','x-test-stage':'live','x-test-app':app,'x-test-user':TEST_USER}))
+  page=context.new_page();page.route('https://**/*',lambda route:route.abort());page.on('dialog',lambda d:d.accept());page.goto('http://127.0.0.1:8766/');page.wait_for_function('window.LukiSyncTest')
   if app=='tefinanza':
    page.wait_for_function('window.tefinanzaIsReady')
    result=page.evaluate("async()=>{const next=structuredClone(state);next.accounts[0].opening=42;await commit(next,[],{skipLocalArchive:true,skipDuplicateReview:true});const copy=await fullBackup();await commit({...structuredClone(state),budget:777},[],{skipLocalArchive:true,skipDuplicateReview:true});await restoreBackup(new File([JSON.stringify(copy)],'synthetic.json',{type:'application/json'}));const restored=state.budget===copy.budget&&state.accounts[0].opening===42;const safety=await dbGet('state','restoreSafety');return {restored,safety:safety.state.budget===777};}")
