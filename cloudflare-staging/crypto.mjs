@@ -28,3 +28,21 @@ export function createRecovery(){return b64(crypto.getRandomValues(new Uint8Arra
 export async function seal(key,bytes,aad){const iv=crypto.getRandomValues(new Uint8Array(12));const ciphertext=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:enc.encode(aad)},key,bytes));return {iv:b64(iv),ciphertext:b64(ciphertext)};}
 export async function open(key,box,aad){if(un64(box.iv).length!==12)throw Error('Nonce non valido');return new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:un64(box.iv),additionalData:enc.encode(aad)},key,un64(box.ciphertext)));}
 export function stable(value){if(Array.isArray(value))return '['+value.map(stable).join(',')+']';if(value&&typeof value==='object')return '{'+Object.keys(value).sort().map(k=>JSON.stringify(k)+':'+stable(value[k])).join(',')+'}';return JSON.stringify(value);}
+
+// A formatting suggestion, never an automatic parser conversion. The caller must
+// obtain an explicit action and authenticate against an existing archive/key fingerprint.
+export function leadingPunctuationRecovery(text){
+ if(typeof text!=='string'||text.length>4096)return null;
+ const match=text.trim().match(/^([^A-Za-z0-9_+/=\-])(?:[ \t\r\n]*)([A-Za-z0-9_-]{43})$/u);
+ if(!match||!/^\p{P}$/u.test(match[1])||/['"“”‘’«»•‣⁃◦∙●○▪▫■□►▸▶‐‑‒–—―−]/u.test(match[1]))return null;
+ try{const bytes=recoveryBytes(match[2]);bytes.fill(0);return match[2];}catch{return null;}
+}
+export async function verifyExistingRecovery(code,{fingerprint,revision,verifyRemote}){
+ const bytes=recoveryBytes(code);let fp;
+ try{fp=await hash(bytes);}finally{bytes.fill(0);}
+ if(!fingerprint&&!revision)throw Error('Nessun archivio esistente con cui verificare la chiave: nessuna modifica.');
+ if(fingerprint&&fingerprint!==fp)throw Error('Il codice senza il segno iniziale non corrisponde alla chiave registrata: nessuna modifica.');
+ const candidate=await importRecovery(code);
+ if(revision)await verifyRemote(revision,candidate);
+ return {candidate,fingerprint:fp};
+}
