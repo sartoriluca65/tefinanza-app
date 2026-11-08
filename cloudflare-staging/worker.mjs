@@ -1,5 +1,6 @@
 // Staging only. All personal payloads are encrypted in the browser.
 import {bootstrap,controller} from './assets.mjs';
+import {withReadyUI} from './frontend-startup.mjs';
 const encoder = new TextEncoder();
 export const LIMIT = 8 * 1024 * 1024;
 export const HASH = /^[a-f0-9]{64}$/;
@@ -119,6 +120,9 @@ export async function handle(request,env,ctx) {
   if(!response.ok)return protect(new Response('Risorsa non disponibile',{status:response.status===404?404:502}));
   const extension=path.split('.').pop();const mime={html:'text/html; charset=utf-8',js:'text/javascript; charset=utf-8',mjs:'text/javascript; charset=utf-8',css:'text/css; charset=utf-8',json:'application/json',webmanifest:'application/manifest+json',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',ico:'image/x-icon',svg:'image/svg+xml',pdf:'application/pdf',wasm:'application/wasm',ttf:'font/ttf',woff2:'font/woff2'}[extension]||'application/octet-stream';
   const headers=new Headers(response.headers);headers.set('Content-Type',mime);let body=response.body;
+  if(env.APP==='tefinanza'&&path==='/app.js'){
+   phase='APP_BOOT';body=withReadyUI(await response.text());headers.delete('Content-Length');headers.delete('ETag');
+  }
   if(extension==='html'){
    phase='HTML';let html=await response.text();const config=JSON.stringify({user:user.id,app:env.APP,...state}).replace(/</g,'\\u003c');
    html=html.replace(/<head([^>]*)>/i,`<head$1><script>window.LUKI_CONFIG=${config};</script><script src="/_luki/bootstrap.js"></script>`);

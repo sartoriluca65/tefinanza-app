@@ -1,0 +1,31 @@
+name: Verifica avvio archivio Safari
+on:
+  pull_request:
+    paths: ['app.js', '*-ui.js', 'cloudflare-staging/**', '.github/workflows/frontend-startup.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  safari:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node cloudflare-staging/build.mjs && node cloudflare-staging/frontend-startup.test.mjs
+      - run: npm install --prefix "$RUNNER_TEMP/startup-tests" playwright@1.62.1
+      - run: node "$RUNNER_TEMP/startup-tests/node_modules/playwright/cli.js" install --with-deps webkit
+      - run: |
+          mkdir -p "$RUNNER_TEMP/startup-fixture"
+          ln -s "$GITHUB_WORKSPACE" "$RUNNER_TEMP/startup-fixture/tefinanza-app"
+          LUKI_SOURCE_PARENT="$RUNNER_TEMP/startup-fixture" LUKI_TEST_PORT=18866 node cloudflare-staging/browser-server.mjs > "$RUNNER_TEMP/startup-server.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:18866/ > /dev/null; then break; fi
+            sleep 1
+          done
+          node cloudflare-staging/frontend-startup-browser.cjs
+        env:
+          NODE_PATH: ${{ runner.temp }}/startup-tests/node_modules
