@@ -1,0 +1,25 @@
+name: Verifica chiave ricordata per dispositivo
+on:
+  pull_request:
+    paths: ['cloudflare-staging/**', '.github/workflows/device-sync-memory.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verifica:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node cloudflare-staging/build.mjs
+      - run: node cloudflare-staging/device-key.test.mjs && node cloudflare-staging/worker.test.mjs && node cloudflare-staging/crypto.test.mjs
+      - run: npm install --prefix "$RUNNER_TEMP/luki-device-tests" playwright@1.62.1
+      - run: node "$RUNNER_TEMP/luki-device-tests/node_modules/playwright/cli.js" install --with-deps webkit
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/luki-device-browsers
+      - run: node cloudflare-staging/device-memory-browser.cjs
+        env:
+          NODE_PATH: ${{ runner.temp }}/luki-device-tests/node_modules
+          PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/luki-device-browsers
