@@ -7,7 +7,7 @@ Aprire l'URL in deployment.json e ricaricare una volta. La barra deve indicare A
 Usare la chiave di sincronizzazione ESISTENTE dell'app. Le tre chiavi sono distinte. Non generarne una nuova per un archivio già cifrato. Email, PIN e passkey non ricostruiscono la chiave persa. Conservarla fuori dall'app in un gestore password o in una copia offline protetta.
 
 ## Sincronizzazione e conflitti
-Controllo ogni 10 secondi, quando la pagina torna visibile e al ritorno della rete, finché la scheda è aperta e la sincronizzazione è sbloccata. Sblocco della scheda massimo 15 minuti; poi occorre reinserire la chiave. Sul secondo dispositivo inserire la stessa chiave; se il confronto segnala un conflitto aprire Copie e ripristino, verificare la revisione più recente e usarla sul dispositivo.
+Controllo ogni 10 secondi, quando la pagina torna visibile e al ritorno della rete, finché la scheda è aperta e la sincronizzazione è sbloccata. La chiave AES-GCM non esportabile viene ricordata in IndexedDB nativo di questo browser, separatamente per app/account; non scade dopo 15 minuti. Alla riapertura viene verificata la sessione Access e ripresa la sincronizzazione. “Scollega questo dispositivo” rimuove soltanto la credenziale locale. Sul secondo dispositivo inserire la stessa chiave; se il confronto segnala un conflitto aprire Copie e ripristino, verificare la revisione più recente e usarla sul dispositivo.
 Snapshot e documenti sono cifrati AES-GCM nel browser e separati per utente. Le revisioni sono immutabili. Un conflitto conserva entrambe le copie; non avviene una fusione automatica dei campi. Terminare una modifica e attendere “Sincronizzato” prima di modificare lo stesso dato sull'altro dispositivo.
 Senza rete la copia locale rimane disponibile e l'outbox cifrata ritenta. Non cancellare i dati del browser. Non c'è sincronizzazione a browser chiuso né avvio offline garantito: l'accesso iniziale richiede rete e Cloudflare Access.
 
@@ -33,3 +33,7 @@ Metadati dello snapshot massimo 8 MB; documenti in blocchi da 1 MB. Provare arch
 
 ## Aggiornamento OCR 2026-11-07.2
 La classificazione dei prodotti che iniziano con CARTA è corretta; la suite nativa standard ora passa integralmente. Vedere OCR-FIX.md. La nota sul difetto OCR nel collaudo iniziale è storica; resta la differenza fra copie del validatore negli strumenti di laboratorio.
+
+## Associazione persistente del dispositivo
+
+Dettagli, migrazione delle sessioni esistenti e test in [DEVICE-MEMORY.md](DEVICE-MEMORY.md).
