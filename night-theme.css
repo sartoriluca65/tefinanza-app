@@ -162,3 +162,13 @@ body.theme-night .app-topbar .exit-top-button { color: #fff; background: #21496c
 @media print {
   .night-theme-toggle { display: none !important; }
 }
+
+/* Categorie generate dinamicamente: palette notturna leggibile su Safari iPhone. */
+body.theme-night #categories .category-visual-card{background:#1c3045!important;border-color:#486079!important;color:#e8eef6!important;box-shadow:0 4px 15px rgba(0,0,0,.18)!important}
+body.theme-night #categories .category-visual-content,body.theme-night #categories .category-visual-content h3,body.theme-night #categories .category-visual-content p,body.theme-night #categories .category-visual-content small{color:#e8eef6!important}
+body.theme-night #categories .category-visual-content small,body.theme-night #categories .category-visual-content p{color:#b9cbe0!important}
+body.theme-night #categories .category-visual-tags span{background:#284764!important;color:#e3f2ff!important;border:1px solid #476c8a!important}
+body.theme-night #categories .category-group-detail,body.theme-night #categories .category-detail-stats > div{background:#1c3045!important;color:#e8eef6!important;border-color:#486079!important}
+body.theme-night #categories .category-group-detail h3,body.theme-night #categories .category-group-detail h4,body.theme-night #categories .category-detail-stats strong{color:#f1f7ff!important}
+body.theme-night #categories .category-group-detail p,body.theme-night #categories .category-group-detail small,body.theme-night #categories .category-detail-stats small{color:#b9cbe0!important}
+body.theme-night #categories .category-group-detail th,body.theme-night #categories .category-group-detail td{color:#e8eef6!important}
