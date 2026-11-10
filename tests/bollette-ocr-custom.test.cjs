@@ -39,3 +39,26 @@ test('OCR Engie distingue PDR gas senza vettore energetico',()=>{
  const b=C.parseBill('ENGIE Energia\nPDR: 12345678901234\nConsumi annui 1.850,00 EUR\nTotale da pagare 83,24 EUR',date);
  assert.equal(b.type,'Gas metano');assert.equal(b.amount,83.24);
 });
+
+test('Consolidamento tre Gestione Ambiente e scissione Engie conserva movimenti e bollette',()=>{
+ let s=C.migrate({movements:[]});const a=s.accounts[0];s.utilities=[
+ {id:'ga1',name:'Gestione Ambiente S.c.a.r.l.',provider:'Gestione Ambiente',type:'Tassa rifiuti',accountId:a.id,active:true},
+ {id:'ga2',name:'Gestione Ambiente Scar',provider:'Gestione Ambiente Scar Este It',type:'Tassa rifiuti',accountId:a.id,active:true},
+ {id:'ga3',name:'Gestione Ambiente Scar Este It',provider:'Beneficiario: Gestione Ambiente S.c.a.r.l.',type:'Tassa rifiuti',accountId:a.id,active:true},
+ {id:'en',name:'Engie · Energia e gas',provider:'Engie',type:'Energia e gas',accountId:a.id,active:true}
+ ];s.bills=[
+ {id:'w',utilityId:'ga3',provider:'Gestione Ambiente',amount:70,accountId:a.id},
+ {id:'e',utilityId:'en',provider:'Engie',utilityType:'Energia elettrica',amount:242.16,accountId:a.id},
+ {id:'g',utilityId:'en',provider:'Engie',utilityType:'Gas metano',amount:83.24,accountId:a.id},
+ {id:'unknown',utilityId:'en',provider:'Engie',amount:30,accountId:a.id}
+ ];s.movements=[{id:'payment',account:a.name,amount:-70,type:'Spesa'}];
+ s.utilityConsolidationVersion=0;
+ const next=C.consolidateUtilityContracts(s);
+ assert.equal(next.utilities.filter(u=>/Gestione Ambiente/.test(u.name)).length,1);
+ assert.equal(next.utilities.filter(u=>u.provider==='Engie').length,2);
+ assert.equal(next.bills.find(b=>b.id==='w').utilityId,next.utilities.find(u=>u.provider==='Gestione Ambiente').id);
+ assert.equal(next.bills.find(b=>b.id==='g').utilityId,next.utilities.find(u=>u.type==='Gas metano').id);
+ assert.match(next.bills.find(b=>b.id==='unknown').utilityType,/Da verificare/);
+ assert.deepEqual(next.movements,s.movements);
+ assert.deepEqual(C.consolidateUtilityContracts(next),next);
+});
