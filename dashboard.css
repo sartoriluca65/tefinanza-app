@@ -157,3 +157,13 @@ body.theme-night .chart-tooltip{background:#eaf4ff;color:#142234}
 .ambient-brand-hero:has(.ambient-brand-mark) small{font-size:11px!important}
 .ambient-brand-hero:has(.ambient-brand-mark) .ambient-brand-kicker{font-size:8px!important;letter-spacing:1px!important}
 @media(max-width:680px){.ambient-brand-hero:has(.ambient-brand-mark){height:76px!important;min-height:76px!important;padding:8px 12px!important;gap:9px!important;background-size:cover,auto 165px!important;background-position:center,70% center!important}.ambient-brand-hero:has(.ambient-brand-mark)>.ambient-brand-mark{width:40px!important;height:40px!important;flex-basis:40px!important}.ambient-brand-hero:has(.ambient-brand-mark) strong{font-size:21px!important}}
+
+/* Leggibilita: separa sempre etichette, importi e contatori senza alterare i dati. */
+.cash-summary .quiet-pills > span{display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:7px!important;min-width:0}
+.cash-summary .quiet-pills > span > small{display:block!important;line-height:1.35!important;margin:0!important}
+.cash-summary .quiet-pills > span > b{display:block!important;line-height:1.35!important;margin:0!important;overflow-wrap:anywhere}
+#categories .category-detail-stats{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px!important;margin:16px 0!important}
+#categories .category-detail-stats > div{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:8px!important;min-width:0;padding:13px 15px!important}
+#categories .category-detail-stats strong,#categories .category-detail-stats small{display:block!important;margin:0!important;line-height:1.4!important;overflow-wrap:anywhere}
+#categories .category-detail-stats strong{font-variant-numeric:tabular-nums}
+@media(max-width:600px){#categories .category-detail-stats{grid-template-columns:repeat(auto-fit,minmax(135px,1fr))!important;gap:10px!important}.cash-summary .quiet-pills > span{gap:6px!important}}
