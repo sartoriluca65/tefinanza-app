@@ -30,3 +30,12 @@ test('Contratto cessato mantiene bollette e non cancella lo storico',()=>{
  state=C.registerBill(state,{id:'b',utilityId:'old',provider:'Octopus Energy',utilityType:'Energia elettrica',invoiceNo:'oct-1',issued:'2026-10-01',due:'2026-10-20',amount:47.20,accountId:a.id});
  const restored=C.migrate(JSON.parse(JSON.stringify(state)));assert.equal(restored.utilities[0].active,false);assert.equal(restored.bills.length,1);assert.doesNotThrow(()=>C.validate(restored));
 });
+
+test('OCR Engie distingue POD elettricità senza vettore energetico',()=>{
+ const b=C.parseBill('ENGIE Energia\nPOD: IT001E12345678\nConsumi annui 1.850,00 EUR\nTotale da pagare 242,16 EUR\nScadenza 25/11/2026',date);
+ assert.equal(b.type,'Energia elettrica');assert.equal(b.amount,242.16);
+});
+test('OCR Engie distingue PDR gas senza vettore energetico',()=>{
+ const b=C.parseBill('ENGIE Energia\nPDR: 12345678901234\nConsumi annui 1.850,00 EUR\nTotale da pagare 83,24 EUR',date);
+ assert.equal(b.type,'Gas metano');assert.equal(b.amount,83.24);
+});
