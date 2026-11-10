@@ -18,7 +18,46 @@ function upgradePayments(input){let s=structuredClone(input);if(s.utilities===un
  if((s.paymentsVersion||0)<2){let fineco=s.accounts.find(a=>a.name==='Fineco CC')||s.accounts.find(a=>a.kind==='Conto corrente'&&C.normalized(a.bank)==='fineco'),telepass=s.accounts.find(a=>C.normalized(a.name)==='telepass');if(fineco&&telepass){telepass.kind='Passività';telepass.paymentProvider=true;telepass.paymentSourceId=fineco.id} s.paymentsVersion=2}
  return s;
 }
-function migratePayments(old){return upgradePayments(base.migrate(old))}
+
+function consolidateUtilityContracts(input){
+ const s=structuredClone(input);
+ if((s.utilityConsolidationVersion||0)>=1)return s;
+ const norm=v=>C.normalized(v||'').replace(/[^a-z0-9]/g,'');
+ const isWaste=u=>/gestioneambiente/.test(norm(u.name))||/gestioneambiente/.test(norm(u.provider));
+ const waste=s.utilities.filter(isWaste);
+ if(waste.length){
+  const target=waste.find(u=>u.inferred===false)||waste[0];
+  const ids=new Set(waste.map(u=>u.id));
+  target.name='Gestione Ambiente · Tassa rifiuti';target.provider='Gestione Ambiente';target.type='Tassa rifiuti';
+  target.active=waste.some(u=>u.active!==false);
+  for(const b of s.bills)if(ids.has(b.utilityId)){b.utilityId=target.id;b.provider='Gestione Ambiente';b.utilityType=b.utilityType||'Tassa rifiuti'}
+  s.utilities=s.utilities.filter(u=>!ids.has(u.id)||u.id===target.id);
+ }
+ const engie=s.utilities.filter(u=>norm(u.provider)==='engie'||/^engie/.test(norm(u.name)));
+ if(engie.length){
+  const original=engie.find(u=>/elettrica/i.test(u.type))||engie[0];
+  const gas=engie.find(u=>/gas metano/i.test(u.type)&&u.id!==original.id);
+  const gasId=gas?.id||C.uid();
+  const ids=new Set(engie.map(u=>u.id));
+  const electricityId=original.id;
+  original.name='Engie · Energia elettrica';original.provider='Engie';original.type='Energia elettrica';
+  const gasContract=gas||{...original,id:gasId};
+  gasContract.name='Engie · Gas metano';gasContract.provider='Engie';gasContract.type='Gas metano';
+  for(const b of s.bills)if(ids.has(b.utilityId)){
+   const t=b.utilityType||'';
+   if(/gas metano|gas naturale/i.test(t)){b.utilityId=gasId;b.utilityType='Gas metano'}
+   else if(/energia elettrica|luce/i.test(t)){b.utilityId=electricityId;b.utilityType='Energia elettrica'}
+   else {b.utilityId=electricityId;b.utilityType='Da verificare · luce o gas'}
+   b.provider='Engie';
+  }
+  s.utilities=s.utilities.filter(u=>!ids.has(u.id)||u.id===electricityId||u.id===gasId);
+  if(!s.utilities.some(u=>u.id===gasId))s.utilities.push(gasContract);
+ }
+ s.utilityConsolidationVersion=1;
+ return s;
+}
+
+function migratePayments(old){return consolidateUtilityContracts(upgradePayments(base.migrate(old)))}
 function billAccount(s,b){return s.accounts.find(a=>a.id===b.accountId)}
 function validPayment(s,b){let m=s.movements.find(m=>m.id===b.paymentId),a=billAccount(s,b);return !!(m&&a&&m.account===a.name&&C.movementType(m)==='Spesa'&&C.round(-m.amount)===C.round(b.amount))}
 function supplierMatches(s,b,m){let u=s.utilities.find(u=>u.id===b.utilityId),provider=b.provider||u?.provider||'',p=C.normalized(provider),text=C.normalized(m.description+' '+m.merchant);return p.length>=3&&(text.includes(p)||providerInfo(text)?.provider===providerInfo(p)?.provider&&!!providerInfo(p))}
@@ -53,6 +92,6 @@ function mergePayments(current,incoming){let cur=migratePayments(current),inc=mi
  for(const b of inc.bills){let mapped={...b,accountId:accountMap.get(b.accountId),utilityId:utilityMap.get(b.utilityId)};if(s.bills.some(x=>x.id===b.id)||duplicateBill(s,mapped))continue;if(mapped.paymentId&&!s.movements.some(m=>m.id===mapped.paymentId))delete mapped.paymentId;s.bills.push(mapped)}s=reconcileBills(s);validatePayments(s);return s;
 }
 function resetPayments(input,names){let s=base.reset(input,names),ids=new Set(s.accounts.filter(a=>names.includes(a.name)).map(a=>a.id));s.bills=s.bills.filter(b=>!ids.has(b.accountId));return reconcileBills(s)}
-Object.assign(C,{utilityTypes,purchaseMacros,providerInfo,upgradePayments,billAccount,validPayment,billCandidates,reconcileBills,billStatus,duplicateBill,registerBill,confirmBillPayment,parseBill,purchaseMacro,migrate:migratePayments,validate:validatePayments,mergeCopy:mergePayments,dedupe:dedupePayments,spendLines:spendPurchases,resetAccounts:resetPayments,clearTrialData:s=>{let next=base.clear(s);next.bills=[];next.utilities=[];return next}});
+Object.assign(C,{consolidateUtilityContracts,utilityTypes,purchaseMacros,providerInfo,upgradePayments,billAccount,validPayment,billCandidates,reconcileBills,billStatus,duplicateBill,registerBill,confirmBillPayment,parseBill,purchaseMacro,migrate:migratePayments,validate:validatePayments,mergeCopy:mergePayments,dedupe:dedupePayments,spendLines:spendPurchases,resetAccounts:resetPayments,clearTrialData:s=>{let next=base.clear(s);next.bills=[];next.utilities=[];return next}});
 if(typeof module!=='undefined')module.exports=C;
 })(globalThis);
