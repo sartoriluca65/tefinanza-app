@@ -143,3 +143,7 @@ body.theme-night .chart-tooltip{background:#eaf4ff;color:#142234}
 .ambient-brand-hero:has(.ambient-brand-mark)::before{display:none}
 .ambient-brand-hero:has(.ambient-brand-mark)>.ambient-brand-mark,.ambient-brand-hero:has(.ambient-brand-mark)>div:nth-child(2){visibility:hidden}
 @media(max-width:680px){.ambient-brand-hero:has(.ambient-brand-mark){aspect-ratio:16/5;background-size:cover;background-position:35% center}}
+
+/* Banner compatto: proporzioni fotografiche preservate, senza stretching. */
+.ambient-brand-hero:has(.ambient-brand-mark){height:clamp(108px,10vw,148px);min-height:0;aspect-ratio:auto;background-size:100% auto;background-position:center center;background-color:#071a33}
+@media(max-width:680px){.ambient-brand-hero:has(.ambient-brand-mark){height:clamp(80px,17vw,112px);min-height:0;aspect-ratio:auto;background-size:100% auto;background-position:center center}}
