@@ -1,6 +1,6 @@
 'use strict';
 let purchaseGenre='';
-function utilityChoices(){return [...new Set([...C.utilityTypes,...state.utilities.map(u=>u.type).filter(Boolean),...state.bills.map(b=>b.utilityType).filter(Boolean)])].filter(v=>!['Metano','Energia e gas'].includes(v))]}
+function utilityChoices(){return [...new Set([...C.utilityTypes,...state.utilities.map(u=>u.type).filter(Boolean),...state.bills.map(b=>b.utilityType).filter(Boolean)])].filter(v=>!['Metano','Energia e gas'].includes(v))}
 function supplierChoices(){return [...new Set(state.utilities.filter(u=>u.active!==false).map(u=>u.provider).filter(Boolean))]}
 function utilityLabel(u){return u?u.name+' · '+u.provider+(u.active===false?' (cessata)':''):'Utenza non disponibile'}
 function renderPayments(){
