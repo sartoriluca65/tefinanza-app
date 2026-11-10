@@ -3,7 +3,7 @@
 'use strict';
 const C=root.TF||(typeof require==='function'?require('./core.js'):null);
 const base={migrate:C.migrate,validate:C.validate,mergeCopy:C.mergeCopy,dedupe:C.dedupe,reset:C.resetAccounts,clear:C.clearTrialData,spend:C.spendLines};
-const utilityTypes=['Energia elettrica','Acquedotto','Gas metano','Energia e gas','Linea telefonica fissa','Contratto cellulare','Telefonia / internet','Tassa rifiuti','Altra utenza'];
+const utilityTypes=['Energia elettrica','Acquedotto','Gas metano','Linea telefonica fissa','Contratto cellulare','Telefonia / internet','Tassa rifiuti','Altra utenza'];
 const purchaseMacros=['Alimentari','Abbigliamento','Servizi','Casa e utenze','Spese auto e trasporti','Salute','Ristorazione','Viaggi','Imposte e tasse','Altre spese'];
 const compact=s=>C.normalized(s).replace(/ /g,''),day=s=>Date.parse(s+'T12:00:00Z')/86400000;
 function providerInfo(text){const n=C.normalized(text),known=[['Octopus Energy','Energia elettrica',/octopus energy/],['Enel Energia','Energia e gas',/enel energia/],['Engie','Energia e gas',/\bengie\b/],['Plenitude','Energia e gas',/plenitude/],['Active Network','Linea telefonica fissa',/active network|beactive|bolletta vox/],['Vodafone','Telefonia / internet',/vodafone/],['WindTre','Telefonia / internet',/windtre|wind tre/],['TIM','Telefonia / internet',/\btelecom\b|\btim\b/],['Iliad','Contratto cellulare',/\biliad\b/]];let found=known.find(x=>x[2].test(n));if(found)return {provider:found[0],type:found[1]};if(/acquedotto|servizio idrico|fornitura idrica/.test(n))return{provider:String(text).split(/addebito|sdd|fattura/i)[0].trim().slice(0,100)||'Servizio idrico',type:'Acquedotto'};if(/\btari\b|tassa rifiuti|gestione ambiente/.test(n))return{provider:String(text).split(/addebito|sdd|fattura/i)[0].trim().slice(0,100)||'Tassa rifiuti',type:'Tassa rifiuti'};return null}
@@ -45,7 +45,7 @@ function consolidateUtilityContracts(input){
   gasContract.name='Engie · Gas metano';gasContract.provider='Engie';gasContract.type='Gas metano';
   for(const b of s.bills)if(ids.has(b.utilityId)){
    const t=b.utilityType||'';
-   if(/gas metano|gas naturale/i.test(t)){b.utilityId=gasId;b.utilityType='Gas metano'}
+   if(/^(metano|gas metano|gas naturale)$/i.test(t.trim())){b.utilityId=gasId;b.utilityType='Gas metano'}
    else if(/energia elettrica|luce/i.test(t)){b.utilityId=electricityId;b.utilityType='Energia elettrica'}
    else {b.utilityId=electricityId;b.utilityType='Da verificare · luce o gas'}
    b.provider='Engie';
@@ -57,7 +57,16 @@ function consolidateUtilityContracts(input){
  return s;
 }
 
-function migratePayments(old){return consolidateUtilityContracts(upgradePayments(base.migrate(old)))}
+function normalizeGasLabels(input){
+ const s=structuredClone(input);
+ if((s.gasLabelVersion||0)>=1)return s;
+ const normalize=v=>/^metano$/i.test((v||'').trim())?'Gas metano':v;
+ for(const u of s.utilities)u.type=normalize(u.type);
+ for(const b of s.bills)b.utilityType=normalize(b.utilityType);
+ s.gasLabelVersion=1;
+ return s;
+}
+function migratePayments(old){return normalizeGasLabels(consolidateUtilityContracts(upgradePayments(base.migrate(old))))}
 function billAccount(s,b){return s.accounts.find(a=>a.id===b.accountId)}
 function validPayment(s,b){let m=s.movements.find(m=>m.id===b.paymentId),a=billAccount(s,b);return !!(m&&a&&m.account===a.name&&C.movementType(m)==='Spesa'&&C.round(-m.amount)===C.round(b.amount))}
 function supplierMatches(s,b,m){let u=s.utilities.find(u=>u.id===b.utilityId),provider=b.provider||u?.provider||'',p=C.normalized(provider),text=C.normalized(m.description+' '+m.merchant);return p.length>=3&&(text.includes(p)||providerInfo(text)?.provider===providerInfo(p)?.provider&&!!providerInfo(p))}
