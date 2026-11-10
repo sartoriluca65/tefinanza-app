@@ -173,3 +173,10 @@ body.theme-night .chart-tooltip{background:#eaf4ff;color:#142234}
 .cash-summary .quiet-pills > span{width:auto!important;min-width:0!important;display:flex!important;flex-direction:column!important;gap:8px!important;align-items:flex-start!important;white-space:normal!important}
 .cash-summary .quiet-pills > span > b{font-variant-numeric:tabular-nums!important;white-space:nowrap!important;font-size:clamp(12px,1.3vw,19px)!important}
 @media(max-width:480px){.cash-summary .quiet-pills{gap:6px!important}.cash-summary .quiet-pills > span{padding:9px 5px!important}.cash-summary .quiet-pills > span > b{font-size:clamp(10px,2.5vw,13px)!important;letter-spacing:-.3px!important}}
+
+/* Riepilogo patrimonio: etichetta e cifra sulla STESSA RIGA in ciascuna delle tre caselle. */
+#home .cash-summary > .quiet-pills{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important;width:100%!important;min-width:0!important}
+#home .cash-summary > .quiet-pills > span{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;align-items:center!important;justify-content:space-between!important;column-gap:12px!important;row-gap:3px!important;min-width:0!important}
+#home .cash-summary > .quiet-pills > span > small,#home .cash-summary > .quiet-pills > span > b{display:inline-block!important;white-space:nowrap!important;margin:0!important;line-height:1.45!important}
+#home .cash-summary > .quiet-pills > span > b{font-size:clamp(12px,1.1vw,17px)!important;overflow-wrap:normal!important}
+@media(max-width:600px){#home .cash-summary > .quiet-pills{display:flex!important;flex-direction:row!important;overflow-x:auto!important;gap:7px!important}#home .cash-summary > .quiet-pills > span{flex:0 0 auto!important;min-width:max-content!important;padding:9px 10px!important;flex-wrap:nowrap!important;gap:8px!important}#home .cash-summary > .quiet-pills > span > b{font-size:12px!important}}
