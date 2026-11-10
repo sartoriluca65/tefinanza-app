@@ -147,3 +147,13 @@ body.theme-night .chart-tooltip{background:#eaf4ff;color:#142234}
 /* Banner compatto: proporzioni fotografiche preservate, senza stretching. */
 .ambient-brand-hero:has(.ambient-brand-mark){height:clamp(108px,10vw,148px);min-height:0;aspect-ratio:auto;background-size:100% auto;background-position:center center;background-color:#071a33}
 @media(max-width:680px){.ambient-brand-hero:has(.ambient-brand-mark){height:clamp(80px,17vw,112px);min-height:0;aspect-ratio:auto;background-size:100% auto;background-position:center center}}
+
+/* Header compatto: testo e logo HTML nitidi, grafico decorativo senza distorsione. */
+.ambient-brand-hero:has(.ambient-brand-mark){height:82px!important;min-height:82px!important;aspect-ratio:auto!important;padding:8px 22px!important;gap:12px!important;justify-content:flex-start!important;background-image:linear-gradient(90deg,#f7fbff 0%,#edf6ff 40%,#edf6ffcf 56%,#edf6ff22 100%),url('tefinanza-banner.webp')!important;background-size:cover,auto 220px!important;background-position:center,right 48%!important;background-repeat:no-repeat!important;border-radius:14px!important}
+.ambient-brand-hero:has(.ambient-brand-mark)>.ambient-brand-mark,.ambient-brand-hero:has(.ambient-brand-mark)>div:nth-child(2){visibility:visible!important;max-width:none!important}
+.ambient-brand-hero:has(.ambient-brand-mark)>.ambient-brand-mark{width:46px!important;height:46px!important;flex:0 0 46px!important}
+.ambient-brand-hero:has(.ambient-brand-mark)>div:nth-child(2){display:flex!important;flex-direction:column!important;gap:0!important}
+.ambient-brand-hero:has(.ambient-brand-mark) strong{font-size:24px!important;line-height:1.1!important}
+.ambient-brand-hero:has(.ambient-brand-mark) small{font-size:11px!important}
+.ambient-brand-hero:has(.ambient-brand-mark) .ambient-brand-kicker{font-size:8px!important;letter-spacing:1px!important}
+@media(max-width:680px){.ambient-brand-hero:has(.ambient-brand-mark){height:76px!important;min-height:76px!important;padding:8px 12px!important;gap:9px!important;background-size:cover,auto 165px!important;background-position:center,70% center!important}.ambient-brand-hero:has(.ambient-brand-mark)>.ambient-brand-mark{width:40px!important;height:40px!important;flex-basis:40px!important}.ambient-brand-hero:has(.ambient-brand-mark) strong{font-size:21px!important}}
