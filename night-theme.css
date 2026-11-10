@@ -172,3 +172,16 @@ body.theme-night #categories .category-group-detail,body.theme-night #categories
 body.theme-night #categories .category-group-detail h3,body.theme-night #categories .category-group-detail h4,body.theme-night #categories .category-detail-stats strong{color:#f1f7ff!important}
 body.theme-night #categories .category-group-detail p,body.theme-night #categories .category-group-detail small,body.theme-night #categories .category-detail-stats small{color:#b9cbe0!important}
 body.theme-night #categories .category-group-detail th,body.theme-night #categories .category-group-detail td{color:#e8eef6!important}
+
+/* iPhone: account cards and KPIs must remain legible in both themes. */
+body.theme-night #accounts .account-card,body.theme-night #accounts .card.account-card{background:#1c3045!important;color:#eaf2fb!important;border-color:#486079!important}
+body.theme-night #accounts .account-card h2,body.theme-night #accounts .account-card strong,body.theme-night #accounts .account-card .badge{color:#f1f7ff!important}
+body.theme-night #accounts .account-card p,body.theme-night #accounts .account-card small{color:#bed0e3!important}
+body.theme-night #accounts .account-card .badge{background:#2b4b69!important;border-color:#507392!important}
+body.theme-night #accounts .account-card .btn{color:#eaf2fb!important;background:#1d3853!important;border-color:#5a7795!important}
+body.theme-night .kpis .card{background:#1c3045!important;color:#eaf2fb!important;border-color:#486079!important}
+body.theme-night .kpis .card small{color:#c3d2e3!important}
+body.theme-night .kpis .card strong{color:#f3f8ff!important}
+body.theme-night .kpis .card strong.credit{color:#8ff3d2!important}
+@media(max-width:700px){#accounts .account-card{min-width:0!important;max-width:100%!important;overflow-wrap:anywhere!important}#accounts .account-card strong,.kpis .card strong{font-size:clamp(20px,5.4vw,30px)!important;overflow-wrap:anywhere!important;word-break:normal!important;line-height:1.25!important}#accounts .account-card .actions{display:flex!important;flex-wrap:wrap!important;gap:8px!important}#accounts .account-card .actions .btn{flex:1 1 110px!important;min-width:0!important}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.kpis .card{min-width:0!important;padding:13px!important}.kpis .card strong{font-size:clamp(16px,4.3vw,25px)!important}#movements .table-scroll,#accounts .table-scroll{max-width:100%!important;overflow-x:auto!important}}
+@media(max-width:360px){.kpis{grid-template-columns:1fr!important}}
