@@ -137,3 +137,9 @@ body.theme-night .chart-tooltip{background:#eaf4ff;color:#142234}
 .ambient-brand-hero>div:nth-child(2){position:relative;z-index:1;max-width:55%}
 .ambient-brand-hero .ambient-brand-mark{position:relative;z-index:1;flex:none}
 @media(max-width:680px){.ambient-brand-hero{min-height:125px;padding:16px;gap:12px;background-size:auto 100%}.ambient-brand-hero:before{background:linear-gradient(90deg,#fff 0%,#f6faffeb 55%,#f6faff55 100%)}.ambient-brand-hero>div:nth-child(2){max-width:calc(100% - 70px)}.ambient-brand-hero strong{font-size:clamp(23px,6vw,34px)}.ambient-brand-hero small{font-size:11px}.ambient-brand-kicker{letter-spacing:1px;font-size:8px}}
+
+/* Banner fotografico approvato: il file include già logo, titolo e slogan. */
+.ambient-brand-hero:has(.ambient-brand-mark){background-image:url('tefinanza-banner.webp'),linear-gradient(110deg,#0b4a80,#06172e);background-position:center center;background-size:100% 100%;background-repeat:no-repeat;min-height:0;aspect-ratio:16/3;padding:0;border-color:#0b3b67}
+.ambient-brand-hero:has(.ambient-brand-mark)::before{display:none}
+.ambient-brand-hero:has(.ambient-brand-mark)>.ambient-brand-mark,.ambient-brand-hero:has(.ambient-brand-mark)>div:nth-child(2){visibility:hidden}
+@media(max-width:680px){.ambient-brand-hero:has(.ambient-brand-mark){aspect-ratio:16/5;background-size:cover;background-position:35% center}}
