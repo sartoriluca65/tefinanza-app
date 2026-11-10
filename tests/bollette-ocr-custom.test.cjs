@@ -19,3 +19,14 @@ test('Promemoria con scadenza futura non genera una spesa o pagamento',()=>{
  s=C.registerBill(s,{id:'b',utilityId:'u',provider:'Engie',invoiceNo:'nov26',issued:'2026-11-01',due:'2026-11-25',amount:92.15,accountId:a.id,scheduledForDue:true});
  assert.equal(s.movements.length,0);assert.equal(C.billStatus(s,s.bills[0],date).paid,false);
 });
+
+test('Il genere modificato resta nella singola bolletta dopo backup e riapertura',()=>{
+ let state=C.migrate({movements:[]});const a=state.accounts[0];state.utilities.push({id:'u',name:'Contratto luce e gas',provider:'Engie',type:'Energia e gas',accountId:a.id,autoDebit:false,managedExternally:false});
+ state=C.registerBill(state,{id:'b',utilityId:'u',provider:'Engie',utilityType:'Energia elettrica',invoiceNo:'n-1',issued:'2026-11-01',due:'2026-11-25',amount:52.35,accountId:a.id});
+ assert.equal(state.bills[0].utilityType,'Energia elettrica');const restored=C.migrate(JSON.parse(JSON.stringify(state)));assert.equal(restored.bills[0].utilityType,'Energia elettrica');assert.equal(restored.utilities[0].type,'Energia e gas');
+});
+test('Contratto cessato mantiene bollette e non cancella lo storico',()=>{
+ let state=C.migrate({movements:[]});const a=state.accounts[0];state.utilities.push({id:'old',name:'Vecchio contratto',provider:'Octopus Energy',type:'Energia elettrica',accountId:a.id,autoDebit:false,managedExternally:false,active:false});
+ state=C.registerBill(state,{id:'b',utilityId:'old',provider:'Octopus Energy',utilityType:'Energia elettrica',invoiceNo:'oct-1',issued:'2026-10-01',due:'2026-10-20',amount:47.20,accountId:a.id});
+ const restored=C.migrate(JSON.parse(JSON.stringify(state)));assert.equal(restored.utilities[0].active,false);assert.equal(restored.bills.length,1);assert.doesNotThrow(()=>C.validate(restored));
+});
