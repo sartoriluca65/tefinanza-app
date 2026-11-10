@@ -130,3 +130,10 @@ body.theme-night .chart-tooltip{background:#eaf4ff;color:#142234}
 .category-budgets{margin-top:16px}.category-budget-row{display:grid;gap:5px;padding:10px 0;border-top:1px solid var(--line)}.category-budget-row:first-of-type{border-top:0}.category-budget-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.category-budget-row.over small{font-weight:700}
 .category-budget-grid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}.category-rename-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}.category-rename-row input{flex:1;min-width:0}
 .receipt-mismatch{margin:8px 0}
+
+/* Hero finanziario: adattamento vettoriale del grafico blu/oro fornito. */
+.ambient-brand-hero{justify-content:flex-start;isolation:isolate;min-height:148px;padding-left:clamp(20px,4vw,52px);background:linear-gradient(90deg,#fff 0%,#f5faff 37%,#e4f4ffcf 51%,transparent 70%),url('financial-banner-2026.svg') right center/auto 100% no-repeat,#e9f5ff}
+.ambient-brand-hero:before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#fff 0%,#f6faff 38%,transparent 74%);pointer-events:none}
+.ambient-brand-hero>div:nth-child(2){position:relative;z-index:1;max-width:55%}
+.ambient-brand-hero .ambient-brand-mark{position:relative;z-index:1;flex:none}
+@media(max-width:680px){.ambient-brand-hero{min-height:125px;padding:16px;gap:12px;background-size:auto 100%}.ambient-brand-hero:before{background:linear-gradient(90deg,#fff 0%,#f6faffeb 55%,#f6faff55 100%)}.ambient-brand-hero>div:nth-child(2){max-width:calc(100% - 70px)}.ambient-brand-hero strong{font-size:clamp(23px,6vw,34px)}.ambient-brand-hero small{font-size:11px}.ambient-brand-kicker{letter-spacing:1px;font-size:8px}}
