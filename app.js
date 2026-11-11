@@ -109,7 +109,20 @@ function manageArchivedChoices(kind){
    if(ok){movementSuggestions();redraw();toast('Elenco aggiornato; contabilità storica invariata')}
   };
  }
- modal('<h2>Gestisci elenco — '+field+'</h2><div id="archivedChoicesPanel"></div><p class="small">Unifica duplicati cambia soltanto i suggerimenti futuri, non le vecchie operazioni.</p>');
+ const content=document.getElementById('modalContent');
+ const previousNodes=Array.from(content.childNodes);
+ const management=document.createElement('div');
+ management.innerHTML='<div class="toolbar" style="justify-content:space-between;align-items:center"><h2>Gestisci elenco — '+field+'</h2><button type="button" class="btn" id="closeArchivedChoices">Chiudi ✕</button></div><div id="archivedChoicesPanel"></div><p class="small">Unifica duplicati cambia soltanto i suggerimenti futuri, non le vecchie operazioni.</p>';
+ content.replaceChildren(management);
+ const restore=()=>{
+  content.replaceChildren(...previousNodes);
+  const suggestions=movementSuggestions();
+  for(const [name,key] of [['description','movementDescriptions'],['merchant','movementMerchants']]){
+   const select=content.querySelector('[data-suggestion="'+name+'"]');
+   if(select)select.innerHTML=suggestionOptions(suggestions[key]);
+  }
+ };
+ management.querySelector('#closeArchivedChoices').addEventListener('click',restore);
  redraw();
 }
 function movementSuggestions(){let c=TFWorkflow.choices(state),saved={movementDescriptions:c.descriptions,movementMerchants:c.merchants,movementDocuments:c.documents};for(const [id,values] of Object.entries(saved)){let list=document.getElementById(id);if(!list){list=document.createElement('datalist');list.id=id;document.body.append(list)}list.innerHTML=values.map(x=>`<option value="${esc(x)}">`).join('')}return saved}
