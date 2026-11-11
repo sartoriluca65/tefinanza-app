@@ -25,3 +25,23 @@ Il repository resta necessario per mantenere l’indirizzo GitHub Pages esistent
 La versione 110 allinea app, guida e riferimenti di cache, conserva i miglioramenti per categorie e iPhone e ripara la conferma degli scontrini. Non modifica i nomi dei database, i saldi o i documenti personali.
 
 Il repository privato tefinanza contiene una copia distinta per la pubblicazione personale; GitHub non la aggiorna automaticamente quando cambia questo repository. Le copie sono state allineate il 29 ottobre 2026 e vanno aggiornate insieme per evitare divergenze.
+
+## Allineamento GitHub e Cloudflare
+
+Gli aggiornamenti applicativi devono essere salvati su GitHub e distribuiti sul Worker
+`luki-tefinanza-staging`. Il workflow `deploy-cloudflare.yml` pubblica `main` tramite
+Wrangler e imposta `SOURCE_SHA` al commit del checkout. Il file `cloudflare/entry.mjs`
+espone soltanto il gestore del Worker, lasciando gli export di test nel modulo originale.
+Non modificare il codice soltanto dalla dashboard Cloudflare: riportare prima le modifiche
+nel repository e distribuire il relativo commit. Il codice non viene sincronizzato
+automaticamente da Cloudflare verso GitHub. Database, allegati e archivi personali non
+vanno copiati su GitHub. La pubblicazione dell’ambiente Codex è distinta dal deployment.
+
+Per un deployment manuale, dopo i test e la preparazione di `public/` prevista dal workflow:
+
+```sh
+npx --yes wrangler@4.160.1 deploy --keep-vars --var "SOURCE_SHA:$(git rev-parse HEAD)"
+```
+
+Il valore vuoto di `SOURCE_SHA` nel file di configurazione viene sostituito dal comando
+di deployment: il SHA identifica il commit completo, senza riferimenti circolari.

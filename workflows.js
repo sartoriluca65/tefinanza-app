@@ -28,26 +28,72 @@ function securities(s){
  const out=new Map();for(const row of rows){const known=names.get(key(row.label)),value=known?.size===1?[...known][0]:row.value;if(!out.has(value))out.set(value,{value,label:row.label})}
  return [...out.values()].sort((a,b)=>a.label.localeCompare(b.label,'it',{sensitivity:'base'}));
 }
+const defaultDescriptions=[
+ // Alimentari e ristorazione: il motivo della spesa, non il nome dell'esercente.
+ 'Spesa alimentare','Pane e prodotti da forno','Frutta e verdura','Carne e pesce',
+ 'Colazione','Pranzo al ristorante','Cena al ristorante','Pizza','Pasto da asporto','Consegna pasti a domicilio',
+ // Salute.
+ 'Visita medica','Visita specialistica','Visita oculistica','Visita dermatologica','Visita cardiologica',
+ 'Dentista','Igiene dentale','Esami di laboratorio','Analisi del sangue','Esame delle urine',
+ 'Ecografia','Radiografia','Risonanza magnetica','TAC','Ticket sanitario','Farmaci','Vaccinazione',
+ 'Fisioterapia','Riabilitazione','Occhiali e lenti a contatto','Dispositivi medici','Assicurazione sanitaria',
+ // Auto e trasporti.
+ 'Carburante','Assicurazione auto','Riparazione auto','Manutenzione auto','Tagliando auto','Revisione auto',
+ 'Bollo auto','Pneumatici','Lavaggio auto','Pedaggio autostradale','Parcheggio',
+ 'Biglietto autobus','Biglietto treno','Abbonamento trasporti','Taxi','Noleggio auto',
+ // Bollette e casa.
+ 'Energia elettrica','Gas metano','Acqua','Rifiuti (TARI)','Telefonia fissa','Telefonia mobile',
+ 'Ricarica telefonica','Connessione internet','Affitto','Rata mutuo','Spese condominiali','Assicurazione casa',
+ 'Riparazione domestica','Manutenzione caldaia','Intervento idraulico','Intervento elettrico','Pulizia casa',
+ 'Acquisto mobili','Acquisto elettrodomestici','Acquisto prodotti per la casa','Acquisto per la casa',
+ // Abbigliamento, famiglia e animali.
+ 'Acquisto abbigliamento','Acquisto scarpe','Sartoria e riparazioni','Lavanderia','Parrucchiere','Cura della persona',
+ 'Retta scolastica','Mensa scolastica','Libri scolastici','Materiale scolastico','Corso di formazione',
+ 'Attività sportiva','Abbonamento palestra','Visita veterinaria','Farmaci veterinari','Alimenti per animali',
+ // Viaggi, tempo libero e abbonamenti.
+ 'Biglietto aereo','Pernottamento','Pacchetto vacanza','Tassa di soggiorno','Ingresso museo',
+ 'Biglietto cinema','Biglietto teatro','Biglietto concerto','Acquisto libri','Abbonamento streaming',
+ 'Abbonamento software','Abbonamento giornale','Abbonamento','Acquisto online','Regalo','Donazione',
+ // Tasse, multe e reddito.
+ 'Imposte e tasse','IRPEF','IMU','Imposta di bollo','Contributi previdenziali','Sanzione stradale',
+ 'Stipendio','Pensione','Tredicesima','Compenso professionale','Rimborso spese','Rimborso fiscale',
+ 'Rimborso acquisto','Rimborso','Canone di locazione incassato',
+ // Banca e investimenti.
+ 'Bonifico','Giroconto','Prelievo contanti','Versamento contanti','Commissioni bancarie','Canone conto corrente',
+ 'Canone carta','Interessi passivi','Interessi attivi','Acquisto titoli','Vendita titoli','Dividendi','Interessi'
+];
+// Suggestion labels must not turn a reason such as "Acquisto Amazon" into a shop name.
+function labels(values){const map=new Map();for(const value of values){const label=String(value||'').trim().replace(/\s+/g,' '),k=key(label);if(k&&!map.has(k))map.set(k,label)}return [...map.values()].sort((a,b)=>a.localeCompare(b,'it',{sensitivity:'base',numeric:true}))}
+function separateChoices(s,saved){
+ const merchants=[...(saved.merchants||[])],descriptions=[];
+ const known=new Set([...(saved.merchants||[]),...(saved.providers||[]),...(s.movements||[]).map(m=>m.merchant),...(s.utilities||[]).map(u=>u.provider),...(s.bills||[]).map(b=>b.provider)].filter(Boolean).map(key));
+ for(const value of saved.descriptions||[]){
+  const label=String(value||'').trim(),normalized=key(label);
+  // Only positively identified names move automatically; free-form reasons remain intact.
+  const reason=/^(?:acquist[oi]|vendit[ae]|spes[ae]|pagamento|acconto|addebito|accredito|regalo|donazione|rimborso|bolletta|bonifico|rata|ricarica|canone|abbonamento|contribut[oi]|stipendio|pensione|giroconto|prelievo|versamento|interessi|dividendi)\b/i.test(label);
+  const alias=aliases.some(([,name])=>normalized===key(name))||['spar','amzn','amex','ipertosano','acqueve'].includes(normalized);
+  const business=/^(?:farmacia|supermercato|ipermercato|ristorante|pizzeria|trattoria|bar|negozio|ferramenta|panificio|distributore)\s+\S/i.test(label)||/\b(?:s\.?r\.?l\.?|s\.?p\.?a\.?|s\.?n\.?c\.?)$/i.test(label);
+  if(!reason&&(known.has(normalized)||alias||business))merchants.push(label);else descriptions.push(label);
+ }
+ return {...saved,descriptions:labels([...descriptions,...(saved.reasonCatalogVersion>=1?[]:defaultDescriptions)]),merchants:unique(merchants,'merchant'),providers:unique(saved.providers||[],'merchant'),reasonCatalogVersion:1};
+}
 function choices(s){
- const saved=s.savedChoices||{};
+ const saved=separateChoices(s,s.savedChoices||{});
  return {
-  descriptions:unique(saved.descriptions||[]),
-  merchants:unique(saved.merchants||[],'merchant'),
-  providers:unique(saved.providers||[],'merchant'),
+  descriptions:saved.descriptions,
+  merchants:saved.merchants,
+  providers:saved.providers,
   documents:unique([...(s.movements||[]).flatMap(m=>[m.documentNo,m.invoiceNo,m.paymentRef]),...(s.documents||[]).flatMap(d=>[d.documentNo,d.invoiceNo,d.reference,d.number])],'document')
  };
 }
 function remember(s){
- // Existing movements are historical records, never an automatic source for deleted suggestions.
- if(!s.savedChoices){
-  s.savedChoices={
-   descriptions:unique((s.movements||[]).map(m=>m.description)),
-   merchants:unique((s.movements||[]).map(m=>m.merchant),'merchant'),
-   providers:unique([...(s.utilities||[]).map(u=>u.provider),...(s.bills||[]).map(b=>b.provider)],'merchant')
-  };
- }else{
-  for(const kind of ['descriptions','merchants','providers'])if(!Array.isArray(s.savedChoices[kind]))s.savedChoices[kind]=[];
- }
+ // Seed once; deleted suggestions must never be reconstructed from historical records.
+ const saved=s.savedChoices||{
+  descriptions:labels((s.movements||[]).map(m=>m.description)),
+  merchants:unique((s.movements||[]).map(m=>m.merchant),'merchant'),
+  providers:unique([...(s.utilities||[]).map(u=>u.provider),...(s.bills||[]).map(b=>b.provider)],'merchant')
+ };
+ s.savedChoices=separateChoices(s,saved);
  return s;
 }
 function trade({qty,unitPrice,total,commission=0,side='buy',changed='total'}){

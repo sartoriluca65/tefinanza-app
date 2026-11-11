@@ -85,13 +85,15 @@ function manageArchivedChoices(kind){
   const values=available();
   const panel=document.getElementById('archivedChoicesPanel');
   if(!panel)return;
-  panel.innerHTML='<p class="small">Elimina interviene solo sui suggerimenti; Modifica e Unifica aggiornano anche le voci corrispondenti nello storico senza alterare importi o saldi.</p><div class="toolbar"><button type="button" class="btn primary" data-choice-action="add">Aggiungi</button></div><div class="table-scroll"><table><thead><tr><th>Voce</th><th>Azioni</th></tr></thead><tbody>'+values.map((value,i)=>'<tr><td>'+esc(value)+'</td><td><button type="button" class="btn" data-choice-action="edit" data-choice-index="'+i+'">Modifica</button> <button type="button" class="btn" data-choice-action="merge" data-choice-index="'+i+'">Unifica</button> <button type="button" class="btn" data-choice-action="delete" data-choice-index="'+i+'">Elimina</button></td></tr>').join('')+'</tbody></table></div>';
+  panel.innerHTML='<p class="small">Sposta nei negozi corregge solo l’elenco, senza modificare lo storico. Elimina interviene solo sui suggerimenti; Modifica e Unifica aggiornano anche le voci corrispondenti nello storico senza alterare importi o saldi.</p><div class="toolbar"><button type="button" class="btn primary" data-choice-action="add">Aggiungi</button></div><div class="table-scroll"><table><thead><tr><th>Voce</th><th>Azioni</th></tr></thead><tbody>'+values.map((value,i)=>'<tr><td>'+esc(value)+'</td><td><button type="button" class="btn" data-choice-action="edit" data-choice-index="'+i+'">Modifica</button> <button type="button" class="btn" data-choice-action="merge" data-choice-index="'+i+'">Unifica</button> '+(kind==='descriptions'?'<button type="button" class="btn" data-choice-action="move" data-choice-index="'+i+'">Sposta nei negozi</button> ':'')+'<button type="button" class="btn" data-choice-action="delete" data-choice-index="'+i+'">Elimina</button></td></tr>').join('')+'</tbody></table></div>';
   panel.onclick=async e=>{
    const b=e.target.closest('[data-choice-action]');if(!b)return;
    const action=b.dataset.choiceAction,old=values[Number(b.dataset.choiceIndex)];
    if(action!=='add'&&!old)return;
    let nextValue='';
-   if(action==='delete'){
+   if(action==='move'){
+    if(!confirm('Spostare \"'+old+'\" nell’elenco dei negozi? Le operazioni storiche resteranno invariate.'))return;
+   }else if(action==='delete'){
     if(!confirm('Rimuovere "'+old+'" dai suggerimenti? I movimenti storici resteranno invariati.'))return;
    }else{
     const message=action==='add'?'Nuova voce '+field:action==='merge'?'Unifica "'+old+'" con quale voce?':'Nuovo nome per "'+old+'"';
@@ -106,14 +108,15 @@ function manageArchivedChoices(kind){
    if(affected&&!confirm('Aggiornare '+affected+' operazioni storiche da "'+old+'" a "'+nextValue+'"? Importi, conti e saldi resteranno invariati; i report per causale/fornitore useranno il nuovo nome.'))return;
    const ok=await change(next=>{
     const original=next.savedChoices?.[savedKey]||[];
-    const updated=action==='add'?[...original,nextValue]:original.filter(x=>!matches(x)).concat(action==='delete'?[]:[nextValue]);
+    const updated=action==='add'?[...original,nextValue]:original.filter(x=>!matches(x)).concat(action==='delete'||action==='move'?[]:[nextValue]);
     next.savedChoices=next.savedChoices||{};
     next.savedChoices[savedKey]=[...new Map(updated.map(v=>[TFWorkflow.key(v),v])).values()];
+    if(action==='move')next.savedChoices.merchants=TFWorkflow.unique([...(next.savedChoices.merchants||[]),old],'merchant');
     if(action==='edit'||action==='merge'){
      for(const m of next.movements||[])if(matches(m[targetField]))m[targetField]=nextValue;
     }
    },[],{skipDuplicateReview:true});
-   if(ok){movementSuggestions();redraw();toast(action==='delete'?'Suggerimento eliminato; operazioni storiche conservate':'Elenco aggiornato'+(affected?' e '+affected+' operazioni riclassificate':''))}
+   if(ok){movementSuggestions();redraw();toast(action==='move'?'Voce spostata nei negozi; operazioni storiche conservate':action==='delete'?'Suggerimento eliminato; operazioni storiche conservate':'Elenco aggiornato'+(affected?' e '+affected+' operazioni riclassificate':''))}
   };
  }
  const content=document.getElementById('modalContent');

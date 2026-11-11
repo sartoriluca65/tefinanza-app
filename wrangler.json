@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "luki-tefinanza-staging",
-  "main": "cloudflare/worker.mjs",
+  "main": "cloudflare/entry.mjs",
   "compatibility_date": "2026-11-10",
   "workers_dev": true,
   "assets": {
@@ -31,6 +31,6 @@
     "RELEASE_MODE": "private-live",
     "REPO": "sartoriluca65/tefinanza-app",
     "SOURCE_BASE": "",
-    "SOURCE_SHA": "51b39dc425f97ba3495671b08858ad3c73322c95"
+    "SOURCE_SHA": ""
   }
 }
