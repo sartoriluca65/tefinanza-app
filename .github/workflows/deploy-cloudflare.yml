@@ -1,0 +1,50 @@
+name: Deploy Te Finanza completo su Cloudflare
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tefinanza-cloudflare-staging
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verifica codice e test
+        run: |
+          node --check cloudflare/worker.mjs
+          node --check cloudflare/assets.mjs
+          node scripts/check-structure.mjs
+          node --test tests/*.test.cjs
+      - name: Prepara asset pubblici senza file privati
+        run: |
+          mkdir -p public
+          cp index.html ./*.js ./*.css ./*.svg ./*.png ./*.ico ./*.webp ./*.jpeg ./*.webmanifest public/
+          for folder in assets vendor dist; do
+            if [ -d "$folder" ]; then cp -R "$folder" public/; fi
+          done
+          test -s public/index.html
+          test -s public/sync.js
+      - name: Pubblica Worker e asset con D1 e R2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.Cloudflare_API_Token }}
+          CLOUDFLARE_ACCOUNT_ID: aeb24d5686ed9104117c8ba6c1ef0dd2
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo 'Token Cloudflare mancante'; exit 1; }
+          npx --yes wrangler@4 deploy --keep-vars
+      - name: Verifica endpoint backend senza scrivere dati
+        run: |
+          node --input-type=module <<'JS'
+          const base='https://luki-tefinanza-staging.sartori-luca65.workers.dev';
+          for(const path of ['/_sync/session','/_luki/bootstrap.js','/_luki/controller.js']){
+            const res=await fetch(base+path,{redirect:'manual'});
+            console.log(path,res.status,res.headers.get('content-type'));
+            if(res.status===404||res.status>=500)throw Error('Backend non disponibile: '+path+' '+res.status);
+          }
+          JS
