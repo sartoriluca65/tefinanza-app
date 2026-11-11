@@ -152,6 +152,12 @@ function editMovement(id){
  refreshCategorySuggestions();let savedSuggestions=movementSuggestions();
  let suggestedAccount=currentPage==='movements'?getFilters('movementFilters').account: '',accountLocked=Boolean(suggestedAccount||id),m=state.movements.find(m=>m.id===id)||{description:'',date:today(),amount:0,account:state.accounts.some(a=>a.name===suggestedAccount)?suggestedAccount:(state.accounts.find(a=>!a.closed)||state.accounts[0]).name,type:'Spesa',category:'Altro',merchant:'',security:'',items:[],settlementDate:''};
  if(id&&m.docId){let shown=movementPresentation(m);if(shown.cleaned)m={...m,ocrOriginal:m.ocrOriginal||{description:m.description,merchant:m.merchant},merchant:shown.merchant,description:shown.cause||m.category||'Pagamento'}}
+ // Proposta non distruttiva per vecchie causali bancarie con beneficiario esplicito.
+ // Il dato originale rimane invariato finché l'utente non salva la modifica.
+ if(id&&!String(m.merchant||'').trim()){
+  const ord=String(m.description||'').match(/^\s*Ord\s*:\s*([^–—-]{2,80}?)\s*[-–—]\s*(.{3,})$/i);
+  if(ord)m={...m,merchant:ord[1].trim(),description:ord[2].trim()};
+ }
  let linkedOther=m.transferId?state.movements.find(row=>row.transferId===m.transferId&&row.id!==m.id):null;
  let alternative=state.accounts.find(a=>a.name!==m.account)?.name||state.accounts[1]?.name||'';
  let transferFrom=m.type==='Giroconto'?(m.amount<0?m.account:linkedOther?.account||alternative):m.account;
