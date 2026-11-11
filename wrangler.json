@@ -22,5 +22,15 @@
       "binding": "FILES",
       "bucket_name": "luki-tefinanza-staging-files"
     }
-  ]
+  ],
+  "vars": {
+    "APP": "tefinanza",
+    "ORIGIN": "https://luki-tefinanza-staging.sartori-luca65.workers.dev",
+    "ACCESS_ISSUER": "https://proud-rain-876d.cloudflareaccess.com",
+    "ACCESS_AUD": "422aa2299dc567319ac7f2b18ba53f8b32f19192492bf83f63f44756f500433a",
+    "RELEASE_MODE": "private-live",
+    "REPO": "sartoriluca65/tefinanza-app",
+    "SOURCE_BASE": "",
+    "SOURCE_SHA": "51b39dc425f97ba3495671b08858ad3c73322c95"
+  }
 }
