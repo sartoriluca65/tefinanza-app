@@ -96,10 +96,10 @@ function remember(s){
  s.savedChoices=separateChoices(s,saved);
  return s;
 }
-function trade({qty,unitPrice,total,commission=0,side='buy',changed='total'}){
+function trade({qty,unitPrice,total,commission=0,side='buy',changed='total',amountBasis='gross'}){
  qty=Number(qty);unitPrice=Number(unitPrice);total=Number(total);commission=commission===''?0:Number(commission);if(!Number.isFinite(qty)||qty<=0||!Number.isFinite(commission)||commission<0)return null;
  if(changed==='unitPrice'){if(!Number.isFinite(unitPrice)||unitPrice<0)return null;total=Math.round((qty*unitPrice+Number.EPSILON)*100)/100}
- else{if(!Number.isFinite(total))return null;total=Math.abs(total);unitPrice=total/qty}
+ else{if(!Number.isFinite(total))return null;total=Math.abs(total);if(amountBasis==='net'){total=round(side==='sell'?total+commission:total-commission);if(total<0)return null}unitPrice=total/qty}
  if(side==='sell'&&commission>total)return null;const amount=side==='sell'?total:-total;return {qty,unitPrice,total,commission,amount,netAmount:side==='sell'?total-commission:-(total+commission),effectiveUnitPrice:side==='sell'?(total-commission)/qty:(total+commission)/qty};
 }
 function tradePositionAccount(s,m){
@@ -109,9 +109,15 @@ function tradePositionAccount(s,m){
  if(['Titoli','Cripto'].includes(source.kind))return source.closed?null:source;
  const matches=accounts.filter(a=>!a.closed&&['Titoli','Cripto'].includes(a.kind)&&key(a.bank)===key(source.bank));return matches.length===1?matches[0]:null;
 }
+function settleTrade(s,m,cashName){
+ const source=s.accounts.find(a=>a.name===m.account),cash=s.accounts.find(a=>a.name===cashName);
+ if(!cash||cash.closed||cash.kind!=='Conto corrente')throw Error('Seleziona il conto corrente su cui regolare acquisto o vendita.');
+ const portfolio=tradePositionAccount(s,m);
+ return {...m,account:cash.name,...(portfolio?{relatedAccountId:portfolio.id}:{})};
+}
 function tradePosition(s,m,previous=null){
  if(m?.positionApplied&&!previous)return{ok:true,applied:false,account:m.positionAccount};
- if((previous&&!previous.positionApplied)||!m.securityQty||!m.securityUnitPrice)return{ok:true,applied:false};
+ if(!m.securityQty||m.securityUnitPrice===undefined||m.securityUnitPrice==='')return{ok:true,applied:false};
  const account=tradePositionAccount(s,m);if(!account)return{ok:false,message:'Per aggiornare automaticamente il dossier, seleziona il conto titoli collegato oppure verifica che esista un solo dossier per questa banca.'};
  const chronology=s.movements.filter(row=>row.id!==previous?.id&&row.positionApplied&&row.positionAccount===account.name&&key(row.positionSymbol)===key(m.security));if(chronology.some(row=>String(row.date||'')>String(m.date||'')))return{ok:false,message:'Questa operazione ha una data precedente a una compravendita già applicata sullo stesso titolo. Per non alterare la quantità, registra prima il movimento mancante oppure correggi la posizione manualmente.'};
  if(previous?.positionApplied){const undo=undoTradePosition(s,previous);if(!undo.ok)return undo}
@@ -145,5 +151,5 @@ function undoTradePosition(s,m){
  return{ok:true,applied:true};
 }
 function setClosed(s,id,closed,date){const a=s.accounts.find(a=>a.id===id);if(!a)throw Error('Conto non trovato');a.closed=!!closed;if(closed)a.closedAt=date;else delete a.closedAt;return s}
-const api={key,clean,unique,choices,securities,remember,trade,tradePosition,undoTradePosition,setClosed};root.TFWorkflow=api;if(typeof module!=='undefined')module.exports=api;
+const api={key,clean,unique,choices,securities,remember,trade,settleTrade,tradePosition,undoTradePosition,setClosed};root.TFWorkflow=api;if(typeof module!=='undefined')module.exports=api;
 })(globalThis);
