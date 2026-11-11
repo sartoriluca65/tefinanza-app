@@ -13,5 +13,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: node scripts/check-structure.mjs
-      - run: node --test tests/*.test.cjs
+      - name: Prepara strumenti browser di test (nessuna dipendenza applicativa)
+        run: npm install --prefix "$RUNNER_TEMP/accounting-browser" --no-audit --no-fund --package-lock=false playwright-core@1.62.1
+      - name: Verifica completa del motore e dei flussi applicativi
+        env:
+          NODE_PATH: ${{ runner.temp }}/accounting-browser/node_modules
+        run: bash scripts/verify-accounting.sh

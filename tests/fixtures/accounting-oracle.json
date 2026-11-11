@@ -1,0 +1,2538 @@
+{
+  "method": "Python Decimal, independently posted fixed scenario; ROUND_HALF_UP",
+  "snapshots": [
+    {
+      "name": "opening",
+      "bank": "1000",
+      "wallet": "0",
+      "card": "0",
+      "cash": "1000",
+      "shares": "0",
+      "portfolio": "0.00",
+      "expense": "0",
+      "income": "0",
+      "book": "0",
+      "realized": "0",
+      "netWorth": "1000.00"
+    },
+    {
+      "name": "income",
+      "bank": "1500",
+      "wallet": "0",
+      "card": "0",
+      "cash": "1500",
+      "shares": "0",
+      "portfolio": "0.00",
+      "expense": "0",
+      "income": "500",
+      "book": "0",
+      "realized": "0",
+      "netWorth": "1500.00"
+    },
+    {
+      "name": "walletFunding",
+      "bank": "1400",
+      "wallet": "100",
+      "card": "0",
+      "cash": "1500",
+      "shares": "0",
+      "portfolio": "0.00",
+      "expense": "0",
+      "income": "500",
+      "book": "0",
+      "realized": "0",
+      "netWorth": "1500.00"
+    },
+    {
+      "name": "walletPurchase",
+      "bank": "1400",
+      "wallet": "70",
+      "card": "0",
+      "cash": "1470",
+      "shares": "0",
+      "portfolio": "0.00",
+      "expense": "30",
+      "income": "500",
+      "book": "0",
+      "realized": "0",
+      "netWorth": "1470.00"
+    },
+    {
+      "name": "walletRefund",
+      "bank": "1400",
+      "wallet": "75",
+      "card": "0",
+      "cash": "1475",
+      "shares": "0",
+      "portfolio": "0.00",
+      "expense": "25",
+      "income": "500",
+      "book": "0",
+      "realized": "0",
+      "netWorth": "1475.00"
+    },
+    {
+      "name": "cardPurchase",
+      "bank": "1400",
+      "wallet": "75",
+      "card": "-40",
+      "cash": "1475",
+      "shares": "0",
+      "portfolio": "0.00",
+      "expense": "65",
+      "income": "500",
+      "book": "0",
+      "realized": "0",
+      "netWorth": "1435.00"
+    },
+    {
+      "name": "cardSettlement",
+      "bank": "1360",
+      "wallet": "75",
+      "card": "0",
+      "cash": "1435",
+      "shares": "0",
+      "portfolio": "0.00",
+      "expense": "65",
+      "income": "500",
+      "book": "0",
+      "realized": "0",
+      "netWorth": "1435.00"
+    },
+    {
+      "name": "purchase",
+      "bank": "1159",
+      "wallet": "75",
+      "card": "0",
+      "cash": "1234",
+      "shares": "2",
+      "portfolio": "200.00",
+      "expense": "66",
+      "income": "500",
+      "book": "201",
+      "realized": "0",
+      "netWorth": "1434.00"
+    },
+    {
+      "name": "revaluation",
+      "bank": "1159",
+      "wallet": "75",
+      "card": "0",
+      "cash": "1234",
+      "shares": "2",
+      "portfolio": "220.00",
+      "expense": "66",
+      "income": "500",
+      "book": "201",
+      "realized": "0",
+      "netWorth": "1454.00"
+    },
+    {
+      "name": "partialSale",
+      "bank": "1278",
+      "wallet": "75",
+      "card": "0",
+      "cash": "1353",
+      "shares": "1",
+      "portfolio": "110.00",
+      "expense": "67",
+      "income": "500",
+      "book": "100.50",
+      "realized": "18.50",
+      "netWorth": "1463.00"
+    },
+    {
+      "name": "finalSale",
+      "bank": "1367",
+      "wallet": "75",
+      "card": "0",
+      "cash": "1442",
+      "shares": "0",
+      "portfolio": "0.00",
+      "expense": "68",
+      "income": "500",
+      "book": "0",
+      "realized": "7.00",
+      "netWorth": "1442.00"
+    },
+    {
+      "name": "cardCredit",
+      "bank": "1352",
+      "wallet": "75",
+      "card": "15",
+      "cash": "1427",
+      "shares": "0",
+      "portfolio": "0.00",
+      "expense": "68",
+      "income": "500",
+      "book": "0",
+      "realized": "7.00",
+      "netWorth": "1442.00"
+    }
+  ],
+  "rounding": [
+    {
+      "input": "-1.005",
+      "expected": "-1.01"
+    },
+    {
+      "input": "10.075",
+      "expected": "10.08"
+    },
+    {
+      "input": "1.255",
+      "expected": "1.26"
+    },
+    {
+      "input": "-0.00000000001",
+      "expected": "0.00"
+    },
+    {
+      "input": "999999.995",
+      "expected": "1000000.00"
+    }
+  ],
+  "randomSeed": 73119,
+  "randomCases": [
+    {
+      "id": "random-0",
+      "kind": "purchase",
+      "amount": "2.31",
+      "account": "Wallet",
+      "expected": {
+        "Banca": "10000",
+        "Wallet": "-2.31",
+        "Carta": "0",
+        "income": "0",
+        "expense": "2.31",
+        "netWorth": "9997.69"
+      }
+    },
+    {
+      "id": "random-1",
+      "kind": "purchase",
+      "amount": "342.3",
+      "account": "Banca",
+      "expected": {
+        "Banca": "9657.7",
+        "Wallet": "-2.31",
+        "Carta": "0",
+        "income": "0",
+        "expense": "344.61",
+        "netWorth": "9655.39"
+      }
+    },
+    {
+      "id": "random-2",
+      "kind": "purchase",
+      "amount": "445.46",
+      "account": "Carta",
+      "expected": {
+        "Banca": "9657.7",
+        "Wallet": "-2.31",
+        "Carta": "-445.46",
+        "income": "0",
+        "expense": "790.07",
+        "netWorth": "9209.93"
+      }
+    },
+    {
+      "id": "random-3",
+      "kind": "purchase",
+      "amount": "419.51",
+      "account": "Carta",
+      "expected": {
+        "Banca": "9657.7",
+        "Wallet": "-2.31",
+        "Carta": "-864.97",
+        "income": "0",
+        "expense": "1209.58",
+        "netWorth": "8790.42"
+      }
+    },
+    {
+      "id": "random-4",
+      "kind": "income",
+      "amount": "422.89",
+      "account": "Banca",
+      "expected": {
+        "Banca": "10080.59",
+        "Wallet": "-2.31",
+        "Carta": "-864.97",
+        "income": "422.89",
+        "expense": "1209.58",
+        "netWorth": "9213.31"
+      }
+    },
+    {
+      "id": "random-5",
+      "kind": "purchase",
+      "amount": "287.71",
+      "account": "Banca",
+      "expected": {
+        "Banca": "9792.88",
+        "Wallet": "-2.31",
+        "Carta": "-864.97",
+        "income": "422.89",
+        "expense": "1497.29",
+        "netWorth": "8925.60"
+      }
+    },
+    {
+      "id": "random-6",
+      "kind": "income",
+      "amount": "374.17",
+      "account": "Banca",
+      "expected": {
+        "Banca": "10167.05",
+        "Wallet": "-2.31",
+        "Carta": "-864.97",
+        "income": "797.06",
+        "expense": "1497.29",
+        "netWorth": "9299.77"
+      }
+    },
+    {
+      "id": "random-7",
+      "kind": "income",
+      "amount": "25.14",
+      "account": "Banca",
+      "expected": {
+        "Banca": "10192.19",
+        "Wallet": "-2.31",
+        "Carta": "-864.97",
+        "income": "822.20",
+        "expense": "1497.29",
+        "netWorth": "9324.91"
+      }
+    },
+    {
+      "id": "random-8",
+      "kind": "purchase",
+      "amount": "146.74",
+      "account": "Wallet",
+      "expected": {
+        "Banca": "10192.19",
+        "Wallet": "-149.05",
+        "Carta": "-864.97",
+        "income": "822.20",
+        "expense": "1644.03",
+        "netWorth": "9178.17"
+      }
+    },
+    {
+      "id": "random-9",
+      "kind": "transfer",
+      "amount": "214.64",
+      "source": "Banca",
+      "target": "Wallet",
+      "fee": "1",
+      "expected": {
+        "Banca": "9976.55",
+        "Wallet": "65.59",
+        "Carta": "-864.97",
+        "income": "822.20",
+        "expense": "1645.03",
+        "netWorth": "9177.17"
+      }
+    },
+    {
+      "id": "random-10",
+      "kind": "income",
+      "amount": "238.94",
+      "account": "Banca",
+      "expected": {
+        "Banca": "10215.49",
+        "Wallet": "65.59",
+        "Carta": "-864.97",
+        "income": "1061.14",
+        "expense": "1645.03",
+        "netWorth": "9416.11"
+      }
+    },
+    {
+      "id": "random-11",
+      "kind": "purchase",
+      "amount": "138.33",
+      "account": "Carta",
+      "expected": {
+        "Banca": "10215.49",
+        "Wallet": "65.59",
+        "Carta": "-1003.30",
+        "income": "1061.14",
+        "expense": "1783.36",
+        "netWorth": "9277.78"
+      }
+    },
+    {
+      "id": "random-12",
+      "kind": "transfer",
+      "amount": "202.22",
+      "source": "Wallet",
+      "target": "Banca",
+      "fee": "0",
+      "expected": {
+        "Banca": "10417.71",
+        "Wallet": "-136.63",
+        "Carta": "-1003.30",
+        "income": "1061.14",
+        "expense": "1783.36",
+        "netWorth": "9277.78"
+      }
+    },
+    {
+      "id": "random-13",
+      "kind": "income",
+      "amount": "260.64",
+      "account": "Banca",
+      "expected": {
+        "Banca": "10678.35",
+        "Wallet": "-136.63",
+        "Carta": "-1003.30",
+        "income": "1321.78",
+        "expense": "1783.36",
+        "netWorth": "9538.42"
+      }
+    },
+    {
+      "id": "random-14",
+      "kind": "purchase",
+      "amount": "243.2",
+      "account": "Carta",
+      "expected": {
+        "Banca": "10678.35",
+        "Wallet": "-136.63",
+        "Carta": "-1246.50",
+        "income": "1321.78",
+        "expense": "2026.56",
+        "netWorth": "9295.22"
+      }
+    },
+    {
+      "id": "random-15",
+      "kind": "purchase",
+      "amount": "460.75",
+      "account": "Wallet",
+      "expected": {
+        "Banca": "10678.35",
+        "Wallet": "-597.38",
+        "Carta": "-1246.50",
+        "income": "1321.78",
+        "expense": "2487.31",
+        "netWorth": "8834.47"
+      }
+    },
+    {
+      "id": "random-16",
+      "kind": "purchase",
+      "amount": "75.37",
+      "account": "Wallet",
+      "expected": {
+        "Banca": "10678.35",
+        "Wallet": "-672.75",
+        "Carta": "-1246.50",
+        "income": "1321.78",
+        "expense": "2562.68",
+        "netWorth": "8759.10"
+      }
+    },
+    {
+      "id": "random-17",
+      "kind": "transfer",
+      "amount": "394.93",
+      "source": "Carta",
+      "target": "Wallet",
+      "fee": "0.25",
+      "expected": {
+        "Banca": "10678.35",
+        "Wallet": "-277.82",
+        "Carta": "-1641.68",
+        "income": "1321.78",
+        "expense": "2562.93",
+        "netWorth": "8758.85"
+      }
+    },
+    {
+      "id": "random-18",
+      "kind": "transfer",
+      "amount": "30.07",
+      "source": "Banca",
+      "target": "Wallet",
+      "fee": "0.25",
+      "expected": {
+        "Banca": "10648.03",
+        "Wallet": "-247.75",
+        "Carta": "-1641.68",
+        "income": "1321.78",
+        "expense": "2563.18",
+        "netWorth": "8758.60"
+      }
+    },
+    {
+      "id": "random-19",
+      "kind": "income",
+      "amount": "94.2",
+      "account": "Banca",
+      "expected": {
+        "Banca": "10742.23",
+        "Wallet": "-247.75",
+        "Carta": "-1641.68",
+        "income": "1415.98",
+        "expense": "2563.18",
+        "netWorth": "8852.80"
+      }
+    },
+    {
+      "id": "random-20",
+      "kind": "income",
+      "amount": "91.08",
+      "account": "Banca",
+      "expected": {
+        "Banca": "10833.31",
+        "Wallet": "-247.75",
+        "Carta": "-1641.68",
+        "income": "1507.06",
+        "expense": "2563.18",
+        "netWorth": "8943.88"
+      }
+    },
+    {
+      "id": "random-21",
+      "kind": "purchase",
+      "amount": "236.66",
+      "account": "Banca",
+      "expected": {
+        "Banca": "10596.65",
+        "Wallet": "-247.75",
+        "Carta": "-1641.68",
+        "income": "1507.06",
+        "expense": "2799.84",
+        "netWorth": "8707.22"
+      }
+    },
+    {
+      "id": "random-22",
+      "kind": "transfer",
+      "amount": "141.39",
+      "source": "Wallet",
+      "target": "Carta",
+      "fee": "0.25",
+      "expected": {
+        "Banca": "10596.65",
+        "Wallet": "-389.39",
+        "Carta": "-1500.29",
+        "income": "1507.06",
+        "expense": "2800.09",
+        "netWorth": "8706.97"
+      }
+    },
+    {
+      "id": "random-23",
+      "kind": "transfer",
+      "amount": "326.74",
+      "source": "Banca",
+      "target": "Carta",
+      "fee": "0.01",
+      "expected": {
+        "Banca": "10269.90",
+        "Wallet": "-389.39",
+        "Carta": "-1173.55",
+        "income": "1507.06",
+        "expense": "2800.10",
+        "netWorth": "8706.96"
+      }
+    },
+    {
+      "id": "random-24",
+      "kind": "purchase",
+      "amount": "398.62",
+      "account": "Carta",
+      "expected": {
+        "Banca": "10269.90",
+        "Wallet": "-389.39",
+        "Carta": "-1572.17",
+        "income": "1507.06",
+        "expense": "3198.72",
+        "netWorth": "8308.34"
+      }
+    },
+    {
+      "id": "random-25",
+      "kind": "purchase",
+      "amount": "219.07",
+      "account": "Carta",
+      "expected": {
+        "Banca": "10269.90",
+        "Wallet": "-389.39",
+        "Carta": "-1791.24",
+        "income": "1507.06",
+        "expense": "3417.79",
+        "netWorth": "8089.27"
+      }
+    },
+    {
+      "id": "random-26",
+      "kind": "transfer",
+      "amount": "262.02",
+      "source": "Carta",
+      "target": "Banca",
+      "fee": "0.25",
+      "expected": {
+        "Banca": "10531.92",
+        "Wallet": "-389.39",
+        "Carta": "-2053.51",
+        "income": "1507.06",
+        "expense": "3418.04",
+        "netWorth": "8089.02"
+      }
+    },
+    {
+      "id": "random-27",
+      "kind": "income",
+      "amount": "169.14",
+      "account": "Banca",
+      "expected": {
+        "Banca": "10701.06",
+        "Wallet": "-389.39",
+        "Carta": "-2053.51",
+        "income": "1676.20",
+        "expense": "3418.04",
+        "netWorth": "8258.16"
+      }
+    },
+    {
+      "id": "random-28",
+      "kind": "purchase",
+      "amount": "341.12",
+      "account": "Wallet",
+      "expected": {
+        "Banca": "10701.06",
+        "Wallet": "-730.51",
+        "Carta": "-2053.51",
+        "income": "1676.20",
+        "expense": "3759.16",
+        "netWorth": "7917.04"
+      }
+    },
+    {
+      "id": "random-29",
+      "kind": "purchase",
+      "amount": "200.77",
+      "account": "Wallet",
+      "expected": {
+        "Banca": "10701.06",
+        "Wallet": "-931.28",
+        "Carta": "-2053.51",
+        "income": "1676.20",
+        "expense": "3959.93",
+        "netWorth": "7716.27"
+      }
+    },
+    {
+      "id": "random-30",
+      "kind": "income",
+      "amount": "407.16",
+      "account": "Banca",
+      "expected": {
+        "Banca": "11108.22",
+        "Wallet": "-931.28",
+        "Carta": "-2053.51",
+        "income": "2083.36",
+        "expense": "3959.93",
+        "netWorth": "8123.43"
+      }
+    },
+    {
+      "id": "random-31",
+      "kind": "income",
+      "amount": "190.05",
+      "account": "Banca",
+      "expected": {
+        "Banca": "11298.27",
+        "Wallet": "-931.28",
+        "Carta": "-2053.51",
+        "income": "2273.41",
+        "expense": "3959.93",
+        "netWorth": "8313.48"
+      }
+    },
+    {
+      "id": "random-32",
+      "kind": "purchase",
+      "amount": "107.55",
+      "account": "Wallet",
+      "expected": {
+        "Banca": "11298.27",
+        "Wallet": "-1038.83",
+        "Carta": "-2053.51",
+        "income": "2273.41",
+        "expense": "4067.48",
+        "netWorth": "8205.93"
+      }
+    },
+    {
+      "id": "random-33",
+      "kind": "income",
+      "amount": "12.03",
+      "account": "Banca",
+      "expected": {
+        "Banca": "11310.30",
+        "Wallet": "-1038.83",
+        "Carta": "-2053.51",
+        "income": "2285.44",
+        "expense": "4067.48",
+        "netWorth": "8217.96"
+      }
+    },
+    {
+      "id": "random-34",
+      "kind": "income",
+      "amount": "293.22",
+      "account": "Banca",
+      "expected": {
+        "Banca": "11603.52",
+        "Wallet": "-1038.83",
+        "Carta": "-2053.51",
+        "income": "2578.66",
+        "expense": "4067.48",
+        "netWorth": "8511.18"
+      }
+    },
+    {
+      "id": "random-35",
+      "kind": "transfer",
+      "amount": "241.09",
+      "source": "Wallet",
+      "target": "Banca",
+      "fee": "0.25",
+      "expected": {
+        "Banca": "11844.61",
+        "Wallet": "-1280.17",
+        "Carta": "-2053.51",
+        "income": "2578.66",
+        "expense": "4067.73",
+        "netWorth": "8510.93"
+      }
+    },
+    {
+      "id": "random-36",
+      "kind": "transfer",
+      "amount": "385.4",
+      "source": "Banca",
+      "target": "Carta",
+      "fee": "1",
+      "expected": {
+        "Banca": "11458.21",
+        "Wallet": "-1280.17",
+        "Carta": "-1668.11",
+        "income": "2578.66",
+        "expense": "4068.73",
+        "netWorth": "8509.93"
+      }
+    },
+    {
+      "id": "random-37",
+      "kind": "transfer",
+      "amount": "132.86",
+      "source": "Wallet",
+      "target": "Banca",
+      "fee": "0.01",
+      "expected": {
+        "Banca": "11591.07",
+        "Wallet": "-1413.04",
+        "Carta": "-1668.11",
+        "income": "2578.66",
+        "expense": "4068.74",
+        "netWorth": "8509.92"
+      }
+    },
+    {
+      "id": "random-38",
+      "kind": "purchase",
+      "amount": "61.81",
+      "account": "Banca",
+      "expected": {
+        "Banca": "11529.26",
+        "Wallet": "-1413.04",
+        "Carta": "-1668.11",
+        "income": "2578.66",
+        "expense": "4130.55",
+        "netWorth": "8448.11"
+      }
+    },
+    {
+      "id": "random-39",
+      "kind": "income",
+      "amount": "21.63",
+      "account": "Banca",
+      "expected": {
+        "Banca": "11550.89",
+        "Wallet": "-1413.04",
+        "Carta": "-1668.11",
+        "income": "2600.29",
+        "expense": "4130.55",
+        "netWorth": "8469.74"
+      }
+    },
+    {
+      "id": "random-40",
+      "kind": "income",
+      "amount": "223.32",
+      "account": "Banca",
+      "expected": {
+        "Banca": "11774.21",
+        "Wallet": "-1413.04",
+        "Carta": "-1668.11",
+        "income": "2823.61",
+        "expense": "4130.55",
+        "netWorth": "8693.06"
+      }
+    },
+    {
+      "id": "random-41",
+      "kind": "income",
+      "amount": "432.46",
+      "account": "Banca",
+      "expected": {
+        "Banca": "12206.67",
+        "Wallet": "-1413.04",
+        "Carta": "-1668.11",
+        "income": "3256.07",
+        "expense": "4130.55",
+        "netWorth": "9125.52"
+      }
+    },
+    {
+      "id": "random-42",
+      "kind": "income",
+      "amount": "270.12",
+      "account": "Banca",
+      "expected": {
+        "Banca": "12476.79",
+        "Wallet": "-1413.04",
+        "Carta": "-1668.11",
+        "income": "3526.19",
+        "expense": "4130.55",
+        "netWorth": "9395.64"
+      }
+    },
+    {
+      "id": "random-43",
+      "kind": "income",
+      "amount": "376.77",
+      "account": "Banca",
+      "expected": {
+        "Banca": "12853.56",
+        "Wallet": "-1413.04",
+        "Carta": "-1668.11",
+        "income": "3902.96",
+        "expense": "4130.55",
+        "netWorth": "9772.41"
+      }
+    },
+    {
+      "id": "random-44",
+      "kind": "purchase",
+      "amount": "71.71",
+      "account": "Carta",
+      "expected": {
+        "Banca": "12853.56",
+        "Wallet": "-1413.04",
+        "Carta": "-1739.82",
+        "income": "3902.96",
+        "expense": "4202.26",
+        "netWorth": "9700.70"
+      }
+    },
+    {
+      "id": "random-45",
+      "kind": "income",
+      "amount": "147.23",
+      "account": "Banca",
+      "expected": {
+        "Banca": "13000.79",
+        "Wallet": "-1413.04",
+        "Carta": "-1739.82",
+        "income": "4050.19",
+        "expense": "4202.26",
+        "netWorth": "9847.93"
+      }
+    },
+    {
+      "id": "random-46",
+      "kind": "transfer",
+      "amount": "200.89",
+      "source": "Wallet",
+      "target": "Carta",
+      "fee": "0.01",
+      "expected": {
+        "Banca": "13000.79",
+        "Wallet": "-1613.94",
+        "Carta": "-1538.93",
+        "income": "4050.19",
+        "expense": "4202.27",
+        "netWorth": "9847.92"
+      }
+    },
+    {
+      "id": "random-47",
+      "kind": "income",
+      "amount": "74.96",
+      "account": "Banca",
+      "expected": {
+        "Banca": "13075.75",
+        "Wallet": "-1613.94",
+        "Carta": "-1538.93",
+        "income": "4125.15",
+        "expense": "4202.27",
+        "netWorth": "9922.88"
+      }
+    },
+    {
+      "id": "random-48",
+      "kind": "income",
+      "amount": "398.68",
+      "account": "Banca",
+      "expected": {
+        "Banca": "13474.43",
+        "Wallet": "-1613.94",
+        "Carta": "-1538.93",
+        "income": "4523.83",
+        "expense": "4202.27",
+        "netWorth": "10321.56"
+      }
+    },
+    {
+      "id": "random-49",
+      "kind": "income",
+      "amount": "245.39",
+      "account": "Banca",
+      "expected": {
+        "Banca": "13719.82",
+        "Wallet": "-1613.94",
+        "Carta": "-1538.93",
+        "income": "4769.22",
+        "expense": "4202.27",
+        "netWorth": "10566.95"
+      }
+    },
+    {
+      "id": "random-50",
+      "kind": "transfer",
+      "amount": "112.51",
+      "source": "Carta",
+      "target": "Banca",
+      "fee": "0.01",
+      "expected": {
+        "Banca": "13832.33",
+        "Wallet": "-1613.94",
+        "Carta": "-1651.45",
+        "income": "4769.22",
+        "expense": "4202.28",
+        "netWorth": "10566.94"
+      }
+    },
+    {
+      "id": "random-51",
+      "kind": "purchase",
+      "amount": "380.63",
+      "account": "Carta",
+      "expected": {
+        "Banca": "13832.33",
+        "Wallet": "-1613.94",
+        "Carta": "-2032.08",
+        "income": "4769.22",
+        "expense": "4582.91",
+        "netWorth": "10186.31"
+      }
+    },
+    {
+      "id": "random-52",
+      "kind": "transfer",
+      "amount": "229",
+      "source": "Carta",
+      "target": "Banca",
+      "fee": "0",
+      "expected": {
+        "Banca": "14061.33",
+        "Wallet": "-1613.94",
+        "Carta": "-2261.08",
+        "income": "4769.22",
+        "expense": "4582.91",
+        "netWorth": "10186.31"
+      }
+    },
+    {
+      "id": "random-53",
+      "kind": "purchase",
+      "amount": "45.05",
+      "account": "Wallet",
+      "expected": {
+        "Banca": "14061.33",
+        "Wallet": "-1658.99",
+        "Carta": "-2261.08",
+        "income": "4769.22",
+        "expense": "4627.96",
+        "netWorth": "10141.26"
+      }
+    },
+    {
+      "id": "random-54",
+      "kind": "income",
+      "amount": "145.66",
+      "account": "Banca",
+      "expected": {
+        "Banca": "14206.99",
+        "Wallet": "-1658.99",
+        "Carta": "-2261.08",
+        "income": "4914.88",
+        "expense": "4627.96",
+        "netWorth": "10286.92"
+      }
+    },
+    {
+      "id": "random-55",
+      "kind": "transfer",
+      "amount": "108.85",
+      "source": "Carta",
+      "target": "Banca",
+      "fee": "0",
+      "expected": {
+        "Banca": "14315.84",
+        "Wallet": "-1658.99",
+        "Carta": "-2369.93",
+        "income": "4914.88",
+        "expense": "4627.96",
+        "netWorth": "10286.92"
+      }
+    },
+    {
+      "id": "random-56",
+      "kind": "transfer",
+      "amount": "165.95",
+      "source": "Wallet",
+      "target": "Carta",
+      "fee": "1",
+      "expected": {
+        "Banca": "14315.84",
+        "Wallet": "-1825.94",
+        "Carta": "-2203.98",
+        "income": "4914.88",
+        "expense": "4628.96",
+        "netWorth": "10285.92"
+      }
+    },
+    {
+      "id": "random-57",
+      "kind": "purchase",
+      "amount": "159.16",
+      "account": "Wallet",
+      "expected": {
+        "Banca": "14315.84",
+        "Wallet": "-1985.10",
+        "Carta": "-2203.98",
+        "income": "4914.88",
+        "expense": "4788.12",
+        "netWorth": "10126.76"
+      }
+    },
+    {
+      "id": "random-58",
+      "kind": "purchase",
+      "amount": "118.79",
+      "account": "Carta",
+      "expected": {
+        "Banca": "14315.84",
+        "Wallet": "-1985.10",
+        "Carta": "-2322.77",
+        "income": "4914.88",
+        "expense": "4906.91",
+        "netWorth": "10007.97"
+      }
+    },
+    {
+      "id": "random-59",
+      "kind": "income",
+      "amount": "59.6",
+      "account": "Banca",
+      "expected": {
+        "Banca": "14375.44",
+        "Wallet": "-1985.10",
+        "Carta": "-2322.77",
+        "income": "4974.48",
+        "expense": "4906.91",
+        "netWorth": "10067.57"
+      }
+    },
+    {
+      "id": "random-60",
+      "kind": "purchase",
+      "amount": "209.68",
+      "account": "Wallet",
+      "expected": {
+        "Banca": "14375.44",
+        "Wallet": "-2194.78",
+        "Carta": "-2322.77",
+        "income": "4974.48",
+        "expense": "5116.59",
+        "netWorth": "9857.89"
+      }
+    },
+    {
+      "id": "random-61",
+      "kind": "transfer",
+      "amount": "19.34",
+      "source": "Carta",
+      "target": "Banca",
+      "fee": "1",
+      "expected": {
+        "Banca": "14394.78",
+        "Wallet": "-2194.78",
+        "Carta": "-2343.11",
+        "income": "4974.48",
+        "expense": "5117.59",
+        "netWorth": "9856.89"
+      }
+    },
+    {
+      "id": "random-62",
+      "kind": "purchase",
+      "amount": "300.32",
+      "account": "Carta",
+      "expected": {
+        "Banca": "14394.78",
+        "Wallet": "-2194.78",
+        "Carta": "-2643.43",
+        "income": "4974.48",
+        "expense": "5417.91",
+        "netWorth": "9556.57"
+      }
+    },
+    {
+      "id": "random-63",
+      "kind": "purchase",
+      "amount": "271.87",
+      "account": "Banca",
+      "expected": {
+        "Banca": "14122.91",
+        "Wallet": "-2194.78",
+        "Carta": "-2643.43",
+        "income": "4974.48",
+        "expense": "5689.78",
+        "netWorth": "9284.70"
+      }
+    },
+    {
+      "id": "random-64",
+      "kind": "purchase",
+      "amount": "161.05",
+      "account": "Banca",
+      "expected": {
+        "Banca": "13961.86",
+        "Wallet": "-2194.78",
+        "Carta": "-2643.43",
+        "income": "4974.48",
+        "expense": "5850.83",
+        "netWorth": "9123.65"
+      }
+    },
+    {
+      "id": "random-65",
+      "kind": "income",
+      "amount": "71.2",
+      "account": "Banca",
+      "expected": {
+        "Banca": "14033.06",
+        "Wallet": "-2194.78",
+        "Carta": "-2643.43",
+        "income": "5045.68",
+        "expense": "5850.83",
+        "netWorth": "9194.85"
+      }
+    },
+    {
+      "id": "random-66",
+      "kind": "transfer",
+      "amount": "324.59",
+      "source": "Carta",
+      "target": "Banca",
+      "fee": "1",
+      "expected": {
+        "Banca": "14357.65",
+        "Wallet": "-2194.78",
+        "Carta": "-2969.02",
+        "income": "5045.68",
+        "expense": "5851.83",
+        "netWorth": "9193.85"
+      }
+    },
+    {
+      "id": "random-67",
+      "kind": "transfer",
+      "amount": "305.9",
+      "source": "Banca",
+      "target": "Wallet",
+      "fee": "1",
+      "expected": {
+        "Banca": "14050.75",
+        "Wallet": "-1888.88",
+        "Carta": "-2969.02",
+        "income": "5045.68",
+        "expense": "5852.83",
+        "netWorth": "9192.85"
+      }
+    },
+    {
+      "id": "random-68",
+      "kind": "income",
+      "amount": "495.56",
+      "account": "Banca",
+      "expected": {
+        "Banca": "14546.31",
+        "Wallet": "-1888.88",
+        "Carta": "-2969.02",
+        "income": "5541.24",
+        "expense": "5852.83",
+        "netWorth": "9688.41"
+      }
+    },
+    {
+      "id": "random-69",
+      "kind": "income",
+      "amount": "12.57",
+      "account": "Banca",
+      "expected": {
+        "Banca": "14558.88",
+        "Wallet": "-1888.88",
+        "Carta": "-2969.02",
+        "income": "5553.81",
+        "expense": "5852.83",
+        "netWorth": "9700.98"
+      }
+    },
+    {
+      "id": "random-70",
+      "kind": "income",
+      "amount": "329.23",
+      "account": "Banca",
+      "expected": {
+        "Banca": "14888.11",
+        "Wallet": "-1888.88",
+        "Carta": "-2969.02",
+        "income": "5883.04",
+        "expense": "5852.83",
+        "netWorth": "10030.21"
+      }
+    },
+    {
+      "id": "random-71",
+      "kind": "income",
+      "amount": "161.87",
+      "account": "Banca",
+      "expected": {
+        "Banca": "15049.98",
+        "Wallet": "-1888.88",
+        "Carta": "-2969.02",
+        "income": "6044.91",
+        "expense": "5852.83",
+        "netWorth": "10192.08"
+      }
+    },
+    {
+      "id": "random-72",
+      "kind": "purchase",
+      "amount": "68.61",
+      "account": "Banca",
+      "expected": {
+        "Banca": "14981.37",
+        "Wallet": "-1888.88",
+        "Carta": "-2969.02",
+        "income": "6044.91",
+        "expense": "5921.44",
+        "netWorth": "10123.47"
+      }
+    },
+    {
+      "id": "random-73",
+      "kind": "purchase",
+      "amount": "490.98",
+      "account": "Carta",
+      "expected": {
+        "Banca": "14981.37",
+        "Wallet": "-1888.88",
+        "Carta": "-3460.00",
+        "income": "6044.91",
+        "expense": "6412.42",
+        "netWorth": "9632.49"
+      }
+    },
+    {
+      "id": "random-74",
+      "kind": "transfer",
+      "amount": "228.38",
+      "source": "Carta",
+      "target": "Wallet",
+      "fee": "0.25",
+      "expected": {
+        "Banca": "14981.37",
+        "Wallet": "-1660.50",
+        "Carta": "-3688.63",
+        "income": "6044.91",
+        "expense": "6412.67",
+        "netWorth": "9632.24"
+      }
+    },
+    {
+      "id": "random-75",
+      "kind": "income",
+      "amount": "263.66",
+      "account": "Banca",
+      "expected": {
+        "Banca": "15245.03",
+        "Wallet": "-1660.50",
+        "Carta": "-3688.63",
+        "income": "6308.57",
+        "expense": "6412.67",
+        "netWorth": "9895.90"
+      }
+    },
+    {
+      "id": "random-76",
+      "kind": "purchase",
+      "amount": "116",
+      "account": "Carta",
+      "expected": {
+        "Banca": "15245.03",
+        "Wallet": "-1660.50",
+        "Carta": "-3804.63",
+        "income": "6308.57",
+        "expense": "6528.67",
+        "netWorth": "9779.90"
+      }
+    },
+    {
+      "id": "random-77",
+      "kind": "purchase",
+      "amount": "343.17",
+      "account": "Carta",
+      "expected": {
+        "Banca": "15245.03",
+        "Wallet": "-1660.50",
+        "Carta": "-4147.80",
+        "income": "6308.57",
+        "expense": "6871.84",
+        "netWorth": "9436.73"
+      }
+    },
+    {
+      "id": "random-78",
+      "kind": "purchase",
+      "amount": "89.71",
+      "account": "Wallet",
+      "expected": {
+        "Banca": "15245.03",
+        "Wallet": "-1750.21",
+        "Carta": "-4147.80",
+        "income": "6308.57",
+        "expense": "6961.55",
+        "netWorth": "9347.02"
+      }
+    },
+    {
+      "id": "random-79",
+      "kind": "transfer",
+      "amount": "153.96",
+      "source": "Banca",
+      "target": "Wallet",
+      "fee": "0",
+      "expected": {
+        "Banca": "15091.07",
+        "Wallet": "-1596.25",
+        "Carta": "-4147.80",
+        "income": "6308.57",
+        "expense": "6961.55",
+        "netWorth": "9347.02"
+      }
+    },
+    {
+      "id": "random-80",
+      "kind": "transfer",
+      "amount": "317.81",
+      "source": "Wallet",
+      "target": "Banca",
+      "fee": "1",
+      "expected": {
+        "Banca": "15408.88",
+        "Wallet": "-1915.06",
+        "Carta": "-4147.80",
+        "income": "6308.57",
+        "expense": "6962.55",
+        "netWorth": "9346.02"
+      }
+    },
+    {
+      "id": "random-81",
+      "kind": "income",
+      "amount": "191.75",
+      "account": "Banca",
+      "expected": {
+        "Banca": "15600.63",
+        "Wallet": "-1915.06",
+        "Carta": "-4147.80",
+        "income": "6500.32",
+        "expense": "6962.55",
+        "netWorth": "9537.77"
+      }
+    },
+    {
+      "id": "random-82",
+      "kind": "transfer",
+      "amount": "125.73",
+      "source": "Banca",
+      "target": "Wallet",
+      "fee": "1",
+      "expected": {
+        "Banca": "15473.90",
+        "Wallet": "-1789.33",
+        "Carta": "-4147.80",
+        "income": "6500.32",
+        "expense": "6963.55",
+        "netWorth": "9536.77"
+      }
+    },
+    {
+      "id": "random-83",
+      "kind": "transfer",
+      "amount": "205.99",
+      "source": "Banca",
+      "target": "Wallet",
+      "fee": "0.25",
+      "expected": {
+        "Banca": "15267.66",
+        "Wallet": "-1583.34",
+        "Carta": "-4147.80",
+        "income": "6500.32",
+        "expense": "6963.80",
+        "netWorth": "9536.52"
+      }
+    },
+    {
+      "id": "random-84",
+      "kind": "purchase",
+      "amount": "208.58",
+      "account": "Carta",
+      "expected": {
+        "Banca": "15267.66",
+        "Wallet": "-1583.34",
+        "Carta": "-4356.38",
+        "income": "6500.32",
+        "expense": "7172.38",
+        "netWorth": "9327.94"
+      }
+    },
+    {
+      "id": "random-85",
+      "kind": "income",
+      "amount": "228.21",
+      "account": "Banca",
+      "expected": {
+        "Banca": "15495.87",
+        "Wallet": "-1583.34",
+        "Carta": "-4356.38",
+        "income": "6728.53",
+        "expense": "7172.38",
+        "netWorth": "9556.15"
+      }
+    },
+    {
+      "id": "random-86",
+      "kind": "income",
+      "amount": "51.16",
+      "account": "Banca",
+      "expected": {
+        "Banca": "15547.03",
+        "Wallet": "-1583.34",
+        "Carta": "-4356.38",
+        "income": "6779.69",
+        "expense": "7172.38",
+        "netWorth": "9607.31"
+      }
+    },
+    {
+      "id": "random-87",
+      "kind": "purchase",
+      "amount": "396.74",
+      "account": "Carta",
+      "expected": {
+        "Banca": "15547.03",
+        "Wallet": "-1583.34",
+        "Carta": "-4753.12",
+        "income": "6779.69",
+        "expense": "7569.12",
+        "netWorth": "9210.57"
+      }
+    },
+    {
+      "id": "random-88",
+      "kind": "income",
+      "amount": "373.65",
+      "account": "Banca",
+      "expected": {
+        "Banca": "15920.68",
+        "Wallet": "-1583.34",
+        "Carta": "-4753.12",
+        "income": "7153.34",
+        "expense": "7569.12",
+        "netWorth": "9584.22"
+      }
+    },
+    {
+      "id": "random-89",
+      "kind": "transfer",
+      "amount": "153.21",
+      "source": "Carta",
+      "target": "Wallet",
+      "fee": "0.25",
+      "expected": {
+        "Banca": "15920.68",
+        "Wallet": "-1430.13",
+        "Carta": "-4906.58",
+        "income": "7153.34",
+        "expense": "7569.37",
+        "netWorth": "9583.97"
+      }
+    },
+    {
+      "id": "random-90",
+      "kind": "purchase",
+      "amount": "355.75",
+      "account": "Wallet",
+      "expected": {
+        "Banca": "15920.68",
+        "Wallet": "-1785.88",
+        "Carta": "-4906.58",
+        "income": "7153.34",
+        "expense": "7925.12",
+        "netWorth": "9228.22"
+      }
+    },
+    {
+      "id": "random-91",
+      "kind": "transfer",
+      "amount": "66.16",
+      "source": "Wallet",
+      "target": "Carta",
+      "fee": "1",
+      "expected": {
+        "Banca": "15920.68",
+        "Wallet": "-1853.04",
+        "Carta": "-4840.42",
+        "income": "7153.34",
+        "expense": "7926.12",
+        "netWorth": "9227.22"
+      }
+    },
+    {
+      "id": "random-92",
+      "kind": "income",
+      "amount": "11.46",
+      "account": "Banca",
+      "expected": {
+        "Banca": "15932.14",
+        "Wallet": "-1853.04",
+        "Carta": "-4840.42",
+        "income": "7164.80",
+        "expense": "7926.12",
+        "netWorth": "9238.68"
+      }
+    },
+    {
+      "id": "random-93",
+      "kind": "purchase",
+      "amount": "420.1",
+      "account": "Wallet",
+      "expected": {
+        "Banca": "15932.14",
+        "Wallet": "-2273.14",
+        "Carta": "-4840.42",
+        "income": "7164.80",
+        "expense": "8346.22",
+        "netWorth": "8818.58"
+      }
+    },
+    {
+      "id": "random-94",
+      "kind": "transfer",
+      "amount": "286.56",
+      "source": "Banca",
+      "target": "Wallet",
+      "fee": "0",
+      "expected": {
+        "Banca": "15645.58",
+        "Wallet": "-1986.58",
+        "Carta": "-4840.42",
+        "income": "7164.80",
+        "expense": "8346.22",
+        "netWorth": "8818.58"
+      }
+    },
+    {
+      "id": "random-95",
+      "kind": "purchase",
+      "amount": "3.25",
+      "account": "Wallet",
+      "expected": {
+        "Banca": "15645.58",
+        "Wallet": "-1989.83",
+        "Carta": "-4840.42",
+        "income": "7164.80",
+        "expense": "8349.47",
+        "netWorth": "8815.33"
+      }
+    },
+    {
+      "id": "random-96",
+      "kind": "income",
+      "amount": "468.51",
+      "account": "Banca",
+      "expected": {
+        "Banca": "16114.09",
+        "Wallet": "-1989.83",
+        "Carta": "-4840.42",
+        "income": "7633.31",
+        "expense": "8349.47",
+        "netWorth": "9283.84"
+      }
+    },
+    {
+      "id": "random-97",
+      "kind": "purchase",
+      "amount": "264.36",
+      "account": "Banca",
+      "expected": {
+        "Banca": "15849.73",
+        "Wallet": "-1989.83",
+        "Carta": "-4840.42",
+        "income": "7633.31",
+        "expense": "8613.83",
+        "netWorth": "9019.48"
+      }
+    },
+    {
+      "id": "random-98",
+      "kind": "transfer",
+      "amount": "351.78",
+      "source": "Carta",
+      "target": "Banca",
+      "fee": "0",
+      "expected": {
+        "Banca": "16201.51",
+        "Wallet": "-1989.83",
+        "Carta": "-5192.20",
+        "income": "7633.31",
+        "expense": "8613.83",
+        "netWorth": "9019.48"
+      }
+    },
+    {
+      "id": "random-99",
+      "kind": "income",
+      "amount": "197.98",
+      "account": "Banca",
+      "expected": {
+        "Banca": "16399.49",
+        "Wallet": "-1989.83",
+        "Carta": "-5192.20",
+        "income": "7831.29",
+        "expense": "8613.83",
+        "netWorth": "9217.46"
+      }
+    },
+    {
+      "id": "random-100",
+      "kind": "income",
+      "amount": "326.79",
+      "account": "Banca",
+      "expected": {
+        "Banca": "16726.28",
+        "Wallet": "-1989.83",
+        "Carta": "-5192.20",
+        "income": "8158.08",
+        "expense": "8613.83",
+        "netWorth": "9544.25"
+      }
+    },
+    {
+      "id": "random-101",
+      "kind": "transfer",
+      "amount": "285.77",
+      "source": "Carta",
+      "target": "Wallet",
+      "fee": "0.01",
+      "expected": {
+        "Banca": "16726.28",
+        "Wallet": "-1704.06",
+        "Carta": "-5477.98",
+        "income": "8158.08",
+        "expense": "8613.84",
+        "netWorth": "9544.24"
+      }
+    },
+    {
+      "id": "random-102",
+      "kind": "purchase",
+      "amount": "193.55",
+      "account": "Wallet",
+      "expected": {
+        "Banca": "16726.28",
+        "Wallet": "-1897.61",
+        "Carta": "-5477.98",
+        "income": "8158.08",
+        "expense": "8807.39",
+        "netWorth": "9350.69"
+      }
+    },
+    {
+      "id": "random-103",
+      "kind": "purchase",
+      "amount": "117.51",
+      "account": "Wallet",
+      "expected": {
+        "Banca": "16726.28",
+        "Wallet": "-2015.12",
+        "Carta": "-5477.98",
+        "income": "8158.08",
+        "expense": "8924.90",
+        "netWorth": "9233.18"
+      }
+    },
+    {
+      "id": "random-104",
+      "kind": "purchase",
+      "amount": "205.02",
+      "account": "Banca",
+      "expected": {
+        "Banca": "16521.26",
+        "Wallet": "-2015.12",
+        "Carta": "-5477.98",
+        "income": "8158.08",
+        "expense": "9129.92",
+        "netWorth": "9028.16"
+      }
+    },
+    {
+      "id": "random-105",
+      "kind": "transfer",
+      "amount": "196.85",
+      "source": "Carta",
+      "target": "Wallet",
+      "fee": "0.25",
+      "expected": {
+        "Banca": "16521.26",
+        "Wallet": "-1818.27",
+        "Carta": "-5675.08",
+        "income": "8158.08",
+        "expense": "9130.17",
+        "netWorth": "9027.91"
+      }
+    },
+    {
+      "id": "random-106",
+      "kind": "transfer",
+      "amount": "398.89",
+      "source": "Banca",
+      "target": "Wallet",
+      "fee": "0.25",
+      "expected": {
+        "Banca": "16122.12",
+        "Wallet": "-1419.38",
+        "Carta": "-5675.08",
+        "income": "8158.08",
+        "expense": "9130.42",
+        "netWorth": "9027.66"
+      }
+    },
+    {
+      "id": "random-107",
+      "kind": "transfer",
+      "amount": "362.34",
+      "source": "Carta",
+      "target": "Banca",
+      "fee": "0.25",
+      "expected": {
+        "Banca": "16484.46",
+        "Wallet": "-1419.38",
+        "Carta": "-6037.67",
+        "income": "8158.08",
+        "expense": "9130.67",
+        "netWorth": "9027.41"
+      }
+    },
+    {
+      "id": "random-108",
+      "kind": "purchase",
+      "amount": "54.95",
+      "account": "Carta",
+      "expected": {
+        "Banca": "16484.46",
+        "Wallet": "-1419.38",
+        "Carta": "-6092.62",
+        "income": "8158.08",
+        "expense": "9185.62",
+        "netWorth": "8972.46"
+      }
+    },
+    {
+      "id": "random-109",
+      "kind": "income",
+      "amount": "358.95",
+      "account": "Banca",
+      "expected": {
+        "Banca": "16843.41",
+        "Wallet": "-1419.38",
+        "Carta": "-6092.62",
+        "income": "8517.03",
+        "expense": "9185.62",
+        "netWorth": "9331.41"
+      }
+    },
+    {
+      "id": "random-110",
+      "kind": "purchase",
+      "amount": "24.43",
+      "account": "Wallet",
+      "expected": {
+        "Banca": "16843.41",
+        "Wallet": "-1443.81",
+        "Carta": "-6092.62",
+        "income": "8517.03",
+        "expense": "9210.05",
+        "netWorth": "9306.98"
+      }
+    },
+    {
+      "id": "random-111",
+      "kind": "transfer",
+      "amount": "447.19",
+      "source": "Carta",
+      "target": "Banca",
+      "fee": "0.01",
+      "expected": {
+        "Banca": "17290.60",
+        "Wallet": "-1443.81",
+        "Carta": "-6539.82",
+        "income": "8517.03",
+        "expense": "9210.06",
+        "netWorth": "9306.97"
+      }
+    },
+    {
+      "id": "random-112",
+      "kind": "income",
+      "amount": "182.98",
+      "account": "Banca",
+      "expected": {
+        "Banca": "17473.58",
+        "Wallet": "-1443.81",
+        "Carta": "-6539.82",
+        "income": "8700.01",
+        "expense": "9210.06",
+        "netWorth": "9489.95"
+      }
+    },
+    {
+      "id": "random-113",
+      "kind": "income",
+      "amount": "436.98",
+      "account": "Banca",
+      "expected": {
+        "Banca": "17910.56",
+        "Wallet": "-1443.81",
+        "Carta": "-6539.82",
+        "income": "9136.99",
+        "expense": "9210.06",
+        "netWorth": "9926.93"
+      }
+    },
+    {
+      "id": "random-114",
+      "kind": "income",
+      "amount": "48.31",
+      "account": "Banca",
+      "expected": {
+        "Banca": "17958.87",
+        "Wallet": "-1443.81",
+        "Carta": "-6539.82",
+        "income": "9185.30",
+        "expense": "9210.06",
+        "netWorth": "9975.24"
+      }
+    },
+    {
+      "id": "random-115",
+      "kind": "transfer",
+      "amount": "433.56",
+      "source": "Banca",
+      "target": "Carta",
+      "fee": "0.25",
+      "expected": {
+        "Banca": "17525.06",
+        "Wallet": "-1443.81",
+        "Carta": "-6106.26",
+        "income": "9185.30",
+        "expense": "9210.31",
+        "netWorth": "9974.99"
+      }
+    },
+    {
+      "id": "random-116",
+      "kind": "transfer",
+      "amount": "175.29",
+      "source": "Carta",
+      "target": "Wallet",
+      "fee": "1",
+      "expected": {
+        "Banca": "17525.06",
+        "Wallet": "-1268.52",
+        "Carta": "-6282.55",
+        "income": "9185.30",
+        "expense": "9211.31",
+        "netWorth": "9973.99"
+      }
+    },
+    {
+      "id": "random-117",
+      "kind": "purchase",
+      "amount": "136.63",
+      "account": "Banca",
+      "expected": {
+        "Banca": "17388.43",
+        "Wallet": "-1268.52",
+        "Carta": "-6282.55",
+        "income": "9185.30",
+        "expense": "9347.94",
+        "netWorth": "9837.36"
+      }
+    },
+    {
+      "id": "random-118",
+      "kind": "transfer",
+      "amount": "262.53",
+      "source": "Carta",
+      "target": "Banca",
+      "fee": "0.25",
+      "expected": {
+        "Banca": "17650.96",
+        "Wallet": "-1268.52",
+        "Carta": "-6545.33",
+        "income": "9185.30",
+        "expense": "9348.19",
+        "netWorth": "9837.11"
+      }
+    },
+    {
+      "id": "random-119",
+      "kind": "income",
+      "amount": "27.45",
+      "account": "Banca",
+      "expected": {
+        "Banca": "17678.41",
+        "Wallet": "-1268.52",
+        "Carta": "-6545.33",
+        "income": "9212.75",
+        "expense": "9348.19",
+        "netWorth": "9864.56"
+      }
+    },
+    {
+      "id": "random-120",
+      "kind": "transfer",
+      "amount": "33.67",
+      "source": "Banca",
+      "target": "Carta",
+      "fee": "0.25",
+      "expected": {
+        "Banca": "17644.49",
+        "Wallet": "-1268.52",
+        "Carta": "-6511.66",
+        "income": "9212.75",
+        "expense": "9348.44",
+        "netWorth": "9864.31"
+      }
+    },
+    {
+      "id": "random-121",
+      "kind": "income",
+      "amount": "219.69",
+      "account": "Banca",
+      "expected": {
+        "Banca": "17864.18",
+        "Wallet": "-1268.52",
+        "Carta": "-6511.66",
+        "income": "9432.44",
+        "expense": "9348.44",
+        "netWorth": "10084.00"
+      }
+    },
+    {
+      "id": "random-122",
+      "kind": "income",
+      "amount": "114.55",
+      "account": "Banca",
+      "expected": {
+        "Banca": "17978.73",
+        "Wallet": "-1268.52",
+        "Carta": "-6511.66",
+        "income": "9546.99",
+        "expense": "9348.44",
+        "netWorth": "10198.55"
+      }
+    },
+    {
+      "id": "random-123",
+      "kind": "purchase",
+      "amount": "398.3",
+      "account": "Carta",
+      "expected": {
+        "Banca": "17978.73",
+        "Wallet": "-1268.52",
+        "Carta": "-6909.96",
+        "income": "9546.99",
+        "expense": "9746.74",
+        "netWorth": "9800.25"
+      }
+    },
+    {
+      "id": "random-124",
+      "kind": "income",
+      "amount": "459.57",
+      "account": "Banca",
+      "expected": {
+        "Banca": "18438.30",
+        "Wallet": "-1268.52",
+        "Carta": "-6909.96",
+        "income": "10006.56",
+        "expense": "9746.74",
+        "netWorth": "10259.82"
+      }
+    },
+    {
+      "id": "random-125",
+      "kind": "income",
+      "amount": "47.65",
+      "account": "Banca",
+      "expected": {
+        "Banca": "18485.95",
+        "Wallet": "-1268.52",
+        "Carta": "-6909.96",
+        "income": "10054.21",
+        "expense": "9746.74",
+        "netWorth": "10307.47"
+      }
+    },
+    {
+      "id": "random-126",
+      "kind": "income",
+      "amount": "352.44",
+      "account": "Banca",
+      "expected": {
+        "Banca": "18838.39",
+        "Wallet": "-1268.52",
+        "Carta": "-6909.96",
+        "income": "10406.65",
+        "expense": "9746.74",
+        "netWorth": "10659.91"
+      }
+    },
+    {
+      "id": "random-127",
+      "kind": "transfer",
+      "amount": "278.18",
+      "source": "Wallet",
+      "target": "Carta",
+      "fee": "0",
+      "expected": {
+        "Banca": "18838.39",
+        "Wallet": "-1546.70",
+        "Carta": "-6631.78",
+        "income": "10406.65",
+        "expense": "9746.74",
+        "netWorth": "10659.91"
+      }
+    },
+    {
+      "id": "random-128",
+      "kind": "purchase",
+      "amount": "199.64",
+      "account": "Banca",
+      "expected": {
+        "Banca": "18638.75",
+        "Wallet": "-1546.70",
+        "Carta": "-6631.78",
+        "income": "10406.65",
+        "expense": "9946.38",
+        "netWorth": "10460.27"
+      }
+    },
+    {
+      "id": "random-129",
+      "kind": "transfer",
+      "amount": "33.97",
+      "source": "Banca",
+      "target": "Wallet",
+      "fee": "0.01",
+      "expected": {
+        "Banca": "18604.77",
+        "Wallet": "-1512.73",
+        "Carta": "-6631.78",
+        "income": "10406.65",
+        "expense": "9946.39",
+        "netWorth": "10460.26"
+      }
+    },
+    {
+      "id": "random-130",
+      "kind": "income",
+      "amount": "136.31",
+      "account": "Banca",
+      "expected": {
+        "Banca": "18741.08",
+        "Wallet": "-1512.73",
+        "Carta": "-6631.78",
+        "income": "10542.96",
+        "expense": "9946.39",
+        "netWorth": "10596.57"
+      }
+    },
+    {
+      "id": "random-131",
+      "kind": "income",
+      "amount": "78.72",
+      "account": "Banca",
+      "expected": {
+        "Banca": "18819.80",
+        "Wallet": "-1512.73",
+        "Carta": "-6631.78",
+        "income": "10621.68",
+        "expense": "9946.39",
+        "netWorth": "10675.29"
+      }
+    },
+    {
+      "id": "random-132",
+      "kind": "transfer",
+      "amount": "296.79",
+      "source": "Wallet",
+      "target": "Carta",
+      "fee": "0",
+      "expected": {
+        "Banca": "18819.80",
+        "Wallet": "-1809.52",
+        "Carta": "-6334.99",
+        "income": "10621.68",
+        "expense": "9946.39",
+        "netWorth": "10675.29"
+      }
+    },
+    {
+      "id": "random-133",
+      "kind": "purchase",
+      "amount": "406.51",
+      "account": "Carta",
+      "expected": {
+        "Banca": "18819.80",
+        "Wallet": "-1809.52",
+        "Carta": "-6741.50",
+        "income": "10621.68",
+        "expense": "10352.90",
+        "netWorth": "10268.78"
+      }
+    },
+    {
+      "id": "random-134",
+      "kind": "purchase",
+      "amount": "383.33",
+      "account": "Carta",
+      "expected": {
+        "Banca": "18819.80",
+        "Wallet": "-1809.52",
+        "Carta": "-7124.83",
+        "income": "10621.68",
+        "expense": "10736.23",
+        "netWorth": "9885.45"
+      }
+    },
+    {
+      "id": "random-135",
+      "kind": "purchase",
+      "amount": "312.46",
+      "account": "Carta",
+      "expected": {
+        "Banca": "18819.80",
+        "Wallet": "-1809.52",
+        "Carta": "-7437.29",
+        "income": "10621.68",
+        "expense": "11048.69",
+        "netWorth": "9572.99"
+      }
+    },
+    {
+      "id": "random-136",
+      "kind": "transfer",
+      "amount": "74.24",
+      "source": "Wallet",
+      "target": "Banca",
+      "fee": "0.25",
+      "expected": {
+        "Banca": "18894.04",
+        "Wallet": "-1884.01",
+        "Carta": "-7437.29",
+        "income": "10621.68",
+        "expense": "11048.94",
+        "netWorth": "9572.74"
+      }
+    },
+    {
+      "id": "random-137",
+      "kind": "purchase",
+      "amount": "225.8",
+      "account": "Carta",
+      "expected": {
+        "Banca": "18894.04",
+        "Wallet": "-1884.01",
+        "Carta": "-7663.09",
+        "income": "10621.68",
+        "expense": "11274.74",
+        "netWorth": "9346.94"
+      }
+    },
+    {
+      "id": "random-138",
+      "kind": "purchase",
+      "amount": "270.47",
+      "account": "Banca",
+      "expected": {
+        "Banca": "18623.57",
+        "Wallet": "-1884.01",
+        "Carta": "-7663.09",
+        "income": "10621.68",
+        "expense": "11545.21",
+        "netWorth": "9076.47"
+      }
+    },
+    {
+      "id": "random-139",
+      "kind": "transfer",
+      "amount": "336.07",
+      "source": "Banca",
+      "target": "Wallet",
+      "fee": "1",
+      "expected": {
+        "Banca": "18286.50",
+        "Wallet": "-1547.94",
+        "Carta": "-7663.09",
+        "income": "10621.68",
+        "expense": "11546.21",
+        "netWorth": "9075.47"
+      }
+    },
+    {
+      "id": "random-140",
+      "kind": "transfer",
+      "amount": "487.01",
+      "source": "Wallet",
+      "target": "Carta",
+      "fee": "0",
+      "expected": {
+        "Banca": "18286.50",
+        "Wallet": "-2034.95",
+        "Carta": "-7176.08",
+        "income": "10621.68",
+        "expense": "11546.21",
+        "netWorth": "9075.47"
+      }
+    },
+    {
+      "id": "random-141",
+      "kind": "income",
+      "amount": "160.45",
+      "account": "Banca",
+      "expected": {
+        "Banca": "18446.95",
+        "Wallet": "-2034.95",
+        "Carta": "-7176.08",
+        "income": "10782.13",
+        "expense": "11546.21",
+        "netWorth": "9235.92"
+      }
+    },
+    {
+      "id": "random-142",
+      "kind": "income",
+      "amount": "205.29",
+      "account": "Banca",
+      "expected": {
+        "Banca": "18652.24",
+        "Wallet": "-2034.95",
+        "Carta": "-7176.08",
+        "income": "10987.42",
+        "expense": "11546.21",
+        "netWorth": "9441.21"
+      }
+    },
+    {
+      "id": "random-143",
+      "kind": "income",
+      "amount": "253.88",
+      "account": "Banca",
+      "expected": {
+        "Banca": "18906.12",
+        "Wallet": "-2034.95",
+        "Carta": "-7176.08",
+        "income": "11241.30",
+        "expense": "11546.21",
+        "netWorth": "9695.09"
+      }
+    },
+    {
+      "id": "random-144",
+      "kind": "income",
+      "amount": "305.25",
+      "account": "Banca",
+      "expected": {
+        "Banca": "19211.37",
+        "Wallet": "-2034.95",
+        "Carta": "-7176.08",
+        "income": "11546.55",
+        "expense": "11546.21",
+        "netWorth": "10000.34"
+      }
+    },
+    {
+      "id": "random-145",
+      "kind": "transfer",
+      "amount": "69.88",
+      "source": "Banca",
+      "target": "Wallet",
+      "fee": "0.25",
+      "expected": {
+        "Banca": "19141.24",
+        "Wallet": "-1965.07",
+        "Carta": "-7176.08",
+        "income": "11546.55",
+        "expense": "11546.46",
+        "netWorth": "10000.09"
+      }
+    },
+    {
+      "id": "random-146",
+      "kind": "transfer",
+      "amount": "363.91",
+      "source": "Banca",
+      "target": "Carta",
+      "fee": "1",
+      "expected": {
+        "Banca": "18776.33",
+        "Wallet": "-1965.07",
+        "Carta": "-6812.17",
+        "income": "11546.55",
+        "expense": "11547.46",
+        "netWorth": "9999.09"
+      }
+    },
+    {
+      "id": "random-147",
+      "kind": "transfer",
+      "amount": "107.04",
+      "source": "Carta",
+      "target": "Wallet",
+      "fee": "0.01",
+      "expected": {
+        "Banca": "18776.33",
+        "Wallet": "-1858.03",
+        "Carta": "-6919.22",
+        "income": "11546.55",
+        "expense": "11547.47",
+        "netWorth": "9999.08"
+      }
+    },
+    {
+      "id": "random-148",
+      "kind": "income",
+      "amount": "3.71",
+      "account": "Banca",
+      "expected": {
+        "Banca": "18780.04",
+        "Wallet": "-1858.03",
+        "Carta": "-6919.22",
+        "income": "11550.26",
+        "expense": "11547.47",
+        "netWorth": "10002.79"
+      }
+    },
+    {
+      "id": "random-149",
+      "kind": "transfer",
+      "amount": "428.36",
+      "source": "Wallet",
+      "target": "Banca",
+      "fee": "0.25",
+      "expected": {
+        "Banca": "19208.40",
+        "Wallet": "-2286.64",
+        "Carta": "-6919.22",
+        "income": "11550.26",
+        "expense": "11547.72",
+        "netWorth": "10002.54"
+      }
+    },
+    {
+      "id": "random-150",
+      "kind": "income",
+      "amount": "398.68",
+      "account": "Banca",
+      "expected": {
+        "Banca": "19607.08",
+        "Wallet": "-2286.64",
+        "Carta": "-6919.22",
+        "income": "11948.94",
+        "expense": "11547.72",
+        "netWorth": "10401.22"
+      }
+    },
+    {
+      "id": "random-151",
+      "kind": "transfer",
+      "amount": "327.12",
+      "source": "Wallet",
+      "target": "Banca",
+      "fee": "1",
+      "expected": {
+        "Banca": "19934.20",
+        "Wallet": "-2614.76",
+        "Carta": "-6919.22",
+        "income": "11948.94",
+        "expense": "11548.72",
+        "netWorth": "10400.22"
+      }
+    },
+    {
+      "id": "random-152",
+      "kind": "transfer",
+      "amount": "84.13",
+      "source": "Wallet",
+      "target": "Carta",
+      "fee": "1",
+      "expected": {
+        "Banca": "19934.20",
+        "Wallet": "-2699.89",
+        "Carta": "-6835.09",
+        "income": "11948.94",
+        "expense": "11549.72",
+        "netWorth": "10399.22"
+      }
+    },
+    {
+      "id": "random-153",
+      "kind": "purchase",
+      "amount": "121.03",
+      "account": "Banca",
+      "expected": {
+        "Banca": "19813.17",
+        "Wallet": "-2699.89",
+        "Carta": "-6835.09",
+        "income": "11948.94",
+        "expense": "11670.75",
+        "netWorth": "10278.19"
+      }
+    },
+    {
+      "id": "random-154",
+      "kind": "income",
+      "amount": "413.93",
+      "account": "Banca",
+      "expected": {
+        "Banca": "20227.10",
+        "Wallet": "-2699.89",
+        "Carta": "-6835.09",
+        "income": "12362.87",
+        "expense": "11670.75",
+        "netWorth": "10692.12"
+      }
+    },
+    {
+      "id": "random-155",
+      "kind": "income",
+      "amount": "98.47",
+      "account": "Banca",
+      "expected": {
+        "Banca": "20325.57",
+        "Wallet": "-2699.89",
+        "Carta": "-6835.09",
+        "income": "12461.34",
+        "expense": "11670.75",
+        "netWorth": "10790.59"
+      }
+    },
+    {
+      "id": "random-156",
+      "kind": "income",
+      "amount": "484.5",
+      "account": "Banca",
+      "expected": {
+        "Banca": "20810.07",
+        "Wallet": "-2699.89",
+        "Carta": "-6835.09",
+        "income": "12945.84",
+        "expense": "11670.75",
+        "netWorth": "11275.09"
+      }
+    },
+    {
+      "id": "random-157",
+      "kind": "transfer",
+      "amount": "82.33",
+      "source": "Carta",
+      "target": "Banca",
+      "fee": "0.25",
+      "expected": {
+        "Banca": "20892.40",
+        "Wallet": "-2699.89",
+        "Carta": "-6917.67",
+        "income": "12945.84",
+        "expense": "11671.00",
+        "netWorth": "11274.84"
+      }
+    },
+    {
+      "id": "random-158",
+      "kind": "purchase",
+      "amount": "3.23",
+      "account": "Banca",
+      "expected": {
+        "Banca": "20889.17",
+        "Wallet": "-2699.89",
+        "Carta": "-6917.67",
+        "income": "12945.84",
+        "expense": "11674.23",
+        "netWorth": "11271.61"
+      }
+    },
+    {
+      "id": "random-159",
+      "kind": "transfer",
+      "amount": "227.85",
+      "source": "Banca",
+      "target": "Carta",
+      "fee": "0",
+      "expected": {
+        "Banca": "20661.32",
+        "Wallet": "-2699.89",
+        "Carta": "-6689.82",
+        "income": "12945.84",
+        "expense": "11674.23",
+        "netWorth": "11271.61"
+      }
+    }
+  ]
+}

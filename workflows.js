@@ -1,5 +1,6 @@
 (function(root){'use strict';
-const key=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim(),round=n=>Math.round((n+Number.EPSILON)*100)/100,quantityPrecision=n=>Number(n.toPrecision(12));
+const Money=root.TFAccounting||(typeof require==='function'?require('./accounting.js'):null);
+const key=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim(),round=Money.round,quantityPrecision=n=>Number(n.toPrecision(12));
 const aliases=[[/\b(?:inter)?spar\b/i,'Interspar'],[/\bfamila\b/i,'Famila'],[/\btosano\b/i,'Tosano'],[/\brossetto\b/i,'Rossetto'],[/\bamazon\b|\bamzn\b/i,'Amazon'],[/\bseconda strada\b/i,'Seconda Strada'],[/\btigota\b/i,'Tigotà'],[/\btamoil\b/i,'Tamoil'],[/\bcostantin\b/i,'Costantin'],[/\baveva\b(?=.*contributi)/i,'AVEPA'],[/\bpaypal\b/i,'PayPal'],[/\bavepa\b/i,'AVEPA'],[/\bfuel\s*cell\b/i,'Fuelcell Energy'],[/\blidl\b/i,'Lidl'],[/\bipertosano?\b/i,'Ipertosano'],[/\bprix\b/i,'Prix'],[/\baldi\b/i,'Aldi'],[/\beurospin\b/i,'Eurospin'],[/\besselunga\b/i,'Esselunga'],[/\bconad\b/i,'Conad'],[/\bcarrefour\b/i,'Carrefour'],[/\bcoop\b/i,'Coop'],[/\btelepass\b/i,'Telepass'],[/\bamerican express\b|\bamex\b/i,'American Express'],[/\bacquevenete\b|acqueve\b/i,'Acquevenete'],[/\battiva\b/i,'Attiva'],[/\benel\b/i,'Enel'],[/\bplenitude\b/i,'Plenitude'],[/\bjysk\b/i,'Jysk'],[/\bleroy merlin\b/i,'Leroy Merlin'],[/\bpacklink\b|\bauctane\b/i,'Packlink'],[/\bscalapay\b/i,'Scalapay']];
 function clean(value,kind='description'){
  let s=String(value||'').replace(/null$/i,'').trim().replace(/\s+/g,' ');if(!s)return '';
@@ -96,12 +97,12 @@ function remember(s){
  s.savedChoices=separateChoices(s,saved);
  return s;
 }
-function trade({qty,unitPrice,total,commission=0,side='buy',changed='total',amountBasis='gross'}){
+function trade({qty,unitPrice,total,commission=0,side='buy',changed='total',amountBasis='gross'}){try{if(!['buy','sell'].includes(side))return null;
  qty=Number(qty);unitPrice=Number(unitPrice);total=Number(total);commission=commission===''?0:Number(commission);if(!Number.isFinite(qty)||qty<=0||!Number.isFinite(commission)||commission<0)return null;
- if(changed==='unitPrice'){if(!Number.isFinite(unitPrice)||unitPrice<0)return null;total=Math.round((qty*unitPrice+Number.EPSILON)*100)/100}
- else{if(!Number.isFinite(total))return null;total=Math.abs(total);if(amountBasis==='net'){total=round(side==='sell'?total+commission:total-commission);if(total<0)return null}unitPrice=total/qty}
- if(side==='sell'&&commission>total)return null;const amount=side==='sell'?total:-total;return {qty,unitPrice,total,commission,amount,netAmount:side==='sell'?total-commission:-(total+commission),effectiveUnitPrice:side==='sell'?(total-commission)/qty:(total+commission)/qty};
-}
+ if(changed==='unitPrice'){if(!Number.isFinite(unitPrice)||unitPrice<0)return null;total=Money.multiply(qty,unitPrice)}
+ else{if(!Number.isFinite(total))return null;total=Math.abs(total);if(amountBasis==='net'){total=Money.exactSum([total,side==='sell'?commission:-commission]);if(total<0)return null}unitPrice=total/qty}
+ if(side==='sell'&&commission>total)return null;try{Money.cents(total);Money.cents(commission)}catch{return null}const amount=side==='sell'?total:-total;return {qty,unitPrice,total,commission,amount,netAmount:side==='sell'?Money.exactSum([total,-commission]):-Money.exactSum([total,commission]),effectiveUnitPrice:side==='sell'?(total-commission)/qty:(total+commission)/qty};
+}catch{return null}}
 function tradePositionAccount(s,m){
  const accounts=s.accounts||[],source=accounts.find(a=>a.name===m.account);if(!source)return null;
  if(m.relatedAccountId==='none')return null;
@@ -130,15 +131,15 @@ function tradePosition(s,m,previous=null){
  const before=position?structuredClone(position):null;
  delete m.realizedPnL;delete m.positionUnitCost;
  if(side==='buy'){
-  const oldQty=Number(position?.qty)||0,oldCost=Number(position?.cost)||0,known=position?.costKnown!==false;
-  const tradeCost=unit*qty+fee,newQty=oldQty+qty;
+  const oldQty=Number(position?.qty)||0,oldCost=Number(position?.cost)||0,known=oldQty===0||position?.costKnown!==false;
+  const tradeCost=Money.exactSum([Math.abs(m.amount),fee]),newQty=Money.add(oldQty,qty),oldBook=oldQty===0?0:position?.bookCost??Money.multiply(oldQty,oldCost);
   if(!position){position={id:crypto.randomUUID(),account:account.name,symbol:m.security,name:m.security,qty:0,cost:0,price:unit,asOf:m.date,costKnown:true};s.positions.push(position)}
-  position.qty=quantityPrecision(newQty);if(known){position.cost=Number(((oldQty*oldCost+tradeCost)/newQty).toPrecision(10));position.costKnown=true}else position.costKnown=false;position.name=position.name||m.security;
+  position.qty=newQty;if(known){position.bookCost=Money.exactSum([oldBook,tradeCost]);position.cost=position.bookCost/newQty;position.costKnown=true}else{delete position.bookCost;position.costKnown=false;}position.name=position.name||m.security;
  }else if(side==='sell'){
   if(!position)return{ok:false,message:'Titolo non trovato nel dossier '+account.name+'. Seleziona il simbolo o ISIN della posizione già presente in Investimenti.'};
-  if(Number(position.qty)+1e-9<qty)return{ok:false,message:'Nel dossier '+account.name+' risultano '+position.qty+' titoli '+position.symbol+', ma stai vendendo '+qty+'. Verifica se la vendita è già registrata e modifica quella esistente, senza crearne una seconda.'};
-  m.positionUnitCost=Number(position.cost);if(position.costKnown!==false)m.realizedPnL=round(unit*qty-fee-position.cost*qty);
-  position.qty=quantityPrecision(Math.max(0,Number(position.qty)-qty));
+  if(Money.compare(position.qty,qty)<0)return{ok:false,message:'Nel dossier '+account.name+' risultano '+position.qty+' titoli '+position.symbol+', ma stai vendendo '+qty+'. Verifica se la vendita è già registrata e modifica quella esistente, senza crearne una seconda.'};
+  m.positionUnitCost=Number(position.cost);if(position.costKnown!==false){const book=position.bookCost??Money.multiply(position.qty,position.cost),removed=Money.compare(qty,position.qty)===0?book:Money.allocate(book,qty,position.qty);m.positionCostRemoved=removed;m.realizedPnL=Money.exactSum([Math.abs(m.amount),-fee,-removed]);position.bookCost=Money.exactSum([book,-removed]);}
+  position.qty=Money.sub(position.qty,qty);if(position.qty===0&&position.costKnown!==false){position.cost=0;position.bookCost=0;}
  }else return{ok:false,message:'Seleziona Acquisto o Vendita per aggiornare la posizione.'};
  const latest= Math.max(0,...s.movements.filter(row=>row.id!==m.id&&row.positionApplied&&row.positionAccount===account.name&&key(row.positionBefore?.symbol||row.positionSymbol)===key(canonicalSymbol)).map(row=>Date.parse(row.positionAppliedAt)||0));
  m.positionApplied=true;m.positionAccount=account.name;m.positionSymbol=position.symbol;m.positionBefore=before;m.positionSide=side;m.positionAppliedAt=new Date(Math.max(Date.now(),latest+1)).toISOString();
@@ -152,6 +153,27 @@ function undoTradePosition(s,m){
  if(m.positionBefore){const current=index>=0?s.positions[index]:null,restore={...structuredClone(m.positionBefore)};if(current){for(const field of ['price','asOf','quoteSymbol','quoteCurrency','quoteUpdatedAt','lastQuoteError'])if(current[field]!==undefined)restore[field]=current[field]}if(index>=0)s.positions[index]=restore;else s.positions.push(restore)}else if(index>=0)s.positions.splice(index,1);
  return{ok:true,applied:true};
 }
+function importMovements(s,rows){
+ const C=root.TF||(typeof require==='function'?require('./core.js'):null),next=structuredClone(s),incoming=structuredClone(rows);
+ for(const row of incoming){
+  if(!next.accounts.some(a=>a.name===row.account&&!a.closed))throw Error('Conto di importazione inesistente o chiuso');
+  let calculation=null;
+  if(row.type==='Investimento'){
+   if(!row.securityQty||!row.security||row.securityUnitPrice===undefined)throw Error('Importazione investimento incompleta: servono titolo, quantità, prezzo e commissione');
+   const side=row.tradeSide||(row.amount>0?'sell':'buy');calculation=trade({qty:row.securityQty,unitPrice:row.securityUnitPrice,total:Math.abs(row.amount),commission:row.tradeCommission||0,side,amountBasis:row.tradeAmountBasis||'gross'});
+   if(!calculation||Money.multiply(row.securityQty,row.securityUnitPrice)!==calculation.total)throw Error('Prezzo, quantità e controvalore della compravendita non quadrano');
+   row.tradeSide=side;row.tradeCommission=calculation.commission;row.amount=calculation.amount;row.securityUnitPrice=calculation.unitPrice;
+   const source=next.accounts.find(a=>a.name===row.account),candidates=next.accounts.filter(a=>a.kind==='Conto corrente'&&!a.closed&&key(a.bank)===key(source.bank)),cash=row.cashAccount||(source.kind==='Conto corrente'?source.name:candidates.length===1?candidates[0].name:'');
+   Object.assign(row,settleTrade(next,row,cash));row.commissionAccount=row.commissionAccount||row.account;
+  }
+  delete row.cashAccount;delete row.tradeAmountBasis;
+  const existing=next.movements.find(m=>m.id===row.id);
+  if(existing){const keys=['date','account','amount','type','category','description','security','securityQty','securityUnitPrice','tradeCommission','commissionAccount','tradeSide','relatedAccountId','transferId','transferFee','commissionFor','refundFor','transferFeeFor'];if(keys.some(k=>row[k]!==undefined&&String(row[k]??'')!==String(existing[k]??'')))throw Error('Stesso identificativo con dati diversi: importazione annullata');continue;}
+  if(calculation){const applied=tradePosition(next,row);if(!applied.ok)throw Error(applied.message);if(calculation.commission&&!incoming.some(m=>m.commissionFor===row.id))incoming.push({id:crypto.randomUUID(),date:row.date,account:row.commissionAccount,amount:-calculation.commission,type:'Spesa',category:'Spese bancarie',description:'Commissione bancaria',commissionFor:row.id,items:[]})}
+  next.movements.push(row);
+ }
+ C.validate(next);C.validateAccountingChanges(s,next);return next;
+}
 function setClosed(s,id,closed,date){const a=s.accounts.find(a=>a.id===id);if(!a)throw Error('Conto non trovato');a.closed=!!closed;if(closed)a.closedAt=date;else delete a.closedAt;return s}
-const api={key,clean,unique,choices,securities,remember,trade,settleTrade,tradePosition,undoTradePosition,setClosed};root.TFWorkflow=api;if(typeof module!=='undefined')module.exports=api;
+const api={key,clean,unique,choices,securities,remember,trade,importMovements,settleTrade,tradePosition,undoTradePosition,setClosed};root.TFWorkflow=api;if(typeof module!=='undefined')module.exports=api;
 })(globalThis);

@@ -45,3 +45,12 @@ npx --yes wrangler@4.160.1 deploy --keep-vars --var "SOURCE_SHA:$(git rev-parse 
 
 Il valore vuoto di `SOURCE_SHA` nel file di configurazione viene sostituito dal comando
 di deployment: il SHA identifica il commit completo, senza riferimenti circolari.
+
+## Affidabilità delle funzioni contabili
+
+Il [contratto del motore e il protocollo di verifica](docs/MOTORE-CONTABILE.md) descrivono
+invarianti, aritmetica in centesimi, giornale a contropartite, importazioni atomiche e
+limiti della riconciliazione storica. Eseguire `bash scripts/verify-accounting.sh` prima
+di pubblicare: include riferimenti Python indipendenti e il ciclo reale nel browser.
+I controlli aperti nell'app segnalano totali provvisori; nessun saldo personale viene
+corretto automaticamente per ottenere una quadratura apparente.

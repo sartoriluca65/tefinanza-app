@@ -45,7 +45,7 @@
  }
  function assertAvailable(state,stored){
   const available=unique(stored);
-  function check(current,depth){const rb=recovery(current,depth);for(const [id,doc]of unique(current.documents)){const f=available.get(id);if(f){if(!(f.blob instanceof Blob)||!f.blob.size||f.blob.size>MAX||!MIME.test(f.blob.type))error('Originale non valido.');}else if(doc.originalMode!=='text-only'||typeof doc.text!=='string')error('Manca un originale necessario al recupero. Nessun dato è stato sostituito.');}if(rb)check(rb.state,depth+1);}
+  function check(current,depth){const rb=recovery(current,depth);for(const [id,doc]of unique(current.documents)){const f=available.get(id);if(f){if(!(f.blob instanceof Blob)||!f.blob.size||f.blob.size>MAX||!MIME.test(f.blob.type))error('Originale non valido.');}else if(doc.originalMode!=='text-only'||typeof doc.text!=='string')error('Originale mancante per il documento "'+String(doc.name||'Senza nome').slice(0,120)+'" (ID '+String(id).slice(0,80)+'). Il backup completo non può essere creato finché l’originale non viene recuperato. Nessun dato è stato sostituito.');}if(rb)check(rb.state,depth+1);}
   check(state,0);return true;
  }
  function withoutOriginals(state){
