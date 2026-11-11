@@ -28,13 +28,28 @@ function securities(s){
  const out=new Map();for(const row of rows){const known=names.get(key(row.label)),value=known?.size===1?[...known][0]:row.value;if(!out.has(value))out.set(value,{value,label:row.label})}
  return [...out.values()].sort((a,b)=>a.label.localeCompare(b.label,'it',{sensitivity:'base'}));
 }
-function choices(s){const saved=s.savedChoices||{};return {
- descriptions:unique([...(saved.descriptions||[]),...(s.movements||[]).map(m=>/compravendita titoli/i.test(m.description||'')?(m.amount>0?'Vendita ':'Acquisto ')+m.description.replace(/compravendita titoli/i,''):m.description)]),
- merchants:unique([...(saved.merchants||[]),...(s.movements||[]).map(m=>m.merchant),...(s.utilities||[]).map(u=>u.provider),...(s.bills||[]).map(b=>b.provider)],'merchant'),
- providers:unique([...(saved.providers||[]),...(s.utilities||[]).map(u=>u.provider),...(s.bills||[]).map(b=>b.provider)],'merchant'),
- documents:unique([...(s.movements||[]).flatMap(m=>[m.documentNo,m.invoiceNo,m.paymentRef]),...(s.documents||[]).flatMap(d=>[d.documentNo,d.invoiceNo,d.reference,d.number])],'document')
-}}
-function remember(s){const c=choices(s);s.savedChoices={descriptions:c.descriptions,merchants:c.merchants,providers:c.providers};return s}
+function choices(s){
+ const saved=s.savedChoices||{};
+ return {
+  descriptions:unique(saved.descriptions||[]),
+  merchants:unique(saved.merchants||[],'merchant'),
+  providers:unique(saved.providers||[],'merchant'),
+  documents:unique([...(s.movements||[]).flatMap(m=>[m.documentNo,m.invoiceNo,m.paymentRef]),...(s.documents||[]).flatMap(d=>[d.documentNo,d.invoiceNo,d.reference,d.number])],'document')
+ };
+}
+function remember(s){
+ // Existing movements are historical records, never an automatic source for deleted suggestions.
+ if(!s.savedChoices){
+  s.savedChoices={
+   descriptions:unique((s.movements||[]).map(m=>m.description)),
+   merchants:unique((s.movements||[]).map(m=>m.merchant),'merchant'),
+   providers:unique([...(s.utilities||[]).map(u=>u.provider),...(s.bills||[]).map(b=>b.provider)],'merchant')
+  };
+ }else{
+  for(const kind of ['descriptions','merchants','providers'])if(!Array.isArray(s.savedChoices[kind]))s.savedChoices[kind]=[];
+ }
+ return s;
+}
 function trade({qty,unitPrice,total,commission=0,side='buy',changed='total'}){
  qty=Number(qty);unitPrice=Number(unitPrice);total=Number(total);commission=commission===''?0:Number(commission);if(!Number.isFinite(qty)||qty<=0||!Number.isFinite(commission)||commission<0)return null;
  if(changed==='unitPrice'){if(!Number.isFinite(unitPrice)||unitPrice<0)return null;total=Math.round((qty*unitPrice+Number.EPSILON)*100)/100}
