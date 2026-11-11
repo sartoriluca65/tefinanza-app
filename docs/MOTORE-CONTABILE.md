@@ -12,7 +12,7 @@ Non sono previste correzioni automatiche dei saldi iniziali, cancellazioni di da
 - Un trasferimento interno ha due gambe, su conti diversi, dello stesso evento/data, di importi opposti e non nulli. Una commissione dichiarata ha una sola registrazione separata, sul conto di origine. Un trasferimento in date diverse passa per un conto transitorio esplicito.
 - Le commissioni di investimento devono riferirsi a una compravendita esistente, avere data/conto/importo coerenti e comparire una sola volta.
 - Un rimborso di acquisto riduce la spesa originale, non genera reddito. Deve riferirsi a una spesa precedente della medesima categoria, e il totale dei rimborsi non può eccedere la spesa. Il cashback esterno non collegato è un'entrata distinta. Il rimborso di una commissione richiede la correzione dell'evento associato, non un rimborso generico.
-- Le compravendite nuove o modificate richiedono titolo, quantità e prezzo; il conto corrente regola la cassa e il dossier registra la quantità. L'importazione non inventa quantità o prezzi mancanti. Il netto e il lordo sono dichiarati esplicitamente.
+- Le compravendite nuove o modificate richiedono titolo, quantità, prezzo e commissione esplicita (anche zero); il conto corrente regola la cassa e il dossier registra la quantità. L'importazione non inventa quantità o prezzi mancanti. Il netto e il lordo sono dichiarati esplicitamente.
 - `bookCost` è il costo residuo autoritativo, in centesimi. L'acquisto capitalizza la commissione nel costo del titolo; le vendite allocano il costo in modo deterministico e l'ultima vendita scarica tutto il residuo. Il costo medio unitario è una rappresentazione, non la fonte per ricalcolare indefinitamente il capitale.
 - Una vendita eccedente la quantità disponibile, anche di una frazione minima, è rifiutata. Modifica e cancellazione ripristinano lo snapshot prima di riapplicare l'evento. Operazioni successive impediscono modifiche retroattive non sicure.
 - La consistenza finale deve coincidere con la sequenza delle operazioni applicate. Quantità e costo di una posizione con operazioni collegate non si sovrascrivono direttamente dal modulo posizioni.
@@ -73,7 +73,7 @@ Il comando esegue:
 2. Controllo struttura e suite Node esistenti e contabili.
 3. Suite del backup nativo/toolbox.
 4. Sei mutazioni note in copie temporanee: regressioni su arrotondamenti, trasferimenti, riconciliazione, crediti carta, costi parziali e atomicità. Ogni regressione deve far fallire almeno un controllo. Il checkout non viene mutato.
-5. Test dell'app reale in Chromium, con un profilo temporaneo e tutte le richieste esterne bloccate. Il server è solo loopback e viene chiuso al termine.
+5. Test dell'app reale in Chromium, con un profilo temporaneo, data di prova fissa e tutte le richieste esterne bloccate. Il server è solo loopback e viene chiuso al termine.
 
 L'oracolo comprende dodici stati di una sequenza banca/wallet/carta/titoli e 160 eventi deterministici (seed 73119), con risultati ricalcolati separatamente. Ogni stato viene confrontato per saldi, cassa, passività/crediti, patrimonio, reddito e spesa. Il giornale deve quadrare e restituire il medesimo patrimonio.
 

@@ -105,9 +105,9 @@ function trade({qty,unitPrice,total,commission=0,side='buy',changed='total',amou
 }catch{return null}}
 function tradePositionAccount(s,m){
  const accounts=s.accounts||[],source=accounts.find(a=>a.name===m.account);if(!source)return null;
- if(m.relatedAccountId==='none')return null;
- if(m.relatedAccountId&&m.relatedAccountId!=='auto'){const selected=accounts.find(a=>a.id===m.relatedAccountId);return selected&&!selected.closed&&['Titoli','Cripto'].includes(selected.kind)?selected:null}
+ if(m.relatedAccountId&&m.relatedAccountId!=='auto'&&m.relatedAccountId!=='none'){const selected=accounts.find(a=>a.id===m.relatedAccountId);return selected&&!selected.closed&&['Titoli','Cripto'].includes(selected.kind)?selected:null}
  if(['Titoli','Cripto'].includes(source.kind))return source.closed?null:source;
+ if(m.relatedAccountId==='none')return null;
  const matches=accounts.filter(a=>!a.closed&&['Titoli','Cripto'].includes(a.kind)&&key(a.bank)===key(source.bank));return matches.length===1?matches[0]:null;
 }
 function settleTrade(s,m,cashName){
@@ -159,7 +159,7 @@ function importMovements(s,rows){
   if(!next.accounts.some(a=>a.name===row.account&&!a.closed))throw Error('Conto di importazione inesistente o chiuso');
   let calculation=null;
   if(row.type==='Investimento'){
-   if(!row.securityQty||!row.security||row.securityUnitPrice===undefined)throw Error('Importazione investimento incompleta: servono titolo, quantità, prezzo e commissione');
+   if(!row.securityQty||!row.security||row.securityUnitPrice===undefined||row.tradeCommission===undefined||row.tradeCommission==='')throw Error('Importazione investimento incompleta: servono titolo, quantità, prezzo e commissione');
    const side=row.tradeSide||(row.amount>0?'sell':'buy');calculation=trade({qty:row.securityQty,unitPrice:row.securityUnitPrice,total:Math.abs(row.amount),commission:row.tradeCommission||0,side,amountBasis:row.tradeAmountBasis||'gross'});
    if(!calculation||Money.multiply(row.securityQty,row.securityUnitPrice)!==calculation.total)throw Error('Prezzo, quantità e controvalore della compravendita non quadrano');
    row.tradeSide=side;row.tradeCommission=calculation.commission;row.amount=calculation.amount;row.securityUnitPrice=calculation.unitPrice;
