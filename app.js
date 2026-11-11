@@ -306,6 +306,7 @@ function editMovement(id){
   if(tradeCommission>0&&(!state.accounts.some(a=>a.name===(f.commissionAccount||f.account))||state.accounts.find(a=>a.name===(f.commissionAccount||f.account))?.closed))return invalid('', 'Scegli un conto commissioni aperto.');
   if(f.type==='Investimento'){
    f.tradeSide=f.tradeSide|| (amount>0?'sell':'buy');
+   if(f.securityQty&&!String(f.security||'').trim())return invalid('[name="security"]','Indica il titolo / cripto / ISIN da acquistare o vendere. La causale non identifica il titolo del dossier.');
    if(f.securityQty){const trade=TFWorkflow.trade({qty:f.securityQty,unitPrice:f.securityUnitPrice,total:Math.abs(amount),commission:tradeCommission,side:f.tradeSide,changed:'total'});if(!trade)return invalid('', 'Controlla quantità, prezzo e commissione dei titoli.');f.securityQty=trade.qty;f.securityUnitPrice=trade.unitPrice;f.tradeCommission=trade.commission;f.commissionAccount=f.commissionAccount||f.account;amount=trade.amount}
    else amount=f.tradeSide==='sell'?Math.abs(amount):-Math.abs(amount);
   }
