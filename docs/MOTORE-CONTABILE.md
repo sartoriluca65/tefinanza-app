@@ -86,3 +86,5 @@ Le pipeline GitHub e di deployment eseguono questi controlli prima della pubblic
 Queste prove attestano i comportamenti verificati e la resistenza alle sei regressioni simulate; non dimostrano che ogni possibile combinazione futura sia priva di errori. Non certificano i saldi personali e non riconciliano automaticamente lo storico. Non sono test su Safari/iPhone fisici, su fornitori OCR di tutti gli intermediari o sulla sessione Cloudflare Access dell'utente.
 
 Multi-valuta, fiscalità completa, corporate action, cambio di perimetro e rettifiche di inventario richiedono dati e regole esplicite. Non vengono simulati inserendo guadagni o contropartite fittizie. I test funzionali e i relativi artefatti usano soltanto dati sintetici.
+
+I salvataggi usano un confronto di versione nella stessa transazione IndexedDB: una scheda obsoleta deve ricaricare prima di scrivere. I test browser verificano il rifiuto senza perdere dati o allegati, e l’annullamento effettivo del ripristino. La modifica dei giroconti conserva i riferimenti documentali. Le vecchie conferme di saldo prive di base verificabile vengono segnalate senza correggere automaticamente il saldo iniziale.
