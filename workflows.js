@@ -119,7 +119,8 @@ function tradePosition(s,m,previous=null){
  if(m?.positionApplied&&!previous)return{ok:true,applied:false,account:m.positionAccount};
  if(!m.securityQty||m.securityUnitPrice===undefined||m.securityUnitPrice==='')return{ok:true,applied:false};
  const account=tradePositionAccount(s,m);if(!account)return{ok:false,message:'Per aggiornare automaticamente il dossier, seleziona il conto titoli collegato oppure verifica che esista un solo dossier per questa banca.'};
- const chronology=s.movements.filter(row=>row.id!==previous?.id&&row.positionApplied&&row.positionAccount===account.name&&key(row.positionSymbol)===key(m.security));if(chronology.some(row=>String(row.date||'')>String(m.date||'')))return{ok:false,message:'Questa operazione ha una data precedente a una compravendita già applicata sullo stesso titolo. Per non alterare la quantità, registra prima il movimento mancante oppure correggi la posizione manualmente.'};
+ const identified=s.positions.find(p=>p.account===account.name&&key(p.symbol)===key(m.security))||s.positions.find(p=>p.account===account.name&&key(p.name)===key(m.security)),canonicalSymbol=identified?.symbol||m.security;
+ const chronology=s.movements.filter(row=>row.id!==previous?.id&&row.positionApplied&&row.positionAccount===account.name&&key(row.positionBefore?.symbol||row.positionSymbol)===key(canonicalSymbol));if(chronology.some(row=>String(row.date||'')>String(m.date||'')))return{ok:false,message:'Questa operazione ha una data precedente a una compravendita già applicata sullo stesso titolo. Per non alterare la quantità, registra prima il movimento mancante oppure correggi la posizione manualmente.'};
  if(previous?.positionApplied){const undo=undoTradePosition(s,previous);if(!undo.ok)return undo}
  const qty=Number(m.securityQty),unit=Number(m.securityUnitPrice),fee=Number(m.tradeCommission||0),side=m.tradeSide|| (Number(m.amount)>0?'sell':'buy');
  if(!m.security||!Number.isFinite(qty)||qty<=0||!Number.isFinite(unit)||unit<0||!Number.isFinite(fee)||fee<0)return{ok:false,message:'Completa titolo, quantità, prezzo e commissione prima di aggiornare la posizione.'};
@@ -134,19 +135,20 @@ function tradePosition(s,m,previous=null){
   if(!position){position={id:crypto.randomUUID(),account:account.name,symbol:m.security,name:m.security,qty:0,cost:0,price:unit,asOf:m.date,costKnown:true};s.positions.push(position)}
   position.qty=quantityPrecision(newQty);if(known){position.cost=Number(((oldQty*oldCost+tradeCost)/newQty).toPrecision(10));position.costKnown=true}else position.costKnown=false;position.name=position.name||m.security;
  }else if(side==='sell'){
-  if(!position||Number(position.qty)+1e-9<qty)return{ok:false,message:'Le quantità disponibili nel dossier non bastano per questa vendita. Verifica la posizione iniziale prima di salvare.'};
+  if(!position)return{ok:false,message:'Titolo non trovato nel dossier '+account.name+'. Seleziona il simbolo o ISIN della posizione già presente in Investimenti.'};
+  if(Number(position.qty)+1e-9<qty)return{ok:false,message:'Nel dossier '+account.name+' risultano '+position.qty+' titoli '+position.symbol+', ma stai vendendo '+qty+'. Verifica se la vendita è già registrata e modifica quella esistente, senza crearne una seconda.'};
   m.positionUnitCost=Number(position.cost);if(position.costKnown!==false)m.realizedPnL=round(unit*qty-fee-position.cost*qty);
   position.qty=quantityPrecision(Math.max(0,Number(position.qty)-qty));
  }else return{ok:false,message:'Seleziona Acquisto o Vendita per aggiornare la posizione.'};
- const latest= Math.max(0,...s.movements.filter(row=>row.id!==m.id&&row.positionApplied&&row.positionAccount===account.name&&key(row.positionSymbol)===key(m.security)).map(row=>Date.parse(row.positionAppliedAt)||0));
- m.positionApplied=true;m.positionAccount=account.name;m.positionSymbol=m.security;m.positionBefore=before;m.positionSide=side;m.positionAppliedAt=new Date(Math.max(Date.now(),latest+1)).toISOString();
+ const latest= Math.max(0,...s.movements.filter(row=>row.id!==m.id&&row.positionApplied&&row.positionAccount===account.name&&key(row.positionBefore?.symbol||row.positionSymbol)===key(canonicalSymbol)).map(row=>Date.parse(row.positionAppliedAt)||0));
+ m.positionApplied=true;m.positionAccount=account.name;m.positionSymbol=position.symbol;m.positionBefore=before;m.positionSide=side;m.positionAppliedAt=new Date(Math.max(Date.now(),latest+1)).toISOString();
  return{ok:true,applied:true,account:account.name};
 }
 function undoTradePosition(s,m){
  if(!m?.positionApplied)return{ok:true,applied:false};
- const later=s.movements.some(row=>row.id!==m.id&&row.positionApplied&&row.positionAccount===m.positionAccount&&key(row.positionSymbol)===key(m.positionSymbol)&&String(row.positionAppliedAt||'')>String(m.positionAppliedAt||''));
+ const later=s.movements.some(row=>row.id!==m.id&&row.positionApplied&&row.positionAccount===m.positionAccount&&key(row.positionBefore?.symbol||row.positionSymbol)===key(m.positionBefore?.symbol||m.positionSymbol)&&String(row.positionAppliedAt||'')>String(m.positionAppliedAt||''));
  if(later)return{ok:false,message:'Questa compravendita ha operazioni successive sullo stesso titolo. Per sicurezza non modifico la posizione: registra una compravendita correttiva oppure intervieni in ordine cronologico.'};
- const index=s.positions.findIndex(p=>p.account===m.positionAccount&&key(p.symbol)===key(m.positionSymbol));
+ const index=s.positions.findIndex(p=>p.account===m.positionAccount&&key(p.symbol)===key(m.positionBefore?.symbol||m.positionSymbol));
  if(m.positionBefore){const current=index>=0?s.positions[index]:null,restore={...structuredClone(m.positionBefore)};if(current){for(const field of ['price','asOf','quoteSymbol','quoteCurrency','quoteUpdatedAt','lastQuoteError'])if(current[field]!==undefined)restore[field]=current[field]}if(index>=0)s.positions[index]=restore;else s.positions.push(restore)}else if(index>=0)s.positions.splice(index,1);
  return{ok:true,applied:true};
 }
