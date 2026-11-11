@@ -80,12 +80,12 @@ document.addEventListener('click',e=>{const button=e.target.closest('[data-manag
 function manageArchivedChoices(kind){
  const field=kind==='merchants'?'Negozio / fornitore':'Causale / motivazione';
  const savedKey=kind==='merchants'?'merchants':'descriptions';
- const available=()=>TFWorkflow.unique(state.savedChoices?.[savedKey]||[],kind==='merchants'?'merchant':'description');
+ const available=()=>[...new Map((state.savedChoices?.[savedKey]||[]).filter(Boolean).map(v=>[TFWorkflow.key(v),v])).values()].sort((a,b)=>a.localeCompare(b,'it',{sensitivity:'base'}));
  function redraw(){
   const values=available();
   const panel=document.getElementById('archivedChoicesPanel');
   if(!panel)return;
-  panel.innerHTML='<p class="small">Gestisci solo i suggerimenti: movimenti, importi, saldi e report storici non vengono modificati.</p><div class="toolbar"><button type="button" class="btn primary" data-choice-action="add">Aggiungi</button></div><div class="table-scroll"><table><thead><tr><th>Voce</th><th>Azioni</th></tr></thead><tbody>'+values.map((value,i)=>'<tr><td>'+esc(value)+'</td><td><button type="button" class="btn" data-choice-action="edit" data-choice-index="'+i+'">Modifica</button> <button type="button" class="btn" data-choice-action="merge" data-choice-index="'+i+'">Unifica</button> <button type="button" class="btn" data-choice-action="delete" data-choice-index="'+i+'">Elimina</button></td></tr>').join('')+'</tbody></table></div>';
+  panel.innerHTML='<p class="small">Elimina interviene solo sui suggerimenti; Modifica e Unifica aggiornano anche le voci corrispondenti nello storico senza alterare importi o saldi.</p><div class="toolbar"><button type="button" class="btn primary" data-choice-action="add">Aggiungi</button></div><div class="table-scroll"><table><thead><tr><th>Voce</th><th>Azioni</th></tr></thead><tbody>'+values.map((value,i)=>'<tr><td>'+esc(value)+'</td><td><button type="button" class="btn" data-choice-action="edit" data-choice-index="'+i+'">Modifica</button> <button type="button" class="btn" data-choice-action="merge" data-choice-index="'+i+'">Unifica</button> <button type="button" class="btn" data-choice-action="delete" data-choice-index="'+i+'">Elimina</button></td></tr>').join('')+'</tbody></table></div>';
   panel.onclick=async e=>{
    const b=e.target.closest('[data-choice-action]');if(!b)return;
    const action=b.dataset.choiceAction,old=values[Number(b.dataset.choiceIndex)];
