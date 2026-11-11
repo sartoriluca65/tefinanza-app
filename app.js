@@ -97,22 +97,29 @@ function manageArchivedChoices(kind){
     const message=action==='add'?'Nuova voce '+field:action==='merge'?'Unifica "'+old+'" con quale voce?':'Nuovo nome per "'+old+'"';
     const answer=prompt(message,action==='edit'?old:'');
     if(answer===null)return;
-    nextValue=answer.trim().replace(/\\s+/g,' ').slice(0,250);
+    nextValue=answer.trim().replace(/\s+/g,' ').slice(0,250);
     if(!nextValue)return toast('Inserisci un valore valido');
    }
+   const targetField=kind==='merchants'?'merchant':'description';
+   const matches=(value)=>TFWorkflow.key(value)===TFWorkflow.key(old);
+   const affected=action==='edit'||action==='merge'?state.movements.filter(m=>matches(m[targetField])).length:0;
+   if(affected&&!confirm('Aggiornare '+affected+' operazioni storiche da "'+old+'" a "'+nextValue+'"? Importi, conti e saldi resteranno invariati; i report per causale/fornitore useranno il nuovo nome.'))return;
    const ok=await change(next=>{
-    const original=TFWorkflow.unique(next.savedChoices?.[savedKey]||[],kind==='merchants'?'merchant':'description');
-    const updated=action==='add'?[...original,nextValue]:original.filter(x=>x!==old).concat(action==='delete'?[]:[nextValue]);
+    const original=next.savedChoices?.[savedKey]||[];
+    const updated=action==='add'?[...original,nextValue]:original.filter(x=>!matches(x)).concat(action==='delete'?[]:[nextValue]);
     next.savedChoices=next.savedChoices||{};
-    next.savedChoices[savedKey]=TFWorkflow.unique(updated,kind==='merchants'?'merchant':'description');
-   });
-   if(ok){movementSuggestions();redraw();toast('Elenco aggiornato; contabilità storica invariata')}
+    next.savedChoices[savedKey]=[...new Map(updated.map(v=>[TFWorkflow.key(v),v])).values()];
+    if(action==='edit'||action==='merge'){
+     for(const m of next.movements||[])if(matches(m[targetField]))m[targetField]=nextValue;
+    }
+   },[],{skipDuplicateReview:true});
+   if(ok){movementSuggestions();redraw();toast(action==='delete'?'Suggerimento eliminato; operazioni storiche conservate':'Elenco aggiornato'+(affected?' e '+affected+' operazioni riclassificate':''))}
   };
  }
  const content=document.getElementById('modalContent');
  const previousNodes=Array.from(content.childNodes);
  const management=document.createElement('div');
- management.innerHTML='<div class="toolbar" style="justify-content:space-between;align-items:center"><h2>Gestisci elenco — '+field+'</h2><button type="button" class="btn" id="closeArchivedChoices">Chiudi ✕</button></div><div id="archivedChoicesPanel"></div><p class="small">Unifica duplicati cambia soltanto i suggerimenti futuri, non le vecchie operazioni.</p>';
+ management.innerHTML='<div class="toolbar" style="justify-content:space-between;align-items:center"><h2>Gestisci elenco — '+field+'</h2><button type="button" class="btn" id="closeArchivedChoices">Chiudi ✕</button></div><div id="archivedChoicesPanel"></div><p class="small">Modifica e Unifica aggiornano anche le causali o i fornitori delle operazioni storiche corrispondenti, senza cambiare importi o conti. Elimina rimuove solo il suggerimento.</p>';
  content.replaceChildren(management);
  const restore=()=>{
   content.replaceChildren(...previousNodes);
