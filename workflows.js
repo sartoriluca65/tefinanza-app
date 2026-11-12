@@ -134,7 +134,7 @@ function tradePosition(s,m,previous=null){
   const oldQty=Number(position?.qty)||0,oldCost=Number(position?.cost)||0,known=oldQty===0||position?.costKnown!==false;
   const tradeCost=Money.exactSum([Math.abs(m.amount),fee]),newQty=Money.add(oldQty,qty),oldBook=oldQty===0?0:position?.bookCost??Money.multiply(oldQty,oldCost);
   if(!position){position={id:crypto.randomUUID(),account:account.name,symbol:m.security,name:m.security,qty:0,cost:0,price:unit,asOf:m.date,costKnown:true};s.positions.push(position)}
-  position.qty=newQty;if(known){position.bookCost=Money.exactSum([oldBook,tradeCost]);position.cost=position.bookCost/newQty;position.costKnown=true}else{delete position.bookCost;position.costKnown=false;}position.name=position.name||m.security;
+  position.qty=newQty;if(known){position.bookCost=Money.exactSum([oldBook,tradeCost]);position.cost=position.bookCost/newQty;position.costKnown=true}else{delete position.bookCost;position.costKnown=false;}position.name=position.name||m.security;if(oldQty===0){const C=root.TF||(typeof require==='function'?require('./core.js'):null);C.executionReference(position,m)}
  }else if(side==='sell'){
   if(!position)return{ok:false,message:'Titolo non trovato nel dossier '+account.name+'. Seleziona il simbolo o ISIN della posizione già presente in Investimenti.'};
   if(Money.compare(position.qty,qty)<0)return{ok:false,message:'Nel dossier '+account.name+' risultano '+position.qty+' titoli '+position.symbol+', ma stai vendendo '+qty+'. Verifica se la vendita è già registrata e modifica quella esistente, senza crearne una seconda.'};
@@ -150,7 +150,7 @@ function undoTradePosition(s,m){
  const later=s.movements.some(row=>row.id!==m.id&&row.positionApplied&&row.positionAccount===m.positionAccount&&key(row.positionBefore?.symbol||row.positionSymbol)===key(m.positionBefore?.symbol||m.positionSymbol)&&String(row.positionAppliedAt||'')>String(m.positionAppliedAt||''));
  if(later)return{ok:false,message:'Questa compravendita ha operazioni successive sullo stesso titolo. Per sicurezza non modifico la posizione: registra una compravendita correttiva oppure intervieni in ordine cronologico.'};
  const index=s.positions.findIndex(p=>p.account===m.positionAccount&&key(p.symbol)===key(m.positionBefore?.symbol||m.positionSymbol));
- if(m.positionBefore){const current=index>=0?s.positions[index]:null,restore={...structuredClone(m.positionBefore)};if(current){for(const field of ['price','asOf','quoteSymbol','quoteCurrency','quoteUpdatedAt','lastQuoteError'])if(current[field]!==undefined)restore[field]=current[field]}if(index>=0)s.positions[index]=restore;else s.positions.push(restore)}else if(index>=0)s.positions.splice(index,1);
+ if(m.positionBefore){const current=index>=0?s.positions[index]:null,restore={...structuredClone(m.positionBefore)};if(current&&current.executionPriceFor!==m.id){for(const field of ['price','asOf','priceSource','executionPriceFor','quoteProvider','quoteSymbol','quoteCurrency','quoteUpdatedAt','lastQuoteError'])if(current[field]!==undefined)restore[field]=current[field]}if(index>=0)s.positions[index]=restore;else s.positions.push(restore)}else if(index>=0)s.positions.splice(index,1);
  return{ok:true,applied:true};
 }
 function importMovements(s,rows){

@@ -16,7 +16,7 @@ function compactAccounts(){return state.accounts.map(a=>{
   if(a.kind==='Titoli'){
     const cash=evidence.verified?evidence.amount:accountBalance(a);
     if(evidence.partial){value=portfolio;displayValue=euro(portfolio);label=positions.length?'Valore titoli · liquidità da verificare':'Liquidità da verificare';unknown=true}
-    else{value=cash+portfolio;displayValue=euro(value);label='Titoli '+euro(portfolio)+' · liquidità '+euro(cash)}
+    else{value=cash+portfolio;displayValue=euro(value);label='Titoli '+euro(portfolio)+' · liquidità '+euro(cash)+(positions.some(p=>p.qty>0&&p.priceSource==='execution')?' · riferimento acquisto; costo '+euro(C.accounting.exactSum(positions.filter(p=>p.qty>0).map(C.positionCost))):'')}
   }
   return `<button class="compact-account account-accent-${accountAccentClass(a)} ${a.closed?'account-closed':''}" data-account-ops="${esc(a.id)}"><span class="account-symbol ${kind}">${uiIcon(kind)}</span><span class="compact-account-name">${esc(a.name)}${a.closed?'<span class="closed-badge">CHIUSO</span>':''}<small>${esc(a.bank)}${C.isSeparateAccount(state,a)?' · Gestione separata':''}</small></span><strong class="${value<0?'debit':''}">${displayValue}</strong><small class="account-value-label">${esc(label)}</small><span class="account-meta">${rows.length} operazioni${unknown?' · Apri dettaglio':''}</span></button>`
 }).join('')}

@@ -60,7 +60,7 @@ async function refreshQuotes(userInitiated=false,options={}){
    try{
     let quote=quotes.get(key);
     if(!quote){const q=await quoteFetch(symbol,apiKey);let price=q.price;if(currency!=='EUR')price*=await quoteFx(currency,apiKey,fxRates);quote={price,date:q.date};quotes.set(key,quote)}
-    updates.set(position.id,{price:quote.price,asOf:quote.date||today,quoteProvider:QUOTE_PROVIDER,quoteUpdatedAt:new Date().toISOString()});
+    updates.set(position.id,{priceSource:'market',executionPriceFor:undefined,price:quote.price,asOf:quote.date||today,quoteProvider:QUOTE_PROVIDER,quoteUpdatedAt:new Date().toISOString()});
    }catch(error){let message=String(error?.message||error).replaceAll(apiKey,'[chiave nascosta]').slice(0,320);errors.push(position.name+': '+message)}
   }
   if(updates.size){const saved=await change(s=>{for(const[id,quote]of updates){const target=s.positions.find(x=>x.id===id);if(target)Object.assign(target,quote)}});if(!saved){errors.push('I prezzi non sono stati salvati nell’archivio.');updates.clear()}}
