@@ -119,6 +119,8 @@ export async function handle(request,env,ctx) {
   if(!response.ok)return protect(new Response('Risorsa non disponibile',{status:response.status===404?404:502}));
   const extension=path.split('.').pop();const mime={html:'text/html; charset=utf-8',js:'text/javascript; charset=utf-8',mjs:'text/javascript; charset=utf-8',css:'text/css; charset=utf-8',json:'application/json',webmanifest:'application/manifest+json',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',ico:'image/x-icon',svg:'image/svg+xml',pdf:'application/pdf',wasm:'application/wasm',ttf:'font/ttf',woff2:'font/woff2'}[extension]||'application/octet-stream';
   const headers=new Headers(response.headers);headers.set('Content-Type',mime);let body=response.body;
+  // Authenticated encrypted delivery is a standalone page: no app storage or sync bootstrap.
+  if(/^\/_consegna\/[a-f0-9]{24}\/(index\.html|backup\.bin)$/.test(path))return protect(new Response(request.method==='HEAD'?null:body,{headers,status:response.status}));
   if(extension==='html'){
    phase='HTML';let html=await response.text();const config=JSON.stringify({user:user.id,app:env.APP,...state}).replace(/</g,'\\u003c');
    html=html.replace(/<head([^>]*)>/i,`<head$1><script>window.LUKI_CONFIG=${config};</script><script src="/_luki/bootstrap.js"></script>`);
