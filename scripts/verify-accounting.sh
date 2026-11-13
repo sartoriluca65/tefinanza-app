@@ -23,3 +23,4 @@ if [ -z "${CHROMIUM_PATH:-}" ]; then
   export CHROMIUM_PATH
 fi
 node tools/accounting/lifecycle.browser.cjs
+node tools/accounting/income-transfer.browser.cjs
