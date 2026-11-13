@@ -174,6 +174,15 @@ function importMovements(s,rows){
  }
  C.validate(next);C.validateAccountingChanges(s,next);return next;
 }
+// Mantiene il bonifico e le due contropartite in un unico salvataggio atomico.
+function incomeTransfer(s,m,C){
+ const previous=s.movements.filter(row=>row.incomeTransferFor===m.id),transferId=previous[0]?.transferId||C.uid();
+ const base={...s,movements:s.movements.filter(row=>row.incomeTransferFor!==m.id)};
+ if(!m.incomeTransferTo)return base.movements;
+ if(m.type!=='Entrata'||m.splitGroupId||!(m.amount>0))throw Error('Il giroconto immediato richiede un’entrata positiva senza ripartizione in quote.');
+ const updated=C.transfer(base,{id:transferId,from:m.account,to:m.incomeTransferTo,date:m.date,amount:m.amount,description:'Giroconto da entrata: '+m.description});
+ return updated.movements.map(row=>row.transferId===transferId?{...row,id:previous.find(old=>Math.sign(old.amount)===Math.sign(row.amount))?.id||row.id,incomeTransferFor:m.id}:row);
+}
 function setClosed(s,id,closed,date){const a=s.accounts.find(a=>a.id===id);if(!a)throw Error('Conto non trovato');a.closed=!!closed;if(closed)a.closedAt=date;else delete a.closedAt;return s}
-const api={key,clean,unique,choices,securities,remember,trade,importMovements,settleTrade,tradePosition,undoTradePosition,setClosed};root.TFWorkflow=api;if(typeof module!=='undefined')module.exports=api;
+const api={incomeTransfer,key,clean,unique,choices,securities,remember,trade,importMovements,settleTrade,tradePosition,undoTradePosition,setClosed};root.TFWorkflow=api;if(typeof module!=='undefined')module.exports=api;
 })(globalThis);
