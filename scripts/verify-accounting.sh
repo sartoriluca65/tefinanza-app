@@ -24,3 +24,4 @@ if [ -z "${CHROMIUM_PATH:-}" ]; then
 fi
 node tools/accounting/lifecycle.browser.cjs
 node tools/accounting/income-transfer.browser.cjs
+node tools/accounting/allocated-transfer.browser.cjs

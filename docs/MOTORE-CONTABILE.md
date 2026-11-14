@@ -30,6 +30,8 @@ I prezzi correnti vengono applicati alle quantità e arrotondati per posizione p
 
 ## Giornale a contropartite
 
+I giroconti ripartiti (`transferAllocated`) hanno un unico addebito totale e uno o più accrediti su conti diversi, collegati dallo stesso `transferId`. Data e somma esatta in centesimi sono comuni al gruppo; le quote positive devono coprire l’intera uscita. Modifica e cancellazione aggiornano tutto il gruppo atomicamente. Le contropartite effettive non generano viste automatiche aggiuntive e non contano come entrate o spese di budget.
+
 `accountingJournal(state, asOf)` costruisce un giornale di controllo per dati strutturalmente completi:
 
 - cassa e debiti contrapposti a redditi, spese o patrimonio iniziale;
