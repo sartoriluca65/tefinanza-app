@@ -174,6 +174,23 @@ function importMovements(s,rows){
  }
  C.validate(next);C.validateAccountingChanges(s,next);return next;
 }
+// Un addebito totale e una contropartita per ogni conto di destinazione.
+function allocatedTransfer(s,{id,from,date,amount,description,allocations},C){
+ Money.cents(amount);
+ if(!(amount>0)||!C.validDate(date)||!String(description||'').trim()||!Array.isArray(allocations)||!allocations.length)throw Error('Completa data, causale, totale e quote del giroconto.');
+ const destinations=new Set();
+ for(const part of allocations){Money.cents(part.amount);if(!(part.amount>0)||part.account===from||destinations.has(part.account))throw Error('Scegli conti di arrivo diversi tra loro e dal conto di partenza, con quote positive.');destinations.add(part.account);}
+ if(![from,...destinations].every(name=>s.accounts.some(a=>a.name===name&&!a.closed)))throw Error('Scegli soltanto conti aperti per il giroconto.');
+ if(Money.exactSum(allocations.map(p=>p.amount))!==amount)throw Error('La somma delle quote deve coincidere con il totale del giroconto.');
+ const group=id||C.uid(),previous=s.movements.filter(m=>m.transferId===group),oldOut=previous.find(m=>m.amount<0),oldFee=s.movements.find(m=>m.transferFeeFor===group),fee=Math.abs(oldFee?.amount||0);
+ if(previous.some(m=>m.incomeTransferFor))throw Error('Modifica il trasferimento dalla sua entrata di origine.');
+ return C.transact(s,next=>{
+  next.movements=next.movements.filter(m=>m.transferId!==group&&m.transferFeeFor!==group);
+  const base={date,description,type:'Giroconto',category:'Altro',transferId:group,transferAllocated:true,transferFee:fee,merchant:'',security:'',items:[],demo:false};
+  next.movements.push({...base,id:oldOut?.id||C.uid(),account:from,amount:-amount},...allocations.map(part=>({...base,id:previous.find(m=>m.amount>0&&m.account===part.account)?.id||C.uid(),account:part.account,amount:part.amount})));
+  if(oldFee)next.movements.push({...oldFee,date,account:from});
+ });
+}
 // Mantiene il bonifico e le due contropartite in un unico salvataggio atomico.
 function incomeTransfer(s,m,C){
  const previous=s.movements.filter(row=>row.incomeTransferFor===m.id),transferId=previous[0]?.transferId||C.uid();
@@ -184,5 +201,5 @@ function incomeTransfer(s,m,C){
  return updated.movements.map(row=>row.transferId===transferId?{...row,id:previous.find(old=>Math.sign(old.amount)===Math.sign(row.amount))?.id||row.id,incomeTransferFor:m.id}:row);
 }
 function setClosed(s,id,closed,date){const a=s.accounts.find(a=>a.id===id);if(!a)throw Error('Conto non trovato');a.closed=!!closed;if(closed)a.closedAt=date;else delete a.closedAt;return s}
-const api={incomeTransfer,key,clean,unique,choices,securities,remember,trade,importMovements,settleTrade,tradePosition,undoTradePosition,setClosed};root.TFWorkflow=api;if(typeof module!=='undefined')module.exports=api;
+const api={allocatedTransfer,incomeTransfer,key,clean,unique,choices,securities,remember,trade,importMovements,settleTrade,tradePosition,undoTradePosition,setClosed};root.TFWorkflow=api;if(typeof module!=='undefined')module.exports=api;
 })(globalThis);
